@@ -3,8 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.bizconnectivity.gino.fragments.SearchFragment">
 
+    <com.arlib.floatingsearchview.FloatingSearchView
+        android:id="@+id/floating_search_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:floatingSearch_suggestionsListAnimDuration="250"
+        app:floatingSearch_leftActionMode="showSearch"
+        app:floatingSearch_close_search_on_keyboard_dismiss="true"
+        app:floatingSearch_menu="@menu/menu_search">
 
+    </com.arlib.floatingsearchview.FloatingSearchView>
 
 </android.support.design.widget.CoordinatorLayout>

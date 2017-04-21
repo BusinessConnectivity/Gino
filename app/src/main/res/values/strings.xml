@@ -1,6 +1,18 @@
 <resources>
 
-    <string name="app_name">Gino</string>
+    <string name="app_name">GINO</string>
+    <string name="app_label">GINO</string>
+    <string name="search_hint">Search</string>
+    <string name="action_voice">Action Voice</string>
+    <string name="action_camera">Action Camera</string>
+    <string name="feed_image">Feed Image</string>
+
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_purchase">Purchase</string>
+    <string name="title_profile">Profile</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

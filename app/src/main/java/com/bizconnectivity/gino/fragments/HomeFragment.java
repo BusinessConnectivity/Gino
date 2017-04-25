@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.tabs.SlidingTabLayout;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.fragments.HistoryFragment;
 import com.bizconnectivity.gino.fragments.OfferFragment;
 import com.bizconnectivity.gino.fragments.ProfileFragment;
 import com.bizconnectivity.gino.fragments.PulseFragment;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
                     case TAB_HISTORY:
                         // Switch to History Fragment
-                        switchFragment(new PurchaseFragment());
+                        switchFragment(new HistoryFragment());
                         isPurchaseTab = false;
                         break;
 
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
             TabLayout.Tab tab = mTabLayout.getTabAt(1);
             tab.select();
-            switchFragment(new PurchaseFragment());
+            switchFragment(new HistoryFragment());
         }
     }
 
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     private void switchFragment(Fragment fragment) {
 
         Fade fade = new Fade();
-        fade.setDuration(300);
+        fade.setDuration(400);
         fragment.setEnterTransition(fade);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

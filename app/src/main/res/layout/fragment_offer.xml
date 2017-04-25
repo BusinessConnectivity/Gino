@@ -21,10 +21,11 @@
             android:numColumns="auto_fit"/>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycleView"
+            android:id="@+id/dealsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/bottom_bar_height"/>
+            android:layout_marginTop="2dp"
+            android:scrollbars="vertical"/>
 
     </LinearLayout>
 

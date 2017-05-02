@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     private void switchFragment(Fragment fragment) {
 
         Fade fade = new Fade();
-        fade.setDuration(400);
+        fade.setDuration(350);
         fragment.setEnterTransition(fade);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

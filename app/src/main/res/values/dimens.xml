@@ -2,8 +2,20 @@
 
     <dimen name="bottom_bar_height">56dp</dimen>
     <dimen name="tab_height">48dp</dimen>
-    <dimen name="margin_5">5dp</dimen>
-    <dimen name="padding_60">60dp</dimen>
     <dimen name="toolbar_height">45dp</dimen>
+    <dimen name="single_line_height">48dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="icon_size2">32dp</dimen>
+
+    <dimen name="margin_5">5dp</dimen>
+    <dimen name="margin_10">10dp</dimen>
+
+    <dimen name="padding_5">5dp</dimen>
+    <dimen name="padding_16">16dp</dimen>
+    <dimen name="padding_32">32dp</dimen>
+    <dimen name="padding_60">60dp</dimen>
+
+    <dimen name="title">20sp</dimen>
+    <dimen name="subheading">16sp</dimen>
 
 </resources>

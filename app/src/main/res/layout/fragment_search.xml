@@ -6,15 +6,26 @@
     android:layout_height="match_parent"
     tools:context="com.bizconnectivity.gino.fragments.SearchFragment">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/search_results_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:paddingTop="60dp"
+        android:clipToPadding="false"/>
+
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/margin_5"
+        android:layout_marginStart="@dimen/margin_5"
+        android:layout_marginEnd="@dimen/margin_5"
         app:floatingSearch_suggestionsListAnimDuration="250"
         app:floatingSearch_leftActionMode="showSearch"
         app:floatingSearch_close_search_on_keyboard_dismiss="true"
+        app:floatingSearch_dimBackground="false"
         app:floatingSearch_menu="@menu/menu_search"/>
-
-
 
 </android.support.design.widget.CoordinatorLayout>

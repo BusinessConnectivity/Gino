@@ -5,13 +5,13 @@
     <item android:id="@+id/action_voice"
           android:orderInCategory="1"
           app:showAsAction="always"
-          android:icon="@drawable/ic_keyboard_voice"
+          android:icon="@drawable/ic_keyboard_voice_black_24dp"
           android:title="@string/action_voice"/>
 
     <item android:id="@+id/action_camera"
           android:orderInCategory="2"
           app:showAsAction="always"
-          android:icon="@drawable/ic_camera_alt"
+          android:icon="@drawable/ic_camera_alt_black_24dp"
           android:title="@string/action_camera"/>
 
 </menu>

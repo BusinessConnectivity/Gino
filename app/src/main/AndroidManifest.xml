@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.bizconnectivity.gino">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +27,46 @@
         <activity android:name=".activities.SignUpActivity">
         </activity>
         <activity android:name=".activities.DealsActivity">
+        </activity>
+        <activity android:name=".activities.HelpSupportActivity">
+        </activity>
+        <activity android:name=".activities.AboutGinoActivity">
+        </activity>
+        <activity android:name=".activities.SettingsActivity">
+        </activity>
+        <activity android:name=".activities.PrelovedActivity">
+        </activity>
+        <activity android:name=".activities.LoveActivity">
+        </activity>
+        <activity android:name=".activities.InboxActivity">
+        </activity>
+        <activity android:name=".activities.PulseDetailActivity">
+        </activity>
+        <activity android:name=".activities.DealsListActivity">
+        </activity>
+        <activity android:name=".activities.PrivacyPolicyActivity">
+        </activity>
+        <activity android:name=".activities.TermsActivity">
+        </activity>
+        <activity android:name=".activities.PurchasedDealActivity">
+        </activity>
+        <activity android:name=".activities.HistoryDealActivity">
+        </activity>
+        <activity android:name=".activities.FAQActivity">
+        </activity>
+        <activity android:name=".activities.FeedbackActivity">
+        </activity>
+        <activity android:name=".activities.ContactActivity">
+        </activity>
+        <activity android:name=".activities.ProfileActivity">
+        </activity>
+        <activity android:name=".activities.NotificationActivity">
+        </activity>
+        <activity android:name=".activities.PaymentActivity">
+        </activity>
+        <activity android:name=".activities.DealPurchaseActivity">
+        </activity>
+        <activity android:name=".activities.DealRedeemActivity">
         </activity>
     </application>
 

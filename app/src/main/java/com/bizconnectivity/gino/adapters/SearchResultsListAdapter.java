@@ -1,6 +1,8 @@
 package com.bizconnectivity.gino.adapters;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import com.arlib.floatingsearchview.util.Util;
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.activities.DealsActivity;
 import com.bizconnectivity.gino.data.ColorWrapper;
 
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.List;
 public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResultsListAdapter.ViewHolder>{
 
     private List<ColorWrapper> mDataSet = new ArrayList<>();
+    private Context context;
 
     private int mLastAnimatedItemPosition = -1;
 
@@ -29,22 +33,31 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
     private OnItemClickListener mItemsOnClickListener;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public final ImageView mImageView;
         public final TextView mTextView;
-//        public final View mTextContainer;
 
         public ViewHolder(View view) {
             super(view);
             mImageView = (ImageView) view.findViewById(R.id.image_deals);
             mTextView = (TextView) view.findViewById(R.id.text_deals);
-//            mTextContainer = view.findViewById(R.id.text_container);
+
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            Intent intent = new Intent(context, DealsActivity.class);
+            context.startActivity(intent);
         }
     }
 
-    public void swapData(List<ColorWrapper> mNewDataSet) {
-        mDataSet = mNewDataSet;
+    public void swapData(Context context, List<ColorWrapper> mNewDataSet) {
+
+        this.context = context;
+        this.mDataSet = mNewDataSet;
         notifyDataSetChanged();
     }
 
@@ -63,11 +76,9 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
     public void onBindViewHolder(SearchResultsListAdapter.ViewHolder holder, final int position) {
 
         ColorWrapper colorSuggestion = mDataSet.get(position);
-//        holder.mImageView.setImageResource(colorSuggestion.getRgb());
         holder.mTextView.setText(colorSuggestion.getHex());
 
         int color = Color.parseColor(colorSuggestion.getHex());
-//        holder.mColorName.setTextColor(color);
         holder.mTextView.setTextColor(color);
 
         if(mLastAnimatedItemPosition < position){

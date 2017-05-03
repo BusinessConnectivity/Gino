@@ -31,6 +31,7 @@ import com.bizconnectivity.gino.data.ColorSuggestion;
 import com.bizconnectivity.gino.data.ColorWrapper;
 import com.bizconnectivity.gino.data.DataHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -137,7 +138,7 @@ public class SearchFragment extends Fragment {
                             @Override
                             public void onResults(List<ColorWrapper> results) {
                                 //show search results
-                                mSearchResultsAdapter.swapData(results);
+                                mSearchResultsAdapter.swapData(getContext(), results);
                             }
 
                         });
@@ -155,7 +156,7 @@ public class SearchFragment extends Fragment {
                             @Override
                             public void onResults(List<ColorWrapper> results) {
                                 //show search results
-                                mSearchResultsAdapter.swapData(results);
+                                mSearchResultsAdapter.swapData(getContext(), results);
                             }
 
                         });
@@ -271,6 +272,17 @@ public class SearchFragment extends Fragment {
 
             // Place the spoken text to search view
             mSearchView.setSearchText(spokenText);
+
+            DataHelper.findColors(getActivity(), spokenText,
+                    new DataHelper.OnFindColorsListener() {
+
+                        @Override
+                        public void onResults(List<ColorWrapper> results) {
+                            //show search results
+                            mSearchResultsAdapter.swapData(getContext(), results);
+                        }
+
+                    });
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

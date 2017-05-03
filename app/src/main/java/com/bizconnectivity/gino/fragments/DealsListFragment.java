@@ -10,13 +10,51 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
-import com.bizconnectivity.gino.helpers.OnStartDragListener;
 import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
+import com.bizconnectivity.gino.models.DealList;
 
-public class DealsListFragment extends Fragment implements OnStartDragListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class DealsListFragment extends Fragment {
 
     private ItemTouchHelper mItemTouchHelper;
+
+    private static int[] dealImage = {
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+    };
+
+    private static String[] dealTitle = {
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+    };
+
+    private static String[] dealLocation = {
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+    };
+
+    private static String[] dealPrice = {
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+    };
+
+    List<DealList> dealarray = new ArrayList<>();
 
     public DealsListFragment() {
         // Required empty public constructor
@@ -30,9 +68,21 @@ public class DealsListFragment extends Fragment implements OnStartDragListener {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
 
-        OfferRecyclerListAdapter adapter = new OfferRecyclerListAdapter(getActivity(), this);
+        for (int i=0; i<dealImage.length; i++) {
+
+            DealList dealList = new DealList();
+            dealList.setDealImage(dealImage[i]);
+            dealList.setDealTitle(dealTitle[i]);
+            dealList.setDealLocation(dealLocation[i]);
+            dealList.setDealPrice(dealPrice[i]);
+
+            dealarray.add(dealList);
+        }
+
+        OfferRecyclerListAdapter adapter = new OfferRecyclerListAdapter(getActivity(), dealarray);
 
         RecyclerView recyclerView = (RecyclerView) view;
         recyclerView.setHasFixedSize(true);
@@ -42,10 +92,5 @@ public class DealsListFragment extends Fragment implements OnStartDragListener {
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(getContext(), adapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        mItemTouchHelper.startDrag(viewHolder);
     }
 }

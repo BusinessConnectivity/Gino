@@ -1,23 +1,24 @@
 package com.bizconnectivity.gino.activities;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
-import com.bizconnectivity.gino.helpers.OnStartDragListener;
 import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
+import com.bizconnectivity.gino.models.DealList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DealsListActivity extends AppCompatActivity implements OnStartDragListener {
+public class DealsListActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -27,6 +28,42 @@ public class DealsListActivity extends AppCompatActivity implements OnStartDragL
 
     OfferRecyclerListAdapter mRecyclerListAdapter;
     private ItemTouchHelper mItemTouchHelper;
+
+    private static int[] dealImage = {
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+    };
+
+    private static String[] dealTitle = {
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+    };
+
+    private static String[] dealLocation = {
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+            "Bugis Junction: B1-K12.",
+    };
+
+    private static String[] dealPrice = {
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+            "S$49.90",
+    };
+
+    List<DealList> dealarray = new ArrayList<>();
+
+    DealList dealList = new DealList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +82,20 @@ public class DealsListActivity extends AppCompatActivity implements OnStartDragL
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        for (int i=0; i<dealImage.length; i++) {
+
+            DealList dealList = new DealList();
+            dealList.setDealImage(dealImage[i]);
+            dealList.setDealTitle(dealTitle[i]);
+            dealList.setDealLocation(dealLocation[i]);
+            dealList.setDealPrice(dealPrice[i]);
+
+            dealarray.add(dealList);
+        }
+
         // RecyclerView
         mRecyclerViewDeals.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, this);
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, dealarray);
         mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
 
         // OnTouchHelper for Deals List RecycleView
@@ -61,10 +109,5 @@ public class DealsListActivity extends AppCompatActivity implements OnStartDragL
 
         onBackPressed();
         return true;
-    }
-
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        mItemTouchHelper.startDrag(viewHolder);
     }
 }

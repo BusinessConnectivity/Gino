@@ -1,8 +1,6 @@
 package com.bizconnectivity.gino.fragments;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,24 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.andexert.library.RippleView;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.HistoryDealActivity;
-import com.bizconnectivity.gino.activities.PurchasedDealActivity;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class HistoryFragment extends Fragment {
-
-    @BindView(R.id.deal1)
-    RippleView deal1;
-
-    @BindView(R.id.deal2)
-    RippleView deal2;
-
-    @BindView(R.id.deal3)
-    RippleView deal3;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -47,32 +34,26 @@ public class HistoryFragment extends Fragment {
 
         // Layout Binding
         ButterKnife.bind(this, view);
+    }
 
-        deal1.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal1)
+    public void deal1OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), HistoryDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), HistoryDealActivity.class);
+        startActivity(intent);
+    }
 
-        deal2.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal2)
+    public void deal2OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), HistoryDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), HistoryDealActivity.class);
+        startActivity(intent);
+    }
 
-        deal3.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal3)
+    public void deal3OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), HistoryDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), HistoryDealActivity.class);
+        startActivity(intent);
     }
 }

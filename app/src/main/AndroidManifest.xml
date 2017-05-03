@@ -62,11 +62,13 @@
         </activity>
         <activity android:name=".activities.NotificationActivity">
         </activity>
-        <activity android:name=".activities.PaymentActivity">
+        <activity android:name=".activities.PaymentMethodActivity">
         </activity>
         <activity android:name=".activities.DealPurchaseActivity">
         </activity>
         <activity android:name=".activities.DealRedeemActivity">
+        </activity>
+        <activity android:name=".activities.PaymentActivity">
         </activity>
     </application>
 

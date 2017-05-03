@@ -11,11 +11,13 @@
     <dimen name="margin_10">10dp</dimen>
 
     <dimen name="padding_5">5dp</dimen>
+    <dimen name="padding_10">10dp</dimen>
     <dimen name="padding_16">16dp</dimen>
     <dimen name="padding_32">32dp</dimen>
     <dimen name="padding_60">60dp</dimen>
 
     <dimen name="title">20sp</dimen>
     <dimen name="subheading">16sp</dimen>
+    <dimen name="body">14sp</dimen>
 
 </resources>

@@ -23,15 +23,6 @@ import butterknife.OnClick;
 
 public class PurchaseFragment extends Fragment {
 
-    @BindView(R.id.deal1)
-    RippleView deal1;
-
-    @BindView(R.id.deal2)
-    RippleView deal2;
-
-    @BindView(R.id.deal3)
-    RippleView deal3;
-
     public PurchaseFragment() {
         // Required empty public constructor
     }
@@ -51,32 +42,26 @@ public class PurchaseFragment extends Fragment {
 
         // Layout Binding
         ButterKnife.bind(this, view);
+    }
 
-        deal1.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal1)
+    public void deal1OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
+        startActivity(intent);
+    }
 
-        deal2.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal2)
+    public void deal2OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
+        startActivity(intent);
+    }
 
-        deal3.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
+    @OnClick(R.id.deal3)
+    public void deal3OnClick(View view) {
 
-                Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
-                startActivity(intent);
-            }
-        });
+        Intent intent = new Intent(getContext(), PurchasedDealActivity.class);
+        startActivity(intent);
     }
 }

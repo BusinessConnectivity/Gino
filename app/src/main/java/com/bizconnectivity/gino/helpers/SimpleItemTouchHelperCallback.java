@@ -43,8 +43,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
 
         // Set movement flags based on the layout manager
-//        final int swipeFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-        final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        final int swipeFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
         return makeMovementFlags(0, swipeFlags);
     }
 
@@ -57,8 +56,8 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
         // Check if the swipe is left side
-        if (direction == ItemTouchHelper.START) {
-            // Notify the adapter of the dismissal
+        if (direction == ItemTouchHelper.LEFT) {
+
             mAdapter.onItemLeftSwipe(viewHolder.getAdapterPosition());
 
         } else {

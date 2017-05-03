@@ -35,18 +35,4 @@
     <string name="icon_about">icon_about_gino</string>
     <string name="icon_feedback">icon_feedback</string>
 
-
-    <array name="dummy_items">
-        <item>One</item>
-        <item>Two</item>
-        <item>Three</item>
-        <item>Four</item>
-        <item>Five</item>
-        <item>Six</item>
-        <item>Seven</item>
-        <item>Eight</item>
-        <item>Nine</item>
-        <item>Ten</item>
-    </array>
-
 </resources>

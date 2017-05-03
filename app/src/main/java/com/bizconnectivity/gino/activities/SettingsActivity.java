@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     @OnClick(R.id.payment_layout)
     public void paymentOnClick(View view) {
 
-        Intent intent = new Intent(this, PaymentActivity.class);
+        Intent intent = new Intent(this, PaymentMethodActivity.class);
         startActivity(intent);
     }
 

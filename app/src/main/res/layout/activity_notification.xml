@@ -93,6 +93,16 @@
                         android:textStyle="bold"
                         android:text="Message"/>
 
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"/>
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -111,6 +121,16 @@
                         android:textStyle="bold"
                         android:text="Message"/>
 
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"/>
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -128,6 +148,16 @@
                         android:textSize="@dimen/subheading"
                         android:textStyle="bold"
                         android:text="Message"/>
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"/>
 
                 </LinearLayout>
 

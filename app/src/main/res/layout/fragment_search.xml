@@ -6,6 +6,47 @@
     android:layout_height="match_parent"
     tools:context="com.bizconnectivity.gino.fragments.SearchFragment">
 
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/app_name"
+                    android:textColor="@color/colorWhite"
+                    android:textStyle="bold"
+                    android:textSize="20sp"/>
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.Toolbar>
+
+        <!--<android.support.design.widget.TabLayout-->
+        <!--android:id="@+id/tabLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/tab_height"-->
+        <!--app:tabTextAppearance="@style/TabLayoutTextAppearance"-->
+        <!--app:tabTextColor="@color/colorGrey"-->
+        <!--app:tabSelectedTextColor="@color/colorWhite"-->
+        <!--app:tabMode="fixed"-->
+        <!--app:tabGravity="fill"/>-->
+
+    </android.support.design.widget.AppBarLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/search_results_list"
         android:layout_width="match_parent"
@@ -13,7 +54,8 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:paddingTop="60dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"
@@ -26,6 +68,7 @@
         app:floatingSearch_leftActionMode="showSearch"
         app:floatingSearch_close_search_on_keyboard_dismiss="true"
         app:floatingSearch_dimBackground="false"
-        app:floatingSearch_menu="@menu/menu_search"/>
+        app:floatingSearch_menu="@menu/menu_search"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </android.support.design.widget.CoordinatorLayout>

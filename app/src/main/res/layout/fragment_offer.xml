@@ -5,23 +5,29 @@
     android:layout_height="match_parent"
     tools:context="com.bizconnectivity.gino.fragments.OfferFragment">
 
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/bottom_bar_height"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/categories_list"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/deals_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/categories_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-    </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/deals_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"/>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

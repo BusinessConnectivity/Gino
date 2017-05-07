@@ -59,6 +59,9 @@ public class OfferFragment extends Fragment implements OfferGridListAdapter.Item
             R.drawable.deal1,
             R.drawable.deal1,
             R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1,
+            R.drawable.deal1
     };
 
     private static String[] dealTitle = {
@@ -69,6 +72,9 @@ public class OfferFragment extends Fragment implements OfferGridListAdapter.Item
             "Ritz Apple Strudel",
             "Ritz Apple Strudel",
             "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel",
+            "Ritz Apple Strudel"
     };
 
     private static String[] dealLocation = {
@@ -79,6 +85,9 @@ public class OfferFragment extends Fragment implements OfferGridListAdapter.Item
             "Bugis Junction: B1-K12",
             "Bugis Junction: B1-K12",
             "Bugis Junction: B1-K12",
+            "Bugis Junction: B1-K12",
+            "Bugis Junction: B1-K12",
+            "Bugis Junction: B1-K12"
     };
 
     private static String[] dealPrice = {
@@ -89,6 +98,9 @@ public class OfferFragment extends Fragment implements OfferGridListAdapter.Item
             "S$49.90",
             "S$49.90",
             "S$49.90",
+            "S$49.90",
+            "S$49.90",
+            "S$49.90"
     };
 
     List<DealList> dealarray = new ArrayList<>();

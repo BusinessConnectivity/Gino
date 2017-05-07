@@ -9,8 +9,10 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +43,9 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 public class SearchFragment extends Fragment {
+
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
 
     @BindView(R.id.floating_search_view)
     FloatingSearchView mSearchView;
@@ -73,6 +78,9 @@ public class SearchFragment extends Fragment {
 
         // Layout Binding
         ButterKnife.bind(this, view);
+
+        // Action Bar
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
 
         // Setup Search Bar
         setupSearchBar();

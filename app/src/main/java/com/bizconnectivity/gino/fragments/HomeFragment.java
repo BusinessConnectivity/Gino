@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 
 import static com.bizconnectivity.gino.Constant.*;
 
-public class PurchaseFragment extends Fragment {
+public class HomeFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -34,7 +34,7 @@ public class PurchaseFragment extends Fragment {
     @BindView(R.id.viewPager)
     ViewPager mViewPager;
 
-    public PurchaseFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
@@ -42,7 +42,7 @@ public class PurchaseFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_purchase, container, false);
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class PurchaseFragment extends Fragment {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
-        adapter.addFragment(new AvailableFragment(), TAB_AVAILABLE);
-        adapter.addFragment(new HistoryFragment(), TAB_HISTORY);
+        adapter.addFragment(new PulseFragment(), TAB_PULSE);
+        adapter.addFragment(new OfferFragment(), TAB_OFFER);
 
         viewPager.setAdapter(adapter);
     }

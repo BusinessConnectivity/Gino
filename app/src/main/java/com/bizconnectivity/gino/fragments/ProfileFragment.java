@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +43,9 @@ import static com.bizconnectivity.gino.Common.*;
 import static com.bizconnectivity.gino.Constant.*;
 
 public class ProfileFragment extends Fragment {
+
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
 
     @BindView(R.id.bottom_sheet_layout)
     BottomSheetLayout mBottomSheetLayout;
@@ -73,6 +78,9 @@ public class ProfileFragment extends Fragment {
 
         // Layout Binding
         ButterKnife.bind(this, view);
+
+        // Action Bar
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
     }
 
     @OnClick(R.id.love_layout)

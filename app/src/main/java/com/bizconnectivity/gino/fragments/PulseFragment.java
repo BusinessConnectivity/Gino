@@ -35,6 +35,11 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             R.drawable.feed1,
             R.drawable.feed1,
             R.drawable.feed1,
+            R.drawable.feed1,
+            R.drawable.feed1,
+            R.drawable.feed1,
+            R.drawable.feed1,
+            R.drawable.feed1
     };
 
     private static String[] pulseTitle = {
@@ -43,6 +48,11 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             "Surviving the Hard Times - Career Excellence Series",
             "Surviving the Hard Times - Career Excellence Series",
             "Surviving the Hard Times - Career Excellence Series",
+            "Surviving the Hard Times - Career Excellence Series",
+            "Surviving the Hard Times - Career Excellence Series",
+            "Surviving the Hard Times - Career Excellence Series",
+            "Surviving the Hard Times - Career Excellence Series",
+            "Surviving the Hard Times - Career Excellence Series"
     };
 
     private static String[] pulseDatetime = {
@@ -51,6 +61,11 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             "MON, 17 APR 2017 1:00PM",
             "MON, 17 APR 2017 1:00PM",
             "MON, 17 APR 2017 1:00PM",
+            "MON, 17 APR 2017 1:00PM",
+            "MON, 17 APR 2017 1:00PM",
+            "MON, 17 APR 2017 1:00PM",
+            "MON, 17 APR 2017 1:00PM",
+            "MON, 17 APR 2017 1:00PM"
     };
 
     private static String[] pulseLocation = {
@@ -59,6 +74,11 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             "Lifelong Learning Institute",
             "Lifelong Learning Institute",
             "Lifelong Learning Institute",
+            "Lifelong Learning Institute",
+            "Lifelong Learning Institute",
+            "Lifelong Learning Institute",
+            "Lifelong Learning Institute",
+            "Lifelong Learning Institute"
     };
 
     List<PulseList> pulseLists = new ArrayList<>();

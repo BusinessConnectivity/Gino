@@ -1,5 +1,6 @@
 package com.bizconnectivity.gino.activities;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,8 +18,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
-public class DealsListActivity extends AppCompatActivity {
+public class DealsListActivity extends AppCompatActivity implements OfferRecyclerListAdapter.AdapterCallBack{
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -26,44 +28,13 @@ public class DealsListActivity extends AppCompatActivity {
     @BindView(R.id.deal_list)
     RecyclerView mRecyclerViewDeals;
 
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     OfferRecyclerListAdapter mRecyclerListAdapter;
     private ItemTouchHelper mItemTouchHelper;
-
-    private static int[] dealImage = {
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-    };
-
-    private static String[] dealTitle = {
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-    };
-
-    private static String[] dealLocation = {
-            "Bugis Junction: B1-K12.",
-            "Bugis Junction: B1-K12.",
-            "Bugis Junction: B1-K12.",
-            "Bugis Junction: B1-K12.",
-            "Bugis Junction: B1-K12.",
-    };
-
-    private static String[] dealPrice = {
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-    };
-
-    List<DealList> dealarray = new ArrayList<>();
-
-    DealList dealList = new DealList();
+    private int dealCategoryPosition;
+    Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,26 +53,45 @@ public class DealsListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        for (int i=0; i<dealImage.length; i++) {
+        // Retrieve Extra
+        dealCategoryPosition = getIntent().getIntExtra("POSITION", 0);
 
-            DealList dealList = new DealList();
-            dealList.setDealImage(dealImage[i]);
-            dealList.setDealTitle(dealTitle[i]);
-            dealList.setDealLocation(dealLocation[i]);
-            dealList.setDealPrice(dealPrice[i]);
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
 
-            dealarray.add(dealList);
-        }
+        mSwipeRefreshLayout.setRefreshing(true);
 
         // RecyclerView
         mRecyclerViewDeals.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, dealarray);
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, realm, getDealList(), this);
         mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
 
         // OnTouchHelper for Deals List RecycleView
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(this, mRecyclerListAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
+
+        mSwipeRefreshLayout.setRefreshing(false);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private List<DealList> getDealList() {
+
+        List<DealList> dealLists = new ArrayList<>();
+
+        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryPosition).findAll()) {
+
+            dealLists.add(result);
+        }
+
+        return dealLists;
     }
 
     @Override
@@ -109,5 +99,10 @@ public class DealsListActivity extends AppCompatActivity {
 
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void dealAdapterOnClick(int adapterPosition) {
+
     }
 }

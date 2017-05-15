@@ -2,7 +2,9 @@ package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +15,10 @@ import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.DealsActivity;
 import com.bizconnectivity.gino.activities.PulseDetailActivity;
 import com.bizconnectivity.gino.models.PulseList;
+import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecyclerListAdapter.ViewHolder>{
@@ -39,7 +44,9 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        holder.mImageViewPulse.setImageResource(pulseLists.get(position).getPulseImage());
+        if (!pulseLists.get(position).getPulseImage().isEmpty())
+            Picasso.with(context).load(pulseLists.get(position).getPulseImage()).into(holder.mImageViewPulse);
+
         holder.mTextViewTitle.setText(pulseLists.get(position).getPulseTitle());
         holder.mTextViewDatetime.setText(pulseLists.get(position).getPulseDatetime());
         holder.mTextViewLocation.setText(pulseLists.get(position).getPulseLocation());
@@ -61,7 +68,7 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
 
             super(itemView);
 
-            mImageViewPulse = (ImageView) itemView.findViewById(R.id.image_pluse);
+            mImageViewPulse = (ImageView) itemView.findViewById(R.id.image_pulse);
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewDatetime = (TextView) itemView.findViewById(R.id.text_datetime);
             mTextViewLocation = (TextView) itemView.findViewById(R.id.text_location);
@@ -73,7 +80,10 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
         public void onClick(View view) {
 
             adapterCallBack.adapterOnClick(getAdapterPosition());
+
             Intent intent = new Intent(context, PulseDetailActivity.class);
+            intent.putExtra("PULSE", (Serializable) pulseLists);
+            intent.putExtra("POSITION", getAdapterPosition());
             context.startActivity(intent);
         }
     }

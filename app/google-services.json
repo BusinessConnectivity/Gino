@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "823112152492",
+    "firebase_url": "https://gino-c20e3.firebaseio.com",
+    "project_id": "gino-c20e3",
+    "storage_bucket": "gino-c20e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823112152492:android:1998456d033884f9",
+        "android_client_info": {
+          "package_name": "com.bizconnectivity.gino"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "823112152492-2k99cd1eadl3skto6gppk5g3e7nefmt2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bizconnectivity.gino",
+            "certificate_hash": "a5ea185e9bf7f82a119edff22b581ed7cb4f0af6"
+          }
+        },
+        {
+          "client_id": "823112152492-3jhecg15e298d2ul7hkqvlag065860id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC0cedtoD0IzVwSciAOhm9Fhg41ie_3zk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "823112152492-3jhecg15e298d2ul7hkqvlag065860id.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

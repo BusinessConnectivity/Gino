@@ -35,10 +35,15 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <com.flipboard.bottomsheet.BottomSheetLayout
+        android:id="@+id/bottom_sheet_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,6 +55,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/image_pulse"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:src="@drawable/feed1"
@@ -64,107 +70,212 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_5"
+                    android:paddingStart="@dimen/padding_16"
+                    android:paddingEnd="@dimen/padding_16"
+                    android:paddingTop="@dimen/padding_10"
+                    android:paddingBottom="@dimen/padding_10"
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/text_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="About"
+                        android:layout_marginBottom="@dimen/margin_5"
+                        android:textAlignment="center"
                         android:textStyle="bold"
-                        android:textSize="16sp"/>
+                        android:textSize="@dimen/title"/>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
+                        android:layout_height="30dp"
+                        android:orientation="horizontal">
 
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="by"
+                            android:textSize="12sp"/>
 
-            </android.support.v7.widget.CardView>
+                        <TextView
+                            android:id="@+id/text_organizer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingStart="@dimen/padding_10"
+                            android:paddingEnd="0dp"
+                            android:textSize="@dimen/body"/>
 
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_5"
-                    android:orientation="vertical">
-
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Contact &amp; Location"
-                        android:textStyle="bold"
-                        android:textSize="16sp"/>
+                        android:layout_height="35dp"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal">
 
-                    <TextView
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_date_range_white_24dp"/>
+
+                        <TextView
+                            android:id="@+id/text_datetime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingStart="@dimen/padding_16"
+                            android:paddingEnd="0dp"
+                            android:textSize="@dimen/body"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
+                        android:layout_height="35dp"
+                        android:orientation="horizontal">
 
-                </LinearLayout>
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_location_on_white_24dp"/>
 
-            </android.support.v7.widget.CardView>
+                        <TextView
+                            android:id="@+id/text_location"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingStart="@dimen/padding_16"
+                            android:paddingEnd="0dp"
+                            android:textSize="@dimen/body"/>
 
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_5"
-                    android:orientation="vertical">
-
-                    <TextView
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Share With Friends"
-                        android:textStyle="bold"
-                        android:textSize="16sp"/>
+                        android:layout_height="1dp"
+                        android:layout_gravity="bottom"
+                        android:layout_marginTop="@dimen/margin_10"
+                        android:paddingStart="@dimen/padding_16"
+                        android:paddingEnd="@dimen/padding_16"
+                        android:background="?android:attr/dividerVertical"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="@dimen/padding_5">
+                        android:layout_marginTop="@dimen/margin_10"
+                        android:layout_marginBottom="@dimen/margin_10"
+                        android:paddingStart="@dimen/padding_32"
+                        android:paddingEnd="@dimen/padding_32"
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:src="@drawable/facebook_circle"/>
+                        <LinearLayout
+                            android:id="@+id/button_save"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:onClick="saveOnClick">
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:layout_marginStart="@dimen/margin_10"
-                            android:src="@drawable/twitter_icon"/>
+                            <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tint="@color/colorPrimaryDark"
+                                android:background="@color/transparent"
+                                android:src="@drawable/ic_favorite_border_white_24dp"/>
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:layout_marginStart="@dimen/margin_10"
-                            android:src="@drawable/email_icon"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Save"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="12sp"/>
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:layout_marginStart="@dimen/margin_10"
-                            android:src="@drawable/messenger_icon"/>
+                        </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:layout_marginStart="@dimen/margin_10"
-                            android:src="@drawable/whatsapp_icon"/>
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
-                        <ImageView
-                            android:layout_width="@dimen/icon_size2"
-                            android:layout_height="@dimen/icon_size2"
-                            android:layout_marginStart="@dimen/margin_10"
-                            android:src="@drawable/wechat_icon"/>
+                        <LinearLayout
+                            android:id="@+id/button_share"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:onClick="shareOnClick">
+
+                            <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/transparent"
+                                android:tint="@color/colorPrimaryDark"
+                                android:src="@drawable/ic_share_white_24dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Share"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="12sp"/>
+
+                        </LinearLayout>
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <LinearLayout
+                            android:id="@+id/button_website"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:onClick="websiteOnClick">
+
+                            <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/transparent"
+                                android:tint="@color/colorPrimaryDark"
+                                android:src="@drawable/ic_send_white_24dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Website"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="12sp"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:text="About"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/subheading"/>
+
+                        <TextView
+                            android:id="@+id/text_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/body"
+                            android:textAlignment="textStart"/>
 
                     </LinearLayout>
 
@@ -174,6 +285,9 @@
 
         </LinearLayout>
 
+
     </android.support.v4.widget.NestedScrollView>
+
+</com.flipboard.bottomsheet.BottomSheetLayout>
 
 </android.support.design.widget.CoordinatorLayout>

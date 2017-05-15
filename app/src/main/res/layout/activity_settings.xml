@@ -65,7 +65,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_account_circle_black_24dp"/>
+                        android:src="@drawable/ic_account_circle_white_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_notifications_black_24dp"/>
+                        android:src="@drawable/ic_notifications_white_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -123,7 +123,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_payment_black_24dp"/>
+                        android:src="@drawable/ic_payment_white_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -134,35 +134,6 @@
                         android:textSize="@dimen/subheading"
                         android:textStyle="bold"
                         android:text="Payment Method"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/logout_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables"
-                    android:onClick="logoutOnClick">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_exit_to_app_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/padding_32"
-                        android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:text="Log Out"/>
 
                 </LinearLayout>
 

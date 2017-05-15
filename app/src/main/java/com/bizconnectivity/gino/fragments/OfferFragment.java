@@ -4,19 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.DealsListActivity;
-import com.bizconnectivity.gino.adapters.OfferGridListAdapter;
+import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
+import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bizconnectivity.gino.models.DealList;
 
 import java.util.ArrayList;
@@ -24,86 +28,25 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
-public class OfferFragment extends Fragment implements OfferGridListAdapter.ItemClickListener{
-
-    public static String[] gridViewStrings = {
-            "Food & Drinks",
-            "Travel",
-            "Beauty",
-            "Nearby"
-
-    };
-    public static int[] gridViewImages = {
-            R.drawable.feed1,
-            R.drawable.feed1,
-            R.drawable.feed1,
-            R.drawable.feed1,
-    };
+public class OfferFragment extends Fragment implements OfferCategoryAdapter.AdapterCallBack, OfferRecyclerListAdapter.AdapterCallBack{
 
     @BindView(R.id.categories_list)
-    RecyclerView mRecyclerViewCategories;
+    RecyclerView mRecyclerViewCategory;
 
     @BindView(R.id.deals_list)
     RecyclerView mRecyclerViewDeals;
 
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     private ItemTouchHelper mItemTouchHelper;
-    OfferGridListAdapter mGridListAdapter;
     OfferRecyclerListAdapter mRecyclerListAdapter;
-
-    private static int[] dealImage = {
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1,
-            R.drawable.deal1
-    };
-
-    private static String[] dealTitle = {
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel",
-            "Ritz Apple Strudel"
-    };
-
-    private static String[] dealLocation = {
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12",
-            "Bugis Junction: B1-K12"
-    };
-
-    private static String[] dealPrice = {
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90",
-            "S$49.90"
-    };
-
-    List<DealList> dealarray = new ArrayList<>();
+    OfferCategoryAdapter offerCategoryAdapter;
+    LinearLayoutManager linearLayoutManager;
+    Realm realm;
+    List<DealCategoryList> dealCategoryLists;
 
     public OfferFragment() {
         // Required empty public constructor
@@ -125,39 +68,125 @@ public class OfferFragment extends Fragment implements OfferGridListAdapter.Item
         // Layout Binding
         ButterKnife.bind(this, view);
 
-        for (int i=0; i<dealImage.length; i++) {
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
 
-            DealList dealList = new DealList();
-            dealList.setDealImage(dealImage[i]);
-            dealList.setDealTitle(dealTitle[i]);
-            dealList.setDealLocation(dealLocation[i]);
-            dealList.setDealPrice(dealPrice[i]);
+        mSwipeRefreshLayout.setRefreshing(true);
 
-            dealarray.add(dealList);
-        }
+        // Deal Category RecyclerView
+        dealCategory();
 
-        // Categories RecycleView
-        mRecyclerViewCategories.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        mGridListAdapter = new OfferGridListAdapter(getContext(), gridViewStrings, gridViewImages);
-        mRecyclerViewCategories.setAdapter(mGridListAdapter);
-        mGridListAdapter.setClickListener(OfferFragment.this);
+        // Deals List RecyclerView
+        dealList(getDealList());
 
+        mSwipeRefreshLayout.setRefreshing(false);
 
-        // Deals List RecycleView
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                dealCategory();
+                dealList(getDealList());
+
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void dealCategory() {
+
+        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        mRecyclerViewCategory.setLayoutManager(linearLayoutManager);
+        dealCategoryLists = new ArrayList<>();
+        dealCategoryLists = getDealCategory();
+        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), dealCategoryLists, this);
+        mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
+        mRecyclerViewCategory.setNestedScrollingEnabled(false);
+    }
+
+    private void dealList(List<DealList> dealLists) {
+
         mRecyclerViewDeals.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), dealarray);
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
         mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
+        mRecyclerViewDeals.setNestedScrollingEnabled(false);
 
-        // ItemTouchHelper for Deals List RecycleView
+        // ItemTouchHelper for Deals List RecyclerView
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(getContext(), mRecyclerListAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
     }
 
-    @Override
-    public void onItemClick(View view, int position) {
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setHasOptionsMenu(true);
+//    }
 
-        Intent intent = new Intent(getContext(), DealsListActivity.class);
-        startActivity(intent);
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        inflater.inflate(R.menu.menu_offer, menu);
+//        super.onCreateOptionsMenu(menu, inflater);
+//    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//
+//        switch (item.getItemId()) {
+//            case R.id.action_search:
+//
+//                break;
+//
+//            case R.id.action_filter:
+//
+//                break;
+//
+//            default:
+//                break;
+//        }
+//
+//        return true;
+//    }
+
+    private List<DealCategoryList> getDealCategory() {
+
+        List<DealCategoryList> dealCategoryLists = new ArrayList<>();
+
+        for (DealCategoryList result : realm.where(DealCategoryList.class).findAll()) {
+
+            dealCategoryLists.add(result);
+        }
+
+        return dealCategoryLists;
+    }
+
+    private List<DealList> getDealList() {
+
+        List<DealList> dealLists = new ArrayList<>();
+
+        for (DealList result : realm.where(DealList.class).notEqualTo("isFavorite", "No").findAll()) {
+
+            dealLists.add(result);
+        }
+
+        return dealLists;
+    }
+
+    @Override
+    public void categoryAdapterOnClick(int adapterPosition) {
+
+        List<DealList> dealLists = new ArrayList<>();
+
+        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryLists.get(adapterPosition).getCategoryID()).findAll()) {
+
+            dealLists.add(result);
+        }
+
+        dealList(dealLists);
+    }
+
+    @Override
+    public void dealAdapterOnClick(int adapterPosition) {
+
     }
 }

@@ -62,18 +62,25 @@
                     <ImageView
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
+                        android:layout_marginEnd="@dimen/padding_16"
                         android:tint="@color/colorPrimaryDark"
                         android:src="@drawable/ic_person_white_24dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:paddingStart="@dimen/padding_16"-->
+                        <!--android:paddingEnd="0dp"-->
+                        <!--android:textAlignment="viewStart"-->
+                        <!--android:textSize="@dimen/subheading"-->
+                        <!--android:textStyle="bold"-->
+                        <!--android:text="Name"/>-->
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/edit_name"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/padding_16"
-                        android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:text="Name"/>
+                        android:text="Gino"/>
 
                 </LinearLayout>
 
@@ -90,17 +97,18 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/birthday_icon"/>
+                        android:src="@drawable/ic_cake_white_24dp"/>
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:id="@+id/text_birthday"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/single_line_height"
                         android:paddingStart="@dimen/padding_16"
                         android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
+                        android:gravity="center|start"
                         android:textSize="@dimen/subheading"
                         android:textStyle="bold"
-                        android:text="Birthday"/>
+                        android:onClick="birthdayOnClick"/>
 
                 </LinearLayout>
 
@@ -116,53 +124,88 @@
                     <ImageView
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
+                        android:layout_marginEnd="@dimen/padding_16"
                         android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/gender_icon"/>
+                        android:src="@drawable/ic_gender_male_female_white_24dp"/>
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:paddingStart="@dimen/padding_16"-->
+                        <!--android:paddingEnd="0dp"-->
+                        <!--android:textAlignment="viewStart"-->
+                        <!--android:textSize="@dimen/subheading"-->
+                        <!--android:textStyle="bold"-->
+                        <!--android:text="Gender"/>-->
+
+                    <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                        android:id="@+id/spinner_gender"
+                        android:layout_width="100dp"
+                        android:layout_height="@dimen/single_line_height"
+                        android:text="Male"
+                        android:textSize="@dimen/body"
+                        app:met_floatingLabel="none"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/single_line_height"
+                    android:paddingStart="@dimen/padding_16"
+                    android:paddingEnd="@dimen/padding_16"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_marginEnd="@dimen/padding_16"
+                        android:tint="@color/colorPrimaryDark"
+                        android:src="@drawable/ic_location_on_white_24dp"/>
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:paddingStart="@dimen/padding_16"-->
+                        <!--android:paddingEnd="0dp"-->
+                        <!--android:textAlignment="viewStart"-->
+                        <!--android:textSize="@dimen/subheading"-->
+                        <!--android:textStyle="bold"-->
+                        <!--android:text="Location"/>-->
+
+                    <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                        android:id="@+id/spinner_location"
+                        android:layout_width="100dp"
+                        android:layout_height="@dimen/single_line_height"
+                        android:text="Singapore"
+                        android:textSize="@dimen/body"
+                        app:met_floatingLabel="none"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/change_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/single_line_height"
+                    android:paddingStart="@dimen/padding_16"
+                    android:paddingEnd="@dimen/padding_16"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    tools:ignore="UseCompoundDrawables"
+                    android:onClick="changePasswordOnClick">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:tint="@color/colorPrimaryDark"
+                        android:src="@drawable/ic_lock_open_white_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/padding_16"
                         android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:text="Gender"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:text="Location"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:textAlignment="viewStart"
                         android:textSize="@dimen/subheading"
                         android:textStyle="bold"

@@ -1,21 +1,39 @@
 package com.bizconnectivity.gino.activities;
 
 import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
+import com.bizconnectivity.gino.models.DealList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
 
-public class PrelovedActivity extends AppCompatActivity {
+public class PrelovedActivity extends AppCompatActivity implements OfferRecyclerListAdapter.AdapterCallBack{
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @BindView(R.id.dismissed_list)
+    RecyclerView mRecyclerViewDismissed;
+
+    Realm realm;
+    OfferRecyclerListAdapter mRecyclerListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,27 +51,34 @@ public class PrelovedActivity extends AppCompatActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        dismissedDealList();
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                dismissedDealList();
+            }
+        });
     }
 
-    @OnClick(R.id.deal1)
-    public void deal1OnClick(View view) {
+    private void dismissedDealList() {
 
-        Intent intent = new Intent(this, DealsActivity.class);
-        startActivity(intent);
-    }
+        // Retrieve favorite deal lists
+        List<DealList> dealLists = new ArrayList<>();
+        dealLists = realm.where(DealList.class).equalTo("isFavorite", "No").findAll();
 
-    @OnClick(R.id.deal2)
-    public void deal2OnClick(View view) {
+        mRecyclerViewDismissed.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, realm, dealLists, this);
+        mRecyclerViewDismissed.setAdapter(mRecyclerListAdapter);
 
-        Intent intent = new Intent(this, DealsActivity.class);
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.deal3)
-    public void deal3OnClick(View view) {
-
-        Intent intent = new Intent(this, DealsActivity.class);
-        startActivity(intent);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -61,5 +86,10 @@ public class PrelovedActivity extends AppCompatActivity {
 
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void dealAdapterOnClick(int adapterPosition) {
+
     }
 }

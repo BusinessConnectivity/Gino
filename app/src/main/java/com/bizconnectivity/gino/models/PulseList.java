@@ -1,17 +1,39 @@
 package com.bizconnectivity.gino.models;
 
-public class PulseList {
+import java.io.Serializable;
 
-    private int pulseImage;
+public class PulseList implements Serializable{
+
+    private String pulseID;
+    private String pulseDescription;
+    private String pulseImage;
     private String pulseTitle;
     private String pulseDatetime;
     private String pulseLocation;
+    private String pulseOrganizer;
+    private String pulseURL;
 
-    public int getPulseImage() {
+    public String getPulseID() {
+        return pulseID;
+    }
+
+    public void setPulseID(String pulseID) {
+        this.pulseID = pulseID;
+    }
+
+    public String getPulseDescription() {
+        return pulseDescription;
+    }
+
+    public void setPulseDescription(String pulseDescription) {
+        this.pulseDescription = pulseDescription;
+    }
+
+    public String getPulseImage() {
         return pulseImage;
     }
 
-    public void setPulseImage(int pulseImage) {
+    public void setPulseImage(String pulseImage) {
         this.pulseImage = pulseImage;
     }
 
@@ -37,5 +59,21 @@ public class PulseList {
 
     public void setPulseLocation(String pulseLocation) {
         this.pulseLocation = pulseLocation;
+    }
+
+    public String getPulseOrganizer() {
+        return pulseOrganizer;
+    }
+
+    public void setPulseOrganizer(String pulseOrganizer) {
+        this.pulseOrganizer = pulseOrganizer;
+    }
+
+    public String getPulseURL() {
+        return pulseURL;
+    }
+
+    public void setPulseURL(String pulseURL) {
+        this.pulseURL = pulseURL;
     }
 }

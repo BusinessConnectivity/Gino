@@ -3,18 +3,15 @@
     <string name="app_name">GINO</string>
     <string name="app_label">GINO</string>
     <string name="search_hint">Search</string>
-    <string name="action_voice">Action Voice</string>
-    <string name="action_camera">Action Camera</string>
-    <string name="feed_image">Feed Image</string>
 
     // Title
     <string name="title_home">Home</string>
     <string name="title_search">Search</string>
-    <string name="title_purchase">Purchase</string>
+    <string name="title_purchased">Purchased</string>
     <string name="title_profile">Profile</string>
     <string name="title_inbox">Inbox</string>
-    <string name="title_preloved">Preloved</string>
-    <string name="title_love">Love</string>
+    <string name="title_dismissed">Dismissed</string>
+    <string name="title_favorite">Favorite</string>
     <string name="title_notification">Notification</string>
     <string name="title_settings">Settings</string>
     <string name="title_about_gino">About GINO</string>
@@ -27,6 +24,8 @@
     <string name="title_feedback">Feedback &amp; Report Issue</string>
 
     // Image Content Description
+    <string name="pulse_image">Pulse Image</string>
+    <string name="deal_image">Deal Image</string>
     <string name="icon_inbox">icon_inbox</string>
     <string name="icon_love">icon_love</string>
     <string name="icon_preloved">icon_preloved</string>
@@ -35,7 +34,14 @@
     <string name="icon_about">icon_about_gino</string>
     <string name="icon_feedback">icon_feedback</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    // Menu String
+    <string name="action_voice">Action Voice</string>
+    <string name="action_camera">Action Camera</string>
+    <string name="action_filter">Action Filter</string>
+    <string name="action_search">Action Search</string>
+
+    // Facebook
+    <string name="facebook_app_id">312785519141261</string>
+    <string name="fb_login_protocol_scheme">fb312785519141261</string>
 
 </resources>

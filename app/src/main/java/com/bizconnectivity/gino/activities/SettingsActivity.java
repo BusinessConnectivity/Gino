@@ -56,12 +56,6 @@ public class SettingsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @OnClick(R.id.logout_layout)
-    public void logoutOnClick(View view) {
-
-
-    }
-
     @Override
     public boolean onSupportNavigateUp() {
 

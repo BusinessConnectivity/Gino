@@ -1,6 +1,7 @@
 package com.bizconnectivity.gino.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -10,8 +11,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 
@@ -33,6 +39,11 @@ public class HomeFragment extends Fragment {
 
     @BindView(R.id.viewPager)
     ViewPager mViewPager;
+
+    private int[] tabIcons = {
+            R.drawable.ic_event_white_24dp,
+            R.drawable.ic_local_mall_white_24dp
+    };
 
     public HomeFragment() {
         // Required empty public constructor
@@ -59,6 +70,30 @@ public class HomeFragment extends Fragment {
         // View Pager
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
+        setupTabIcon();
+    }
+
+    private void setupTabIcon() {
+
+        if (mTabLayout != null) {
+            if (mTabLayout.getTabAt(0) != null) {
+
+                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
+                TextView tabOne = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
+                tabOne.setText(TAB_PULSE);
+                tabOne.setCompoundDrawablesWithIntrinsicBounds(tabIcons[0], 0, 0, 0);
+                mTabLayout.getTabAt(0).setCustomView(tabOne).setText(TAB_PULSE);
+            }
+
+            if (mTabLayout.getTabAt(1) != null) {
+
+                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
+                TextView tabTwo = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
+                tabTwo.setText(TAB_OFFER);
+                tabTwo.setCompoundDrawablesWithIntrinsicBounds(tabIcons[1], 0, 0, 0);
+                mTabLayout.getTabAt(1).setCustomView(tabTwo);
+            }
+        }
     }
 
     private void setupViewPager(ViewPager viewPager) {

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.adapters.AvailableDealsAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.models.DealList;
 
@@ -21,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 
-public class AvailableFragment extends Fragment implements OfferRecyclerListAdapter.AdapterCallBack{
+public class AvailableFragment extends Fragment implements AvailableDealsAdapter.AdapterCallBack{
 
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -30,7 +31,7 @@ public class AvailableFragment extends Fragment implements OfferRecyclerListAdap
     RecyclerView mRecyclerViewAvailable;
 
     Realm realm;
-    OfferRecyclerListAdapter mRecyclerListAdapter;
+    AvailableDealsAdapter mRecyclerListAdapter;
 
     public AvailableFragment() {
         // Required empty public constructor
@@ -75,14 +76,21 @@ public class AvailableFragment extends Fragment implements OfferRecyclerListAdap
         dealLists = realm.where(DealList.class).equalTo("isPurchased", "Yes").findAll();
 
         mRecyclerViewAvailable.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
+        mRecyclerListAdapter = new AvailableDealsAdapter(getContext(), dealLists, this);
         mRecyclerViewAvailable.setAdapter(mRecyclerListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
-    public void dealAdapterOnClick(int adapterPosition) {
+    public void onResume(){
+        super.onResume();
+        mSwipeRefreshLayout.setRefreshing(true);
+        availableDealList();
+    }
+
+    @Override
+    public void adapterOnClick(int adapterPosition) {
 
     }
 }

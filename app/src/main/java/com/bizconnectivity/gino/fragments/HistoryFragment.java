@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.HistoryDealActivity;
+import com.bizconnectivity.gino.adapters.HistoryDealsAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.models.DealList;
 
@@ -25,7 +26,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 
-public class HistoryFragment extends Fragment implements OfferRecyclerListAdapter.AdapterCallBack{
+public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack{
 
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -34,7 +35,7 @@ public class HistoryFragment extends Fragment implements OfferRecyclerListAdapte
     RecyclerView mRecyclerViewHistory;
 
     Realm realm;
-    OfferRecyclerListAdapter mRecyclerListAdapter;
+    HistoryDealsAdapter mRecyclerListAdapter;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -77,14 +78,21 @@ public class HistoryFragment extends Fragment implements OfferRecyclerListAdapte
         List<DealList> dealLists = new ArrayList<>();
         dealLists = realm.where(DealList.class).equalTo("isExpired", "Expired").or().equalTo("isExpired", "Redeemed").findAll();
         mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
+        mRecyclerListAdapter = new HistoryDealsAdapter(getContext(), dealLists, this);
         mRecyclerViewHistory.setAdapter(mRecyclerListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
-    public void dealAdapterOnClick(int adapterPosition) {
+    public void onResume() {
+        super.onResume();
+        mSwipeRefreshLayout.setRefreshing(true);
+        historyDealList();
+    }
+
+    @Override
+    public void adapterOnClick(int adapterPosition) {
 
     }
 }

@@ -2,8 +2,12 @@ package com.bizconnectivity.gino.models;
 
 import java.io.Serializable;
 
-public class PulseList implements Serializable{
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class PulseList extends RealmObject implements Serializable{
+
+    @PrimaryKey
     private String pulseID;
     private String pulseDescription;
     private String pulseImage;

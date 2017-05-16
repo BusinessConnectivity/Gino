@@ -26,8 +26,8 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
 
     private List<DealList> dealLists = new ArrayList<>();
     private Context context;
+    private Realm realm;
     AdapterCallBack adapterCallBack;
-    Realm realm;
 
     public OfferRecyclerListAdapter(Context context, Realm realm, List<DealList> dealLists, AdapterCallBack adapterCallBack) {
 

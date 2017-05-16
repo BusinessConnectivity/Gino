@@ -32,6 +32,7 @@ import butterknife.ButterKnife;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
@@ -266,7 +267,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             public void onSearchAction(String currentQuery) {
 
                 RealmResults<DealList> results;
-                results = search(realm, DealList.class, currentQuery, "dealTitle", false);
+                results = search(realm, DealList.class, currentQuery, false);
 
                 List<DealList> dealLists = new ArrayList<>();
                 for (DealList dealList : results) {
@@ -279,7 +280,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         });
     }
 
-    public static <DealSearch extends RealmObject> RealmResults<DealList> search(Realm realm, Class<DealList> modelClass, String query, String fieldName, boolean partialSearch){
+    public static <DealSearch extends RealmObject> RealmResults<DealList> search(Realm realm, Class<DealList> modelClass, String query, boolean partialSearch){
 
         RealmResults<DealList> realmResults = realm.where(modelClass).findAll();
 
@@ -287,18 +288,15 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             return realmResults;
         }
 
-        String[] keywords = query.split(" ");
-
-        for (String keyword : keywords) {
-
-            String spacedKeyword = " " + keyword;
-
-            realmResults = realmResults.where()
-                    .beginsWith(fieldName, keyword, Case.INSENSITIVE)
-                    .or()
-                    .contains(fieldName, spacedKeyword, Case.INSENSITIVE)
-                    .findAll();
-        }
+        realmResults = realmResults.where()
+                .like("dealTitle", query, Case.INSENSITIVE)
+                .or()
+                .contains("dealTitle", query, Case.INSENSITIVE)
+                .or()
+                .like("dealLocation", query, Case.INSENSITIVE)
+                .or()
+                .contains("dealLocation", query, Case.INSENSITIVE)
+                .findAll();
 
         return realmResults;
     }
@@ -323,7 +321,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 
             // Search spoken text
             RealmResults<DealList> dealResults;
-            dealResults = search(realm, DealList.class, spokenText, "dealTitle", false);
+            dealResults = search(realm, DealList.class, spokenText, false);
 
             List<DealList> dealLists = new ArrayList<>();
             for (DealList dealList : dealResults) {

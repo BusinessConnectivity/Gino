@@ -26,6 +26,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.bizconnectivity.gino.Common.shortToast;
+
 public class PulseDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
@@ -76,10 +78,10 @@ public class PulseDetailActivity extends AppCompatActivity {
         pulseList = (List<PulseList>) getIntent().getSerializableExtra("PULSE");
         pulsePosition = getIntent().getIntExtra("POSITION", 0);
 
-        inititaPulseData();
+        inititalPulseData();
     }
 
-    private void inititaPulseData() {
+    private void inititalPulseData() {
 
         mTextViewTitle.setText(pulseList.get(pulsePosition).getPulseTitle());
         mTextViewDescription.setText(pulseList.get(pulsePosition).getPulseDescription());
@@ -93,7 +95,6 @@ public class PulseDetailActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_save)
     public void saveOnClick(View view) {
-
     }
 
     @OnClick(R.id.button_share)

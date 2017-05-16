@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bizconnectivity.gino.activities.PulseDetailActivity">
+    tools:context="com.bizconnectivity.gino.activities.DealHistoryActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -35,15 +35,10 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <com.flipboard.bottomsheet.BottomSheetLayout
-        android:id="@+id/bottom_sheet_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,10 +50,9 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/image_pulse"
+                    android:id="@+id/image_deal"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
-                    android:src="@drawable/feed1"
                     android:scaleType="fitXY"/>
 
             </android.support.v7.widget.CardView>
@@ -78,12 +72,11 @@
 
                     <TextView
                         android:id="@+id/text_title"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/margin_5"
-                        android:textAlignment="center"
                         android:textStyle="bold"
-                        android:textSize="@dimen/title"/>
+                        android:textSize="@dimen/subheading"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -98,7 +91,7 @@
                             android:textSize="12sp"/>
 
                         <TextView
-                            android:id="@+id/text_organizer"
+                            android:id="@+id/text_merchant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
@@ -110,8 +103,8 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="35dp"
-                        android:layout_gravity="center"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/padding_5"
                         android:orientation="horizontal">
 
                         <ImageView
@@ -119,14 +112,14 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:tint="@color/colorPrimaryDark"
-                            android:src="@drawable/ic_date_range_white_24dp"/>
+                            android:src="@drawable/ic_attach_money_white_24dp"/>
 
                         <TextView
-                            android:id="@+id/text_datetime"
+                            android:id="@+id/text_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:paddingStart="@dimen/padding_16"
+                            android:paddingStart="@dimen/padding_10"
                             android:paddingEnd="0dp"
                             android:textSize="@dimen/body"/>
 
@@ -149,114 +142,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:paddingStart="@dimen/padding_16"
+                            android:paddingStart="@dimen/padding_10"
                             android:paddingEnd="0dp"
                             android:textSize="@dimen/body"/>
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginTop="@dimen/margin_10"
-                        android:paddingStart="@dimen/padding_16"
-                        android:paddingEnd="@dimen/padding_16"
-                        android:background="?android:attr/dividerVertical"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_10"
-                        android:layout_marginBottom="@dimen/margin_10"
-                        android:paddingStart="@dimen/padding_32"
-                        android:paddingEnd="@dimen/padding_32"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:duplicateParentState="true"
-                            android:orientation="vertical">
-
-                            <ImageButton
-                                android:id="@+id/button_save"
-                                android:layout_width="50dp"
-                                android:layout_height="40dp"
-                                android:tint="@color/colorPrimaryDark"
-                                android:background="@color/transparent"
-                                android:src="@drawable/ic_favorite_border_white_24dp"
-                                android:onClick="saveOnClick"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Save"
-                                android:textColor="@color/colorPrimaryDark"
-                                android:textSize="12sp"/>
-
-                        </LinearLayout>
-
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:duplicateParentState="true"
-                            android:orientation="vertical">
-
-                            <ImageButton
-                                android:id="@+id/button_share"
-                                android:layout_width="50dp"
-                                android:layout_height="40dp"
-                                android:background="@color/transparent"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_share_white_24dp"
-                                android:onClick="shareOnClick"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Share"
-                                android:textColor="@color/colorPrimaryDark"
-                                android:textSize="12sp"/>
-
-                        </LinearLayout>
-
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:duplicateParentState="true"
-                            android:orientation="vertical">
-
-                            <ImageButton
-                                android:id="@+id/button_website"
-                                android:layout_width="50dp"
-                                android:layout_height="40dp"
-                                android:background="@color/transparent"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_send_white_24dp"
-                                android:onClick="websiteOnClick"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Website"
-                                android:textColor="@color/colorPrimaryDark"
-                                android:textSize="12sp"/>
-
-                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -288,9 +176,6 @@
 
         </LinearLayout>
 
-
     </android.support.v4.widget.NestedScrollView>
-
-</com.flipboard.bottomsheet.BottomSheetLayout>
 
 </android.support.design.widget.CoordinatorLayout>

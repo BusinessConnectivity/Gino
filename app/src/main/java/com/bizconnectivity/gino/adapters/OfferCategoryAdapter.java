@@ -23,6 +23,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.StreamEncoder;
 import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
 import com.caverock.androidsvg.SVG;
+import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
 import java.util.List;
@@ -51,23 +52,26 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
     @Override
     public void onBindViewHolder(OfferCategoryAdapter.ViewHolder holder, int position) {
 
-        requestBuilder = Glide.with(context)
-                .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
-                .from(Uri.class)
-                .as(SVG.class)
-                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
-                .sourceEncoder(new StreamEncoder())
-                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
-                .decoder(new SvgDecoder())
-                .placeholder(R.drawable.image_loading)
-                .error(R.drawable.image_error)
-                .animate(android.R.anim.fade_in)
-                .listener(new SvgSoftwareLayerSetter<Uri>());
+//        requestBuilder = Glide.with(context)
+//                .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
+//                .from(Uri.class)
+//                .as(SVG.class)
+//                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+//                .sourceEncoder(new StreamEncoder())
+//                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+//                .decoder(new SvgDecoder())
+//                .placeholder(R.drawable.image_loading)
+//                .error(R.drawable.image_error)
+//                .animate(android.R.anim.fade_in)
+//                .listener(new SvgSoftwareLayerSetter<Uri>());
 
-        Uri uri = Uri.parse(dealCategoryLists.get(position).getCategoryImageURL());
+//        Uri uri = Uri.parse(dealCategoryLists.get(position).getCategoryImageURL());
 
-        if (!dealCategoryLists.get(position).getCategoryImageURL().isEmpty())
-            requestBuilder.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(uri).into(holder.mImageView);
+//        if (!dealCategoryLists.get(position).getCategoryImageURL().isEmpty())
+//            requestBuilder.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(uri).into(holder.mImageView);
+
+        holder.mImageView.setImageResource(dealCategoryLists.get(position).getCategoryImageURL());
+//        Picasso.with(context).load(dealCategoryLists.get(position).getCategoryImageURL()).into(holder.mImageView);
 
         holder.mTextView.setText(dealCategoryLists.get(position).getCategoryTitle());
     }
@@ -95,14 +99,22 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
         public void onClick(View v) {
 
             adapterCallBack.categoryAdapterOnClick(getAdapterPosition());
-//
-//            Intent intent = new Intent(context, DealsListActivity.class);
-//            intent.putExtra("POSITION", dealCategoryLists.get(getAdapterPosition()).getCategoryID());
-//            context.startActivity(intent);
         }
     }
 
     public interface AdapterCallBack {
         void categoryAdapterOnClick(int adapterPosition);
+    }
+
+    public void remove(int position) {
+
+        dealCategoryLists.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void add(int position, DealCategoryList dealCategory) {
+
+        dealCategoryLists.add(position, dealCategory);
+        notifyItemInserted(position);
     }
 }

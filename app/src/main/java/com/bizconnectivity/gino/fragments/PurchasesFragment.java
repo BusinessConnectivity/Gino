@@ -12,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 
@@ -33,6 +35,11 @@ public class PurchasesFragment extends Fragment {
 
     @BindView(R.id.viewPager)
     ViewPager mViewPager;
+
+    private int[] tabIcons = {
+            R.drawable.ic_alarm_on_white_24dp,
+            R.drawable.ic_history_white_24dp
+    };
 
     public PurchasesFragment() {
         // Required empty public constructor
@@ -59,14 +66,38 @@ public class PurchasesFragment extends Fragment {
         // View Pager
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
+        setupTabLayout();
+    }
+
+    private void setupTabLayout() {
+
+        if (mTabLayout != null) {
+            if (mTabLayout.getTabAt(0) != null) {
+
+                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+                TextView tabOne = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
+                tabOne.setText("  " + TAB_AVAILABLE);
+                tabOne.setCompoundDrawablesWithIntrinsicBounds(tabIcons[0], 0, 0, 0);
+                mTabLayout.getTabAt(0).setCustomView(tabOne);
+            }
+
+            if (mTabLayout.getTabAt(1) != null) {
+
+                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+                TextView tabTwo = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
+                tabTwo.setText("  " + TAB_HISTORY);
+                tabTwo.setCompoundDrawablesWithIntrinsicBounds(tabIcons[1], 0, 0, 0);
+                mTabLayout.getTabAt(1).setCustomView(tabTwo);
+            }
+        }
     }
 
     private void setupViewPager(ViewPager viewPager) {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
-        adapter.addFragment(new AvailableFragment(), TAB_AVAILABLE);
-        adapter.addFragment(new HistoryFragment(), TAB_HISTORY);
+        adapter.addFragment(new AvailableFragment());
+        adapter.addFragment(new HistoryFragment());
 
         viewPager.setAdapter(adapter);
     }
@@ -90,14 +121,8 @@ public class PurchasesFragment extends Fragment {
             return mFragmentList.size();
         }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-
-        public void addFragment(Fragment fragment, String title) {
+        public void addFragment(Fragment fragment) {
             mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
         }
     }
 }

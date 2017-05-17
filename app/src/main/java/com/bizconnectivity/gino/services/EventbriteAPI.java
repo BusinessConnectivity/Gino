@@ -1,4 +1,4 @@
-package com.bizconnectivity.gino.helpers;
+package com.bizconnectivity.gino.services;
 
 import com.bizconnectivity.gino.models.Pulses;
 
@@ -7,9 +7,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface EventbriteAPI {
-
-    @GET("users/me/")
-    Call<UserDetail> getUser(@Query("token") String token);
 
     @GET("events/search/")
     Call<Pulses> getEvents(@Query("token") String token,

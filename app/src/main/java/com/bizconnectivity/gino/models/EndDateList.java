@@ -5,10 +5,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-/**
- * Created by wendachye on 12/5/17.
- */
-
 public class EndDateList {
 
     @SerializedName("local")

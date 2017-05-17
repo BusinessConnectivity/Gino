@@ -1,34 +1,46 @@
 package com.bizconnectivity.gino.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ScrollView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealsListActivity;
 import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
 import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bizconnectivity.gino.models.DealList;
+import com.melnykov.fab.FloatingActionButton;
+import com.melnykov.fab.ObservableScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.realm.Realm;
+import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInDownAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
+
+import static com.bizconnectivity.gino.Common.shortToast;
 
 public class OfferFragment extends Fragment implements OfferCategoryAdapter.AdapterCallBack, OfferRecyclerListAdapter.AdapterCallBack{
 
@@ -41,12 +53,32 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+    @BindView(R.id.scroll_view)
+    ObservableScrollView mScrollView;
+
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+
     private ItemTouchHelper mItemTouchHelper;
     OfferRecyclerListAdapter mRecyclerListAdapter;
     OfferCategoryAdapter offerCategoryAdapter;
-    LinearLayoutManager linearLayoutManager;
     Realm realm;
     List<DealCategoryList> dealCategoryLists;
+
+    enum Type {
+        SlideInLeft(new SlideInLeftAnimator()),
+        SlideInRight(new SlideInRightAnimator());
+
+        private BaseItemAnimator mAnimator;
+
+        Type(BaseItemAnimator animator) {
+            mAnimator = animator;
+        }
+
+        public BaseItemAnimator getAnimator() {
+            return mAnimator;
+        }
+    }
 
     public OfferFragment() {
         // Required empty public constructor
@@ -74,10 +106,10 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         mSwipeRefreshLayout.setRefreshing(true);
 
         // Deal Category RecyclerView
-        dealCategory();
+        dealCategoryRecyclerView();
 
         // Deals List RecyclerView
-        dealList(getDealList());
+        dealListRecyclerView(getDealList());
 
         mSwipeRefreshLayout.setRefreshing(false);
 
@@ -85,28 +117,65 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             @Override
             public void onRefresh() {
 
-                dealCategory();
-                dealList(getDealList());
+                dealCategoryRecyclerView();
+                dealListRecyclerView(getDealList());
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        fab.attachToScrollView(mScrollView);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mScrollView.scrollTo(0,0);
+            }
+        });
     }
 
-    private void dealCategory() {
+    @OnClick(R.id.button_category_left)
+    public void buttonLeftOnClick(View view) {
 
-        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        mRecyclerViewCategory.setLayoutManager(linearLayoutManager);
+        mRecyclerViewCategory.setItemAnimator(Type.values()[0].getAnimator());
+        mRecyclerViewCategory.getItemAnimator().setAddDuration(150);
+        mRecyclerViewCategory.getItemAnimator().setRemoveDuration(0);
+
+        offerCategoryAdapter.remove(3);
+        offerCategoryAdapter.add(0, getDealCategory().get(0));
+    }
+
+    @OnClick(R.id.button_category_right)
+    public void buttonRightOnClick(View view) {
+
+        mRecyclerViewCategory.setItemAnimator(Type.values()[1].getAnimator());
+        mRecyclerViewCategory.getItemAnimator().setAddDuration(150);
+        mRecyclerViewCategory.getItemAnimator().setRemoveDuration(0);
+
+        offerCategoryAdapter.remove(0);
+
+
+        offerCategoryAdapter.add(3, getDealCategory().get(4));
+    }
+
+    private void dealCategoryRecyclerView() {
+
         dealCategoryLists = new ArrayList<>();
-        dealCategoryLists = getDealCategory();
+
+        if (getDealCategory().size() > 4) {
+
+            for (int i=0; i<4; i++) {
+                dealCategoryLists.add(getDealCategory().get(i));
+            }
+        }
+
         offerCategoryAdapter = new OfferCategoryAdapter(getContext(), dealCategoryLists, this);
         mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
         mRecyclerViewCategory.setNestedScrollingEnabled(false);
     }
 
-    private void dealList(List<DealList> dealLists) {
+    private void dealListRecyclerView(List<DealList> dealLists) {
 
-        mRecyclerViewDeals.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
         mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
         mRecyclerViewDeals.setNestedScrollingEnabled(false);
@@ -175,6 +244,8 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @Override
     public void categoryAdapterOnClick(int adapterPosition) {
 
+        mSwipeRefreshLayout.setRefreshing(true);
+
         List<DealList> dealLists = new ArrayList<>();
 
         for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryLists.get(adapterPosition).getCategoryID()).findAll()) {
@@ -182,11 +253,15 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             dealLists.add(result);
         }
 
-        dealList(dealLists);
+        dealListRecyclerView(dealLists);
+
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void dealAdapterOnClick(int adapterPosition) {
 
     }
+
+
 }

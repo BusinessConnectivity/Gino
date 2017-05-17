@@ -1,4 +1,4 @@
-package com.bizconnectivity.gino.helpers;
+package com.bizconnectivity.gino.services;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

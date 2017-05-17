@@ -6,8 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.bizconnectivity.gino.helpers.EventbriteAPI;
-import com.bizconnectivity.gino.models.Pulses;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -27,14 +25,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.bizconnectivity.gino.Common.shortToast;
-import static com.bizconnectivity.gino.Constant.*;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -163,6 +155,7 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser firebaseUser) {
 
 
+        firebaseUser.getDisplayName();
 
         if (firebaseUser != null) {
 

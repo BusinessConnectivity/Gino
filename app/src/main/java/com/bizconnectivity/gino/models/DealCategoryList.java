@@ -7,7 +7,8 @@ public class DealCategoryList extends RealmObject{
 
     @PrimaryKey
     private int categoryID;
-    private String categoryImageURL;
+//    private String categoryImageURL;
+    private int categoryImageURL;
     private String categoryTitle;
 
     public int getCategoryID() {
@@ -18,11 +19,20 @@ public class DealCategoryList extends RealmObject{
         this.categoryID = categoryID;
     }
 
-    public String getCategoryImageURL() {
+//    public String getCategoryImageURL() {
+//        return categoryImageURL;
+//    }
+
+//    public void setCategoryImageURL(String categoryImageURL) {
+//        this.categoryImageURL = categoryImageURL;
+//    }
+
+
+    public int getCategoryImageURL() {
         return categoryImageURL;
     }
 
-    public void setCategoryImageURL(String categoryImageURL) {
+    public void setCategoryImageURL(int categoryImageURL) {
         this.categoryImageURL = categoryImageURL;
     }
 

@@ -48,9 +48,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     @BindView(R.id.search_results_list)
     RecyclerView mRecyclerView;
 
-    public static final long FIND_SUGGESTION_SIMULATED_DELAY = 250;
-    private boolean mIsDarkSearchTheme = false;
-    private String mLastQuery = "";
     private static final int SPEECH_REQUEST_CODE = 0;
     private SearchResultsListAdapter mSearchResultsAdapter;
     Realm realm;

@@ -8,15 +8,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.PulseRecyclerListAdapter;
-import com.bizconnectivity.gino.helpers.EventbriteAPI;
+import com.bizconnectivity.gino.services.EventbriteAPI;
 import com.bizconnectivity.gino.models.EventList;
 import com.bizconnectivity.gino.models.PulseList;
 import com.bizconnectivity.gino.models.Pulses;

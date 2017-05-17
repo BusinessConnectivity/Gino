@@ -37,9 +37,7 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/tab_height"
-            app:tabTextAppearance="@style/TabLayoutTextAppearance"
-            app:tabTextColor="@color/colorGrey"
-            app:tabSelectedTextColor="@color/colorWhite"
+            style="@style/TabLayoutStyle"
             app:tabMode="fixed"
             app:tabGravity="fill"/>
 

@@ -1,7 +1,6 @@
 package com.bizconnectivity.gino.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -11,9 +10,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -27,6 +23,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.bizconnectivity.gino.Common.shortToast;
 import static com.bizconnectivity.gino.Constant.*;
 
 public class HomeFragment extends Fragment {
@@ -70,26 +67,43 @@ public class HomeFragment extends Fragment {
         // View Pager
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
-        setupTabIcon();
+        setupTabLayout();
+
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
-    private void setupTabIcon() {
+    private void setupTabLayout() {
 
         if (mTabLayout != null) {
             if (mTabLayout.getTabAt(0) != null) {
 
                 LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
                 TextView tabOne = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabOne.setText(TAB_PULSE);
+                tabOne.setText("  " + TAB_PULSE);
                 tabOne.setCompoundDrawablesWithIntrinsicBounds(tabIcons[0], 0, 0, 0);
-                mTabLayout.getTabAt(0).setCustomView(tabOne).setText(TAB_PULSE);
+                mTabLayout.getTabAt(0).setCustomView(tabOne);
             }
 
             if (mTabLayout.getTabAt(1) != null) {
 
                 LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
                 TextView tabTwo = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabTwo.setText(TAB_OFFER);
+                tabTwo.setText("  " + TAB_OFFER);
                 tabTwo.setCompoundDrawablesWithIntrinsicBounds(tabIcons[1], 0, 0, 0);
                 mTabLayout.getTabAt(1).setCustomView(tabTwo);
             }
@@ -100,8 +114,8 @@ public class HomeFragment extends Fragment {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
-        adapter.addFragment(new PulseFragment(), TAB_PULSE);
-        adapter.addFragment(new OfferFragment(), TAB_OFFER);
+        adapter.addFragment(new PulseFragment());
+        adapter.addFragment(new OfferFragment());
 
         viewPager.setAdapter(adapter);
     }
@@ -109,7 +123,6 @@ public class HomeFragment extends Fragment {
     class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
 
         ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -125,14 +138,10 @@ public class HomeFragment extends Fragment {
             return mFragmentList.size();
         }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+        public void addFragment(Fragment fragment) {
+            mFragmentList.add(fragment);
         }
 
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
+
     }
 }

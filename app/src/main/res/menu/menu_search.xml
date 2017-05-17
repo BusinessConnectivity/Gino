@@ -8,10 +8,10 @@
           android:icon="@drawable/ic_keyboard_voice_white_24dp"
           android:title="@string/action_voice"/>
 
-    <item android:id="@+id/action_camera"
-          android:orderInCategory="2"
-          app:showAsAction="ifRoom"
-          android:icon="@drawable/ic_camera_alt_white_24dp"
-          android:title="@string/action_camera"/>
+    <!--<item android:id="@+id/action_camera"-->
+          <!--android:orderInCategory="2"-->
+          <!--app:showAsAction="ifRoom"-->
+          <!--android:icon="@drawable/ic_camera_alt_white_24dp"-->
+          <!--android:title="@string/action_camera"/>-->
 
 </menu>

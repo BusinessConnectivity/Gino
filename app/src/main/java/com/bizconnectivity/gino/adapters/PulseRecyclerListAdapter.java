@@ -34,6 +34,13 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
         this.adapterCallBack = adapterCallBack;
     }
 
+    public void swapData(List<PulseList> pulseList) {
+
+        pulseLists.clear();
+        pulseLists.addAll(pulseList);
+        notifyDataSetChanged();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 

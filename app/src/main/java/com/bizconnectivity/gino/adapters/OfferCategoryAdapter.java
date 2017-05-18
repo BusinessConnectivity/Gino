@@ -13,9 +13,6 @@ import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.DealsListActivity;
-import com.bizconnectivity.gino.helpers.SvgDecoder;
-import com.bizconnectivity.gino.helpers.SvgDrawableTranscoder;
-import com.bizconnectivity.gino.helpers.SvgSoftwareLayerSetter;
 import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.Glide;
@@ -42,6 +39,13 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
         this.adapterCallBack = adapterCallBack;
     }
 
+    public void swapData(List<DealCategoryList> dealCategoryList) {
+
+        dealCategoryLists.clear();
+        dealCategoryLists.addAll(dealCategoryList);
+        notifyDataSetChanged();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -51,24 +55,6 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
 
     @Override
     public void onBindViewHolder(OfferCategoryAdapter.ViewHolder holder, int position) {
-
-//        requestBuilder = Glide.with(context)
-//                .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
-//                .from(Uri.class)
-//                .as(SVG.class)
-//                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
-//                .sourceEncoder(new StreamEncoder())
-//                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
-//                .decoder(new SvgDecoder())
-//                .placeholder(R.drawable.image_loading)
-//                .error(R.drawable.image_error)
-//                .animate(android.R.anim.fade_in)
-//                .listener(new SvgSoftwareLayerSetter<Uri>());
-
-//        Uri uri = Uri.parse(dealCategoryLists.get(position).getCategoryImageURL());
-
-//        if (!dealCategoryLists.get(position).getCategoryImageURL().isEmpty())
-//            requestBuilder.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(uri).into(holder.mImageView);
 
         holder.mImageView.setImageResource(dealCategoryLists.get(position).getCategoryImageURL());
 //        Picasso.with(context).load(dealCategoryLists.get(position).getCategoryImageURL()).into(holder.mImageView);

@@ -3,7 +3,6 @@ package com.bizconnectivity.gino.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +37,7 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
     }
 
     public void swapData(List<DealList> dealList) {
+
         dealLists.clear();
         dealLists.addAll(dealList);
         notifyDataSetChanged();
@@ -64,12 +64,11 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
     @Override
     public void onItemLeftSwipe(int position) {
 
+        // Update Deal to Dismissed
         updateDismissedDealList(position);
 
         dealLists.remove(position);
         notifyItemRemoved(position);
-//        notifyDataSetChanged();
-        Log.d("TAG", "onItemLeftSwipe: " + position);
     }
 
     private void updateDismissedDealList(final int position) {
@@ -88,6 +87,7 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
     @Override
     public void onItemRightSwipe(int position) {
 
+        // Update Deal to Favorite
         updateFavoriteDealList(position);
 
         dealLists.add(position, dealLists.get(position));
@@ -125,7 +125,6 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
         public TextView mTextViewLocation;
         public TextView mTextViewPrice;
         public ImageView mImageViewDeal;
-        public ImageView mImageViewLove;
 
         public ItemViewHolder(View itemView) {
 

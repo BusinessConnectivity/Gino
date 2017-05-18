@@ -14,7 +14,7 @@ import com.bizconnectivity.gino.data.DealCategory;
 import com.bizconnectivity.gino.data.Deals;
 import com.bizconnectivity.gino.fragments.HomeFragment;
 import com.bizconnectivity.gino.fragments.ProfileFragment;
-import com.bizconnectivity.gino.fragments.PurchasesFragment;
+import com.bizconnectivity.gino.fragments.PurchasedFragment;
 import com.bizconnectivity.gino.fragments.SearchFragment;
 import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bizconnectivity.gino.models.DealList;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
 
                 case R.id.navigation_purchase:
-                    switchFragment(new PurchasesFragment());
+                    switchFragment(new PurchasedFragment());
                     return true;
 
                 case R.id.navigation_profile:

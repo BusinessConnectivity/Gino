@@ -25,7 +25,7 @@ import butterknife.ButterKnife;
 
 import static com.bizconnectivity.gino.Constant.*;
 
-public class PurchasesFragment extends Fragment {
+public class PurchasedFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -41,7 +41,7 @@ public class PurchasesFragment extends Fragment {
             R.drawable.ic_history_white_24dp
     };
 
-    public PurchasesFragment() {
+    public PurchasedFragment() {
         // Required empty public constructor
     }
 

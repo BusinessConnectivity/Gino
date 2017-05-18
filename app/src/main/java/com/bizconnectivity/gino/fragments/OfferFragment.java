@@ -9,14 +9,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
@@ -36,8 +34,6 @@ import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
 
-import static com.bizconnectivity.gino.Common.shortToast;
-
 public class OfferFragment extends Fragment implements OfferCategoryAdapter.AdapterCallBack, OfferRecyclerListAdapter.AdapterCallBack{
 
     @BindView(R.id.categories_list)
@@ -56,10 +52,11 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     FloatingActionButton fab;
 
     private ItemTouchHelper mItemTouchHelper;
-    OfferRecyclerListAdapter mRecyclerListAdapter;
+    OfferRecyclerListAdapter offerDealListAdapter;
     OfferCategoryAdapter offerCategoryAdapter;
     Realm realm;
     List<DealCategoryList> dealCategoryLists;
+    List<DealList> dealLists;
 
     enum Type {
         SlideInLeft(new SlideInLeftAnimator()),
@@ -113,8 +110,8 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             @Override
             public void onRefresh() {
 
-                dealCategoryRecyclerView();
-                dealListRecyclerView(getDealList());
+                offerCategoryAdapter.swapData(getDealCategory());
+                offerDealListAdapter.swapData(getDealList());
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -130,7 +127,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             }
         });
 
-        // Nested Scroll View
+        // Nested Scroll View Scrolling Detect
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -161,6 +158,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @OnClick(R.id.button_category_left)
     public void buttonLeftOnClick(View view) {
 
+        // Deal Category Swipe Left
         LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerViewCategory.getLayoutManager();
         mRecyclerViewCategory.getLayoutManager().scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition() - 1);
     }
@@ -168,21 +166,14 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @OnClick(R.id.button_category_right)
     public void buttonRightOnClick(View view) {
 
+        // Deal Category Swipe Right
         LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerViewCategory.getLayoutManager();
         mRecyclerViewCategory.getLayoutManager().scrollToPosition(linearLayoutManager.findLastVisibleItemPosition() + 1);
     }
 
     private void dealCategoryRecyclerView() {
 
-        dealCategoryLists = new ArrayList<>();
-
-        if (getDealCategory().size() > 4) {
-
-            for (int i=0; i<4; i++) {
-                dealCategoryLists.add(getDealCategory().get(i));
-            }
-        }
-
+        // Category List Recycler View
         offerCategoryAdapter = new OfferCategoryAdapter(getContext(), getDealCategory(), this);
         mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
         mRecyclerViewCategory.setNestedScrollingEnabled(false);
@@ -190,12 +181,13 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
 
     private void dealListRecyclerView(List<DealList> dealLists) {
 
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
-        mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
+        // Deal List Recycler View
+        offerDealListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
+        mRecyclerViewDeals.setAdapter(offerDealListAdapter);
         mRecyclerViewDeals.setNestedScrollingEnabled(false);
 
         // ItemTouchHelper for Deals List RecyclerView
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(getContext(), mRecyclerListAdapter);
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(getContext(), offerDealListAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
     }
@@ -233,7 +225,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
 
     private List<DealCategoryList> getDealCategory() {
 
-        List<DealCategoryList> dealCategoryLists = new ArrayList<>();
+        dealCategoryLists = new ArrayList<>();
 
         for (DealCategoryList result : realm.where(DealCategoryList.class).findAll()) {
 
@@ -245,9 +237,22 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
 
     private List<DealList> getDealList() {
 
-        List<DealList> dealLists = new ArrayList<>();
+        dealLists = new ArrayList<>();
 
         for (DealList result : realm.where(DealList.class).notEqualTo("isFavorite", "No").findAll()) {
+
+            dealLists.add(result);
+        }
+
+        return dealLists;
+    }
+
+    private List<DealList> getDealListByCategory(int categoryID) {
+
+        dealLists = new ArrayList<>();
+
+        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", categoryID)
+                .notEqualTo("isFavorite", "No").findAll()) {
 
             dealLists.add(result);
         }
@@ -260,16 +265,8 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        List<DealList> dealLists = new ArrayList<>();
-
-        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryLists.get(adapterPosition).getCategoryID())
-                .notEqualTo("isFavorite", "No").findAll()) {
-
-            dealLists.add(result);
-        }
-
-//        dealListRecyclerView(dealLists);
-        mRecyclerListAdapter.swapData(dealLists);
+        // Change Recycler View Data
+        offerDealListAdapter.swapData(getDealListByCategory(dealCategoryLists.get(adapterPosition).getCategoryID()));
 
         mSwipeRefreshLayout.setRefreshing(false);
     }

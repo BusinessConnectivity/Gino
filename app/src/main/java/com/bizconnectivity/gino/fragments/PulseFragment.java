@@ -1,6 +1,5 @@
 package com.bizconnectivity.gino.fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -32,7 +31,6 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,7 +58,7 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     Retrofit retrofit;
     EventbriteAPI eventbriteAPI;
     PulseRecyclerListAdapter pulseListAdapter;
-    List<PulseList> pulseList;
+    List<PulseList> pulseLists;
     Pulses pulses;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
@@ -111,7 +109,11 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             public void onResponse(Call<Pulses> call, Response<Pulses> response) {
 
                 pulses = response.body();
-                retrieveEventFromEventbrite(pulses);
+
+                // Pulse RecyclerView Setup
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                pulseListAdapter = new PulseRecyclerListAdapter(getContext(), retrieveEventFromEventbrite(pulses), PulseFragment.this);
+                mRecyclerView.setAdapter(pulseListAdapter);
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -139,7 +141,7 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
                     public void onResponse(Call<Pulses> call, Response<Pulses> response) {
 
                         pulses = response.body();
-                        retrieveEventFromEventbrite(pulses);
+                        pulseListAdapter.swapData(retrieveEventFromEventbrite(pulses));
 
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
@@ -153,7 +155,7 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             }
         });
 
-
+        // Floating Action Button for back to top
         fab.hide();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,6 +165,7 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             }
         });
 
+        // Recycler View Scrolling Detect
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -171,25 +174,27 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
 
                 ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
                 p.setMargins(0, 0, 25, 145);
                 fab.requestLayout();
 
-                if (dy == 0) {
-                    fab.hide();
-                } else if (dy > 0) {
+                if (dy > 0) {
                     fab.hide();
                 } else {
                     fab.show();
                 }
 
+                // check scrolling reach top or bottom
                 LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int visibleItemCount = mLayoutManager.getChildCount();
                 int totalItemCount = mLayoutManager.getItemCount();
                 int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
 
-                if (pastVisibleItems + visibleItemCount >= totalItemCount) {
+                if (pastVisibleItems == 0) {
+                    fab.hide();
+                } else if (pastVisibleItems + visibleItemCount >= totalItemCount) {
                     p.setMargins(0, 0, 25, 25);
                     fab.requestLayout();
                     fab.show();
@@ -198,9 +203,9 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
         });
     }
 
-    private void retrieveEventFromEventbrite(Pulses pulses) {
+    private List<PulseList> retrieveEventFromEventbrite(Pulses pulses) {
 
-        pulseList = new ArrayList<>();
+        pulseLists = new ArrayList<>();
 
         for (EventList event : pulses.getEvents()) {
 
@@ -230,13 +235,10 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
             String pulseURL = event.getUrl() != null ? event.getUrl() : "";
             pulse.setPulseURL(pulseURL);
 
-            pulseList.add(pulse);
+            pulseLists.add(pulse);
         }
 
-        // Pulse RecyclerView
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        pulseListAdapter = new PulseRecyclerListAdapter(getContext(), pulseList, this);
-        mRecyclerView.setAdapter(pulseListAdapter);
+        return pulseLists;
     }
 
     @Override

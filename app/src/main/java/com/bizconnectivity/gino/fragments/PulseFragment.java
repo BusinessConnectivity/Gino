@@ -1,13 +1,18 @@
 package com.bizconnectivity.gino.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -49,15 +54,15 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+
     Retrofit retrofit;
     EventbriteAPI eventbriteAPI;
     PulseRecyclerListAdapter pulseListAdapter;
     List<PulseList> pulseList;
     Pulses pulses;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-
-    Realm realm;
 
     public PulseFragment() {
         // Required empty public constructor
@@ -147,6 +152,50 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
                 });
             }
         });
+
+
+        fab.hide();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mRecyclerView.scrollToPosition(0);
+            }
+        });
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
+                p.setMargins(0, 0, 25, 145);
+                fab.requestLayout();
+
+                if (dy == 0) {
+                    fab.hide();
+                } else if (dy > 0) {
+                    fab.hide();
+                } else {
+                    fab.show();
+                }
+
+                LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int visibleItemCount = mLayoutManager.getChildCount();
+                int totalItemCount = mLayoutManager.getItemCount();
+                int pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition();
+
+                if (pastVisibleItems + visibleItemCount >= totalItemCount) {
+                    p.setMargins(0, 0, 25, 25);
+                    fab.requestLayout();
+                    fab.show();
+                }
+            }
+        });
     }
 
     private void retrieveEventFromEventbrite(Pulses pulses) {
@@ -190,36 +239,36 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
         mRecyclerView.setAdapter(pulseListAdapter);
     }
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setHasOptionsMenu(true);
-//    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu_pulse, menu);
-//        super.onCreateOptionsMenu(menu, inflater);
-//    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_pulse, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//        switch (item.getItemId()) {
-//            case R.id.action_search:
-//
-//                break;
-//
-//            case R.id.action_filter:
-//
-//                break;
-//
-//            default:
-//                break;
-//        }
-//
-//        return true;
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_search:
+
+                break;
+
+            case R.id.action_filter:
+
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
+    }
 
     @Override
     public void adapterOnClick(int adapterPosition) {

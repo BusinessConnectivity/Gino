@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,9 +11,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ScrollView;
 
 import com.bizconnectivity.gino.R;
@@ -22,8 +24,6 @@ import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
 import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bizconnectivity.gino.models.DealList;
-import com.melnykov.fab.FloatingActionButton;
-import com.melnykov.fab.ObservableScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +33,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInDownAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInRightAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
 
@@ -53,8 +49,8 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    @BindView(R.id.scroll_view)
-    ObservableScrollView mScrollView;
+    @BindView(R.id.nested_scroll_view)
+    NestedScrollView mNestedScrollView;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
@@ -111,8 +107,8 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         // Deals List RecyclerView
         dealListRecyclerView(getDealList());
 
+        // Swipe Refresh Layout
         mSwipeRefreshLayout.setRefreshing(false);
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -124,12 +120,40 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             }
         });
 
-        fab.attachToScrollView(mScrollView);
+        // Floating Action Button for back to top
+        fab.hide();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                mScrollView.scrollTo(0,0);
+                mNestedScrollView.scrollTo(0,0);
+            }
+        });
+
+        // Nested Scroll View
+        mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView nestedScrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+                ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
+                p.setMargins(0, 0, 25, 145);
+                fab.requestLayout();
+
+                if (scrollY == 0 || scrollY > oldScrollY) {
+                    fab.hide();
+                } else {
+                    fab.show();
+                }
+
+                View view = (View) nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
+                int diff = (view.getBottom() - (nestedScrollView.getHeight() + nestedScrollView.getScrollY()));
+
+                // if diff is zero, then the bottom has been reached
+                if (diff == 0) {
+                    p.setMargins(0, 0, 25, 25);
+                    fab.requestLayout();
+                    fab.show();
+                }
             }
         });
     }
@@ -137,25 +161,15 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @OnClick(R.id.button_category_left)
     public void buttonLeftOnClick(View view) {
 
-        mRecyclerViewCategory.setItemAnimator(Type.values()[0].getAnimator());
-        mRecyclerViewCategory.getItemAnimator().setAddDuration(150);
-        mRecyclerViewCategory.getItemAnimator().setRemoveDuration(0);
-
-        offerCategoryAdapter.remove(3);
-        offerCategoryAdapter.add(0, getDealCategory().get(0));
+        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerViewCategory.getLayoutManager();
+        mRecyclerViewCategory.getLayoutManager().scrollToPosition(linearLayoutManager.findFirstVisibleItemPosition() - 1);
     }
 
     @OnClick(R.id.button_category_right)
     public void buttonRightOnClick(View view) {
 
-        mRecyclerViewCategory.setItemAnimator(Type.values()[1].getAnimator());
-        mRecyclerViewCategory.getItemAnimator().setAddDuration(150);
-        mRecyclerViewCategory.getItemAnimator().setRemoveDuration(0);
-
-        offerCategoryAdapter.remove(0);
-
-
-        offerCategoryAdapter.add(3, getDealCategory().get(4));
+        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerViewCategory.getLayoutManager();
+        mRecyclerViewCategory.getLayoutManager().scrollToPosition(linearLayoutManager.findLastVisibleItemPosition() + 1);
     }
 
     private void dealCategoryRecyclerView() {
@@ -169,7 +183,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             }
         }
 
-        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), dealCategoryLists, this);
+        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), getDealCategory(), this);
         mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
         mRecyclerViewCategory.setNestedScrollingEnabled(false);
     }
@@ -186,36 +200,36 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
     }
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setHasOptionsMenu(true);
-//    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu_offer, menu);
-//        super.onCreateOptionsMenu(menu, inflater);
-//    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_offer, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//        switch (item.getItemId()) {
-//            case R.id.action_search:
-//
-//                break;
-//
-//            case R.id.action_filter:
-//
-//                break;
-//
-//            default:
-//                break;
-//        }
-//
-//        return true;
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_search:
+
+                break;
+
+            case R.id.action_filter:
+
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
+    }
 
     private List<DealCategoryList> getDealCategory() {
 
@@ -248,12 +262,14 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
 
         List<DealList> dealLists = new ArrayList<>();
 
-        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryLists.get(adapterPosition).getCategoryID()).findAll()) {
+        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryLists.get(adapterPosition).getCategoryID())
+                .notEqualTo("isFavorite", "No").findAll()) {
 
             dealLists.add(result);
         }
 
-        dealListRecyclerView(dealLists);
+//        dealListRecyclerView(dealLists);
+        mRecyclerListAdapter.swapData(dealLists);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -262,6 +278,4 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     public void dealAdapterOnClick(int adapterPosition) {
 
     }
-
-
 }

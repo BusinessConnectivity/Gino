@@ -12,6 +12,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.View;
 
 import com.bizconnectivity.gino.R;
@@ -43,7 +44,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
 
         // Set movement flags based on the layout manager
-        final int swipeFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
         return makeMovementFlags(0, swipeFlags);
     }
 
@@ -56,7 +57,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
         // Check if the swipe is left side
-        if (direction == ItemTouchHelper.LEFT) {
+        if (direction == ItemTouchHelper.START) {
 
             mAdapter.onItemLeftSwipe(viewHolder.getAdapterPosition());
 
@@ -71,7 +72,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
         Bitmap icon;
 
-        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && isCurrentlyActive) {
 
             View itemView = viewHolder.itemView;
             float height = (float) itemView.getBottom() - (float) itemView.getTop();

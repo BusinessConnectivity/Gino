@@ -37,6 +37,12 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
         this.adapterCallBack = adapterCallBack;
     }
 
+    public void swapData(List<DealList> dealList) {
+        dealLists.clear();
+        dealLists.addAll(dealList);
+        notifyDataSetChanged();
+    }
+
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -62,6 +68,8 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
 
         dealLists.remove(position);
         notifyItemRemoved(position);
+//        notifyDataSetChanged();
+        Log.d("TAG", "onItemLeftSwipe: " + position);
     }
 
     private void updateDismissedDealList(final int position) {

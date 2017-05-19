@@ -257,9 +257,6 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.action_search:
-
-                break;
 
             case R.id.action_filter:
 

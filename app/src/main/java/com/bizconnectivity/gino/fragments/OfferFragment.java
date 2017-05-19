@@ -30,9 +30,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
 
 public class OfferFragment extends Fragment implements OfferCategoryAdapter.AdapterCallBack, OfferRecyclerListAdapter.AdapterCallBack{
 
@@ -57,21 +54,6 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     Realm realm;
     List<DealCategoryList> dealCategoryLists;
     List<DealList> dealLists;
-
-    enum Type {
-        SlideInLeft(new SlideInLeftAnimator()),
-        SlideInRight(new SlideInRightAnimator());
-
-        private BaseItemAnimator mAnimator;
-
-        Type(BaseItemAnimator animator) {
-            mAnimator = animator;
-        }
-
-        public BaseItemAnimator getAnimator() {
-            return mAnimator;
-        }
-    }
 
     public OfferFragment() {
         // Required empty public constructor
@@ -192,37 +174,6 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_offer, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.action_search:
-
-                break;
-
-            case R.id.action_filter:
-
-                break;
-
-            default:
-                break;
-        }
-
-        return true;
-    }
-
     private List<DealCategoryList> getDealCategory() {
 
         dealCategoryLists = new ArrayList<>();
@@ -274,5 +225,33 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @Override
     public void dealAdapterOnClick(int adapterPosition) {
 
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_offer, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.action_filter:
+
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
     }
 }

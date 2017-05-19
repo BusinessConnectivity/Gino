@@ -118,6 +118,12 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
+    @OnClick(R.id.button_logout)
+    public void logoutOnClick(View view) {
+
+
+    }
+
     @OnClick(R.id.profile_picture)
     public void profilePictureOnClick(View view) {
 

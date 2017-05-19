@@ -5,4 +5,5 @@
     <color name="colorAccent">#008975</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGrey">#E0E0E0</color>
+    <color name="colorGoogleBackground">#db3236</color>
 </resources>

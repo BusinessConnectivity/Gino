@@ -79,6 +79,7 @@
                             app:rv_rippleDuration="500">
 
                             <TextView
+                                android:id="@+id/text_name"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:textAlignment="center"
@@ -86,7 +87,7 @@
                                 android:layout_marginBottom="3dp"
                                 android:textSize="@dimen/subheading"
                                 android:textStyle="bold"
-                                android:text="admin@gino.com"/>
+                                android:visibility="gone"/>
 
                         </com.andexert.library.RippleView>
 
@@ -263,14 +264,16 @@
                 <Button
                     android:id="@+id/button_logout"
                     android:layout_width="150dp"
-                    android:layout_height="50dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/margin_5"
+                    android:background="@drawable/round_shape_button"
                     android:backgroundTint="@color/colorPrimaryDark"
                     android:text="Log Out"
                     android:textStyle="bold"
-                    android:textSize="@dimen/subheading"
+                    android:textSize="@dimen/caption"
                     android:textColor="@color/colorWhite"
-                    android:drawableLeft="@drawable/ic_exit_to_app_white_24dp"
+                    android:visibility="gone"
                     android:onClick="logoutOnClick"/>
 
             </LinearLayout>

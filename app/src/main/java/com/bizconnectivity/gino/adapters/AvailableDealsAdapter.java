@@ -2,6 +2,8 @@ package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,26 +12,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealHistoryActivity;
 import com.bizconnectivity.gino.activities.DealRedeemActivity;
 import com.bizconnectivity.gino.models.DealList;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
 
-public class AvailableDealsAdapter extends RecyclerView.Adapter<AvailableDealsAdapter.ViewHolder> {
+public class AvailableDealsAdapter extends RealmRecyclerViewAdapter<DealList, AvailableDealsAdapter.ViewHolder> {
 
     private Context context;
     private List<DealList> dealLists;
     AdapterCallBack adapterCallBack;
 
-    public AvailableDealsAdapter(Context context, List<DealList> dealLists, AdapterCallBack adapterCallBack) {
+    public AvailableDealsAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<DealList> data, AdapterCallBack adapterCallBack) {
 
+        super(data, true);
         this.context = context;
-        this.dealLists = dealLists;
+        this.dealLists = data;
         this.adapterCallBack = adapterCallBack;
     }
 

@@ -19,11 +19,10 @@ import android.view.ViewGroup;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
-import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
+import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback;
 import com.bizconnectivity.gino.models.DealCategoryList;
 import com.bizconnectivity.gino.models.DealList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -84,7 +83,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         dealCategoryRecyclerView();
 
         // Deals List RecyclerView
-        dealListRecyclerView(getDealList());
+        dealListRecyclerView();
 
         // Swipe Refresh Layout
         mSwipeRefreshLayout.setRefreshing(false);
@@ -92,9 +91,11 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             @Override
             public void onRefresh() {
 
-                offerCategoryAdapter.swapData(getDealCategory());
-                offerDealListAdapter.swapData(getDealList());
+//                offerCategoryAdapter.swapData(getDealCategory());
+//                offerDealListAdapter.swapData(getDealList());
 
+//                offerCategoryAdapter.updateData(realm.where(DealCategoryList.class).findAllAsync());
+//                offerDealListAdapter.updateData(realm.where(DealList.class).notEqualTo("isFavorite", "No").findAllAsync());
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -156,68 +157,34 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     private void dealCategoryRecyclerView() {
 
         // Category List Recycler View
-        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), getDealCategory(), this);
+        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), realm.where(DealCategoryList.class).findAllAsync(), true, this);
         mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
         mRecyclerViewCategory.setNestedScrollingEnabled(false);
     }
 
-    private void dealListRecyclerView(List<DealList> dealLists) {
+    private void dealListRecyclerView() {
 
         // Deal List Recycler View
-        offerDealListAdapter = new OfferRecyclerListAdapter(getContext(), realm, dealLists, this);
+        offerDealListAdapter = new OfferRecyclerListAdapter(getContext(),
+                realm.where(DealList.class).notEqualTo("isFavorite", "No").findAllAsync(), true, realm, this);
         mRecyclerViewDeals.setAdapter(offerDealListAdapter);
         mRecyclerViewDeals.setNestedScrollingEnabled(false);
 
         // ItemTouchHelper for Deals List RecyclerView
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(getContext(), offerDealListAdapter);
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(getContext(), offerDealListAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
     }
 
-    private List<DealCategoryList> getDealCategory() {
-
-        dealCategoryLists = new ArrayList<>();
-
-        for (DealCategoryList result : realm.where(DealCategoryList.class).findAll()) {
-
-            dealCategoryLists.add(result);
-        }
-
-        return dealCategoryLists;
-    }
-
-    private List<DealList> getDealList() {
-
-        dealLists = new ArrayList<>();
-
-        for (DealList result : realm.where(DealList.class).notEqualTo("isFavorite", "No").findAll()) {
-
-            dealLists.add(result);
-        }
-
-        return dealLists;
-    }
-
-    private List<DealList> getDealListByCategory(int categoryID) {
-
-        dealLists = new ArrayList<>();
-
-        for (DealList result : realm.where(DealList.class).equalTo("dealCategoryID", categoryID)
-                .notEqualTo("isFavorite", "No").findAll()) {
-
-            dealLists.add(result);
-        }
-
-        return dealLists;
-    }
-
     @Override
-    public void categoryAdapterOnClick(int adapterPosition) {
+    public void categoryAdapterOnClick(int categoryID) {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
         // Change Recycler View Data
-        offerDealListAdapter.swapData(getDealListByCategory(dealCategoryLists.get(adapterPosition).getCategoryID()));
+        offerDealListAdapter = new OfferRecyclerListAdapter(getContext(), realm.where(DealList.class).equalTo("dealCategoryID", categoryID)
+                .notEqualTo("isFavorite", "No").findAll(), true, realm, this);
+        mRecyclerViewDeals.setAdapter(offerDealListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }

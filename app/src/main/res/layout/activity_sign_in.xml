@@ -5,180 +5,180 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bizconnectivity.gino.activities.LoginActivity">
+    tools:context="com.bizconnectivity.gino.activities.SignInActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
-        android:paddingTop="60dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_5"
-            android:hint="Email Address"
-            android:textColorHint="@color/colorPrimaryDark">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/edit_email"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:inputType="text"
-                android:textSize="16sp"
-                android:textColor="@color/colorPrimaryDark"/>
-
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_5"
-            android:hint="Password"
-            android:textColorHint="@color/colorPrimaryDark"
-            app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/colorPrimaryDark">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/edit_password"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:inputType="textPassword"
-                android:textSize="16sp"
-                android:textColor="@color/colorPrimaryDark"/>
-
-        </android.support.design.widget.TextInputLayout>
-
-        <Button
-            android:id="@+id/button_sign_in"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="@dimen/margin_10"
-            android:layout_marginBottom="@dimen/margin_15"
-            android:background="@drawable/round_shape_button"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:stateListAnimator="@null"
-            android:text="SIGN IN"
-            android:textSize="@dimen/body"
-            android:textColor="@color/colorWhite"
-            android:textStyle="bold"
-            android:onClick="buttonSignInOnClick"/>
-
-        <TextView
-            android:id="@+id/text_forgot_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_10"
-            android:text="Having trouble signing in?"
-            android:textSize="@dimen/caption"
-            android:textColor="@color/colorPrimaryDark"
-            android:onClick="forgotPasswordOnClick"/>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_10">
+            android:background="@color/colorWhite"
+            android:paddingTop="50dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/text_divider"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:text="OR"
-                android:textColor="@color/colorPrimaryDark"/>
+                android:layout_marginBottom="@dimen/margin_5"
+                android:hint="Email Address"
+                android:textColorHint="@color/colorPrimaryDark">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_toStartOf="@id/text_divider"
-                android:background="@color/colorPrimaryDark"/>
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/edit_email"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:inputType="text"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimaryDark"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="16dp"
-                android:layout_toEndOf="@id/text_divider"
-                android:background="@color/colorPrimaryDark"/>
+            </android.support.design.widget.TextInputLayout>
 
-        </RelativeLayout>
-
-        <Button
-            android:id="@+id/button_facebook"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:layout_marginBottom="@dimen/margin_10"
-            android:background="@drawable/round_shape_button"
-            android:backgroundTint="@color/com_facebook_button_login_background_color"
-            android:text="SIGN IN WITH FACEBOOK"
-            android:textStyle="bold"
-            android:textSize="@dimen/body"
-            android:textColor="@color/colorWhite"
-            android:onClick="buttonFacebookOnClick"/>
-
-        <Button
-            android:id="@+id/button_google"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:layout_marginBottom="@dimen/margin_10"
-            android:background="@drawable/round_shape_button"
-            android:backgroundTint="@color/colorGoogleBackground"
-            android:text="SIGN IN WITH GOOGLE"
-            android:textStyle="bold"
-            android:textSize="@dimen/body"
-            android:textColor="@color/colorWhite"
-            android:onClick="buttonGoogleOnClick"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account?"
-                android:textSize="@dimen/caption"
-                android:textColor="@color/colorPrimaryDark"/>
+                android:layout_marginBottom="@dimen/margin_5"
+                android:hint="Password"
+                android:textColorHint="@color/colorPrimaryDark"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/colorPrimaryDark">
 
-            <TextView
-                android:id="@+id/text_sign_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_5"
-                android:text="SIGN UP"
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/edit_password"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:inputType="textPassword"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimaryDark"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <Button
+                android:id="@+id/button_sign_in"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginBottom="@dimen/margin_15"
+                android:background="@drawable/round_shape_button"
+                android:backgroundTint="@color/colorPrimaryDark"
+                android:stateListAnimator="@null"
+                android:text="SIGN IN"
                 android:textSize="@dimen/body"
+                android:textColor="@color/colorWhite"
                 android:textStyle="bold"
-                android:textColor="@color/colorAccent"
-                android:onClick="signUpOnClick"/>
+                android:onClick="buttonSignInOnClick"/>
+
+            <TextView
+                android:id="@+id/text_forgot_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_10"
+                android:text="Having trouble signing in?"
+                android:textSize="@dimen/caption"
+                android:textColor="@color/colorPrimaryDark"
+                android:onClick="forgotPasswordOnClick"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_10">
+
+                <TextView
+                    android:id="@+id/text_divider"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="OR"
+                    android:textColor="@color/colorPrimaryDark"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_toStartOf="@id/text_divider"
+                    android:background="@color/colorPrimaryDark"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:layout_toEndOf="@id/text_divider"
+                    android:background="@color/colorPrimaryDark"/>
+
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/button_facebook"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="@dimen/margin_10"
+                android:background="@drawable/round_shape_button"
+                android:backgroundTint="@color/com_facebook_button_login_background_color"
+                android:text="SIGN IN WITH FACEBOOK"
+                android:textStyle="bold"
+                android:textSize="@dimen/body"
+                android:textColor="@color/colorWhite"
+                android:onClick="buttonFacebookOnClick"/>
+
+            <Button
+                android:id="@+id/button_google"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="@dimen/margin_10"
+                android:background="@drawable/round_shape_button"
+                android:backgroundTint="@color/colorGoogleBackground"
+                android:text="SIGN IN WITH GOOGLE"
+                android:textStyle="bold"
+                android:textSize="@dimen/body"
+                android:textColor="@color/colorWhite"
+                android:onClick="buttonGoogleOnClick"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Don't have an account?"
+                    android:textSize="@dimen/caption"
+                    android:textColor="@color/colorPrimaryDark"/>
+
+                <TextView
+                    android:id="@+id/text_sign_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_5"
+                    android:text="SIGN UP"
+                    android:textSize="@dimen/body"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorAccent"
+                    android:onClick="signUpOnClick"/>
+
+            </LinearLayout>
+
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/button_facebook_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/button_google_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible" />
 
         </LinearLayout>
-
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/button_facebook_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"/>
-
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/button_google_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible" />
-
-    </LinearLayout>
 
     </ScrollView>
 

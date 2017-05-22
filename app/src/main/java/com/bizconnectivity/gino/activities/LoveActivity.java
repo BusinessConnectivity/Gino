@@ -1,16 +1,13 @@
 package com.bizconnectivity.gino.activities;
 
-import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.models.DealList;
 
@@ -19,7 +16,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.realm.Realm;
 
 public class LoveActivity extends AppCompatActivity implements OfferRecyclerListAdapter.AdapterCallBack{
@@ -76,7 +72,8 @@ public class LoveActivity extends AppCompatActivity implements OfferRecyclerList
         dealLists = realm.where(DealList.class).equalTo("isFavorite", "Yes").findAll();
 
         mRecyclerViewFavorite.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, realm, dealLists, this);
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(this,
+                realm.where(DealList.class).equalTo("isFavorite", "Yes").findAll(), true, realm, this);
         mRecyclerViewFavorite.setAdapter(mRecyclerListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);

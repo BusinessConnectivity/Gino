@@ -5,19 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.View;
 
 import com.bizconnectivity.gino.R;
 
-public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
+public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     public static final float ALPHA_FULL = 1.0f;
     private Paint paint = new Paint();
@@ -25,7 +21,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final ItemTouchHelperAdapter mAdapter;
     private Context context;
 
-    public SimpleItemTouchHelperCallback(Context context, ItemTouchHelperAdapter adapter) {
+    public ItemTouchHelperCallback(Context context, ItemTouchHelperAdapter adapter) {
         this.context = context;
         this.mAdapter = adapter;
     }

@@ -10,7 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
-import com.bizconnectivity.gino.helpers.SimpleItemTouchHelperCallback;
+import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback;
 import com.bizconnectivity.gino.models.DealList;
 
 import java.util.ArrayList;
@@ -63,11 +63,12 @@ public class DealsListActivity extends AppCompatActivity implements OfferRecycle
 
         // RecyclerView
         mRecyclerViewDeals.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerListAdapter = new OfferRecyclerListAdapter(this, realm, getDealList(), this);
+        mRecyclerListAdapter = new OfferRecyclerListAdapter(this,
+                realm.where(DealList.class).equalTo("dealCategoryID", dealCategoryPosition).findAll(), true, realm, this);
         mRecyclerViewDeals.setAdapter(mRecyclerListAdapter);
 
         // OnTouchHelper for Deals List RecycleView
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(this, mRecyclerListAdapter);
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(this, mRecyclerListAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
 

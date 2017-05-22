@@ -9,7 +9,7 @@ apply plugin: 'com.google.firebase.firebase-crash'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.bizconnectivity.gino"
         minSdkVersion 21
@@ -79,13 +79,14 @@ dependencies {
     compile 'com.flipboard:bottomsheet-commons:1.5.3'
     compile 'com.github.MAXDeliveryNG:slideview:1.0.0'
     compile 'com.facebook.android:facebook-android-sdk:4.22.0'
-    compile 'io.realm:android-adapters:1.4.0'
+    compile 'io.realm:android-adapters:2.0.0'
     compile 'com.caverock:androidsvg:1.2.1'
     compile 'com.wdullaer:materialdatetimepicker:3.1.3'
     compile 'com.android.support:animated-vector-drawable:25.3.1'
     compile 'com.android.support:support-v13:25.3.1'
     compile 'com.afollestad.material-dialogs:core:0.9.4.4'
     compile 'com.pnikosis:materialish-progress:1.7'
+    compile 'com.google.android.gms:play-services-location:10.2.6'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }

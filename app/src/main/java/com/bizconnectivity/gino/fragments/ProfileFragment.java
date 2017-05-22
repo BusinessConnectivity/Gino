@@ -2,7 +2,9 @@ package com.bizconnectivity.gino.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bizconnectivity.gino.R;
@@ -53,11 +56,15 @@ public class ProfileFragment extends Fragment {
     @BindView(R.id.profile_picture)
     ImageView mImageViewProfile;
 
+    @BindView(R.id.button_logout)
+    Button mButtonLogout;
+
     private Uri cameraImageUri = null;
     public static final int REQUEST_STORAGE = 0;
     public static final int REQUEST_IMAGE_CAPTURE = REQUEST_STORAGE + 1;
     public static final int REQUEST_LOAD_IMAGE = REQUEST_IMAGE_CAPTURE + 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
+    SharedPreferences sharedPreferences;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -81,6 +88,13 @@ public class ProfileFragment extends Fragment {
 
         // Action Bar
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+
+        // Shared Preferences
+        sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+            mButtonLogout.setVisibility(View.VISIBLE);
+        }
     }
 
     @OnClick(R.id.love_layout)

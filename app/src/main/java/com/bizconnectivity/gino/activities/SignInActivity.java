@@ -1,21 +1,21 @@
 package com.bizconnectivity.gino.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.bizconnectivity.gino.R;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-
-import com.bizconnectivity.gino.R;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -23,10 +23,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Scope;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,9 +33,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.bizconnectivity.gino.Common.*;
+import static com.bizconnectivity.gino.Common.shortToast;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     @BindView(R.id.button_facebook_login)
     LoginButton mButtonFacebookLogin;
@@ -52,6 +52,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
     boolean isActivityStarted = false;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +63,26 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         // Layout Binding
         ButterKnife.bind(this);
 
-        // Initialize Facebook Login button
+        // Shared Preferences
+        sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
+        // Initialize & handle Facebook Sign In
+        facebookSignIn();
+
+        // Initialize Google Sign In
+        initializeGoogle();
+    }
+
+    private void facebookSignIn() {
+
         mCallbackManager = CallbackManager.Factory.create();
         mButtonFacebookLogin.setReadPermissions("email", "public_profile");
+
         mButtonFacebookLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
 
+                // Retrieve User Details
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                             @Override
@@ -104,10 +118,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 request.setParameters(parameters);
                 request.executeAsync();
 
-                mProgressBar.setVisibility(View.GONE);
+                // Update user signed in
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, true).apply();
+
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 isActivityStarted = true;
                 startActivity(intent);
+
+                mProgressBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -124,6 +143,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 shortToast(getApplicationContext(), error.toString());
             }
         });
+    }
+
+    private void initializeGoogle() {
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -139,6 +161,66 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+    }
+
+    private void googleSignIn() {
+
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void handleGoggleSignInResult(GoogleSignInResult result) {
+
+        if (result.isSuccess()) {
+
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount googleAcc = result.getSignInAccount();
+
+            if (googleAcc!=null) {
+
+                Log.d("GOOGLE", "handleGoggleSignInResult: " + googleAcc.getId());
+                Log.d("GOOGLE", "handleGoggleSignInResult: " + googleAcc.getDisplayName());
+                Log.d("GOOGLE", "handleGoggleSignInResult: " + googleAcc.getEmail());
+                Log.d("GOOGLE", "handleGoggleSignInResult: " + googleAcc.getPhotoUrl());
+            }
+
+            // Update user signed in
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, true).apply();
+
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            isActivityStarted = true;
+            startActivity(intent);
+
+            mProgressBar.setVisibility(View.GONE);
+
+        } else {
+            // Signed out, show unauthenticated UI.
+            mProgressBar.setVisibility(View.GONE);
+            shortToast(this, "Authentication Failed.");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Pass the activity result back to the Facebook SDK
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleGoggleSignInResult(result);
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        mProgressBar.setVisibility(View.GONE);
+        shortToast(this, "Google Play Services Error.");
     }
 
     @OnClick(R.id.button_sign_in)
@@ -166,7 +248,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         mProgressBar.setVisibility(View.VISIBLE);
         mButtonGoogleLogin.performClick();
-        signIn();
+        googleSignIn();
     }
 
     @OnClick(R.id.text_sign_up)
@@ -175,56 +257,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Intent intent = new Intent(this, SignUpActivity.class);
         isActivityStarted = true;
         startActivity(intent);
-    }
-
-    private void signIn() {
-
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-
-        if (result.isSuccess()) {
-
-            // Signed in successfully, show authenticated UI.
-            GoogleSignInAccount googleAcc = result.getSignInAccount();
-
-            if (googleAcc!=null) {
-
-                Log.d("GOOGLE", "handleSignInResult: " + googleAcc.getId());
-                Log.d("GOOGLE", "handleSignInResult: " + googleAcc.getDisplayName());
-                Log.d("GOOGLE", "handleSignInResult: " + googleAcc.getEmail());
-                Log.d("GOOGLE", "handleSignInResult: " + googleAcc.getPhotoUrl());
-            }
-
-
-
-            mProgressBar.setVisibility(View.GONE);
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            isActivityStarted = true;
-            startActivity(intent);
-
-        } else {
-            // Signed out, show unauthenticated UI.
-            mProgressBar.setVisibility(View.GONE);
-            shortToast(this, "Authentication Failed.");
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Pass the activity result back to the Facebook SDK
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
-        }
     }
 
     @Override
@@ -241,12 +273,5 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onStop();
 
         if (isActivityStarted) finish();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        mProgressBar.setVisibility(View.GONE);
-        shortToast(this, "Google Play Services Error.");
     }
 }

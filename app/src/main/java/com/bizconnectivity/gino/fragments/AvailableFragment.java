@@ -15,11 +15,7 @@ import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.AvailableDealsAdapter;
-import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.models.DealList;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,12 +70,9 @@ public class AvailableFragment extends Fragment implements AvailableDealsAdapter
 
     private void availableDealList() {
 
-        // Retrieve favorite deal lists
-        List<DealList> dealLists = new ArrayList<>();
-        dealLists = realm.where(DealList.class).equalTo("isPurchased", "Yes").findAll();
-
         mRecyclerViewAvailable.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new AvailableDealsAdapter(getContext(), dealLists, this);
+        mRecyclerListAdapter = new AvailableDealsAdapter(getContext(),
+                realm.where(DealList.class).equalTo("isPurchased", "Yes").findAll(), this);
         mRecyclerViewAvailable.setAdapter(mRecyclerListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -116,8 +109,8 @@ public class AvailableFragment extends Fragment implements AvailableDealsAdapter
     @Override
     public void onResume(){
         super.onResume();
-        mSwipeRefreshLayout.setRefreshing(true);
-        availableDealList();
+//        mSwipeRefreshLayout.setRefreshing(true);
+//        availableDealList();
     }
 
     @Override

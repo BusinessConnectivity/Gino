@@ -2,6 +2,8 @@ package com.bizconnectivity.gino;
 
 public class Constant {
 
+    public static final String SHARED_PREF_KEY = "GINO";
+    public static final String SHARED_PREF_IS_SIGNED_IN = "IS_SIGNED_IN";
     public static final String FB_GRAPH_API_URL = "https://graph.facebook.com/";
     public static final String EVENTBRITE_API_URL = "https://www.eventbriteapi.com/v3/";
     public static final String EVENTBRITE_TOKEN = "7QUQUSAKIY5PTGCTE4GM";

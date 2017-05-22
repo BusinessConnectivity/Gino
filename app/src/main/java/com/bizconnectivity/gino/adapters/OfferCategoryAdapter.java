@@ -1,9 +1,8 @@
 package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,38 +11,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealsListActivity;
 import com.bizconnectivity.gino.models.DealCategoryList;
-import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
-import com.caverock.androidsvg.SVG;
 import com.squareup.picasso.Picasso;
 
-import java.io.InputStream;
 import java.util.List;
 
-public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdapter.ViewHolder>{
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
+
+public class OfferCategoryAdapter extends RealmRecyclerViewAdapter<DealCategoryList, OfferCategoryAdapter.ViewHolder> {
 
     private Context context;
     private List<DealCategoryList> dealCategoryLists;
     AdapterCallBack adapterCallBack;
-    private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
 
-    public OfferCategoryAdapter(Context context, List<DealCategoryList> dealCategoryLists, AdapterCallBack adapterCallBack) {
+    public OfferCategoryAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<DealCategoryList> data, boolean autoUpdate, AdapterCallBack adapterCallBack) {
 
+        super(data, autoUpdate);
         this.context = context;
-        this.dealCategoryLists = dealCategoryLists;
+        this.dealCategoryLists = data;
         this.adapterCallBack = adapterCallBack;
-    }
-
-    public void swapData(List<DealCategoryList> dealCategoryList) {
-
-        dealCategoryLists.clear();
-        dealCategoryLists.addAll(dealCategoryList);
-        notifyDataSetChanged();
     }
 
     @Override
@@ -56,8 +43,8 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
     @Override
     public void onBindViewHolder(OfferCategoryAdapter.ViewHolder holder, int position) {
 
-        holder.mImageView.setImageResource(dealCategoryLists.get(position).getCategoryImageURL());
-//        Picasso.with(context).load(dealCategoryLists.get(position).getCategoryImageURL()).into(holder.mImageView);
+//        holder.mImageView.setImageResource(dealCategoryLists.get(position).getCategoryImageURL());
+        Picasso.with(context).load(dealCategoryLists.get(position).getCategoryImageURL()).into(holder.mImageView);
 
         holder.mTextView.setText(dealCategoryLists.get(position).getCategoryTitle());
     }
@@ -84,7 +71,7 @@ public class OfferCategoryAdapter extends RecyclerView.Adapter<OfferCategoryAdap
         @Override
         public void onClick(View v) {
 
-            adapterCallBack.categoryAdapterOnClick(getAdapterPosition());
+            adapterCallBack.categoryAdapterOnClick(dealCategoryLists.get(getAdapterPosition()).getCategoryID());
         }
     }
 

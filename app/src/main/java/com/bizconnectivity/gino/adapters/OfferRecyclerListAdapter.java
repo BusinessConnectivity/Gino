@@ -2,6 +2,8 @@ package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,28 +21,24 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
+import io.realm.RealmRecyclerViewAdapter;
 
-public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecyclerListAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
+public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealList, OfferRecyclerListAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
 
     private List<DealList> dealLists = new ArrayList<>();
     private Context context;
     private Realm realm;
     AdapterCallBack adapterCallBack;
 
-    public OfferRecyclerListAdapter(Context context, Realm realm, List<DealList> dealLists, AdapterCallBack adapterCallBack) {
+    public OfferRecyclerListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<DealList> data, boolean autoUpdate, Realm realm, AdapterCallBack adapterCallBack) {
 
+        super(data, autoUpdate);
         this.context = context;
+        this.dealLists = data;
         this.realm = realm;
-        this.dealLists = dealLists;
         this.adapterCallBack = adapterCallBack;
-    }
-
-    public void swapData(List<DealList> dealList) {
-
-        dealLists.clear();
-        dealLists.addAll(dealList);
-        notifyDataSetChanged();
     }
 
     @Override
@@ -60,6 +58,8 @@ public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecycler
         holder.mTextViewLocation.setText(dealLists.get(position).getDealLocation());
         holder.mTextViewPrice.setText(dealLists.get(position).getDealPrice());
     }
+
+
 
     @Override
     public void onItemLeftSwipe(int position) {

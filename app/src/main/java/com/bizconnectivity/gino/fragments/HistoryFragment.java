@@ -1,13 +1,11 @@
 package com.bizconnectivity.gino.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,17 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.HistoryDealActivity;
 import com.bizconnectivity.gino.adapters.HistoryDealsAdapter;
-import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.models.DealList;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.realm.Realm;
 
 public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack{
@@ -77,11 +69,9 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
 
     private void historyDealList() {
 
-        // Retrieve favorite deal lists
-        List<DealList> dealLists = new ArrayList<>();
-        dealLists = realm.where(DealList.class).equalTo("isExpired", "Expired").or().equalTo("isExpired", "Redeemed").findAll();
         mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new HistoryDealsAdapter(getContext(), dealLists, this);
+        mRecyclerListAdapter = new HistoryDealsAdapter(getContext(),
+                realm.where(DealList.class).equalTo("isExpired", "Expired").or().equalTo("isExpired", "Redeemed").findAll(), this);
         mRecyclerViewHistory.setAdapter(mRecyclerListAdapter);
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -113,13 +103,6 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
         }
 
         return true;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mSwipeRefreshLayout.setRefreshing(true);
-        historyDealList();
     }
 
     @Override

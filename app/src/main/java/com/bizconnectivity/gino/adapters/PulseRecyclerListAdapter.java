@@ -1,10 +1,10 @@
 package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,33 +12,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealsActivity;
-import com.bizconnectivity.gino.activities.PulseDetailActivity;
-import com.bizconnectivity.gino.models.PulseList;
-import com.bumptech.glide.Glide;
+import com.bizconnectivity.gino.models.EventModel;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecyclerListAdapter.ViewHolder>{
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
+
+public class PulseRecyclerListAdapter extends RealmRecyclerViewAdapter<EventModel, PulseRecyclerListAdapter.ViewHolder> {
 
     private Context context;
-    private List<PulseList> pulseLists;
+    private List<EventModel> data;
     AdapterCallBack adapterCallBack;
 
-    public PulseRecyclerListAdapter(Context context, List<PulseList> pulseLists, AdapterCallBack adapterCallBack) {
+    public PulseRecyclerListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<EventModel> data, AdapterCallBack adapterCallBack) {
 
+        super(data, true);
         this.context = context;
-        this.pulseLists = pulseLists;
+        this.data = data;
         this.adapterCallBack = adapterCallBack;
-    }
-
-    public void swapData(List<PulseList> pulseList) {
-
-        pulseLists.clear();
-        pulseLists.addAll(pulseList);
-        notifyDataSetChanged();
     }
 
     @Override
@@ -51,17 +44,17 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (!pulseLists.get(position).getPulseImage().isEmpty())
-            Picasso.with(context).load(pulseLists.get(position).getPulseImage()).into(holder.mImageViewPulse);
+        if (data.get(position).getImageUrl() != null)
+            Picasso.with(context).load(Uri.parse(data.get(position).getImageUrl())).into(holder.mImageViewPulse);
 
-        holder.mTextViewTitle.setText(pulseLists.get(position).getPulseTitle());
-        holder.mTextViewDatetime.setText(pulseLists.get(position).getPulseDatetime());
-        holder.mTextViewLocation.setText(pulseLists.get(position).getPulseLocation());
+        holder.mTextViewTitle.setText(data.get(position).getEventName());
+        holder.mTextViewDatetime.setText(data.get(position).getEventStartDateTime());
+        holder.mTextViewLocation.setText(data.get(position).getEventLocation());
     }
 
     @Override
     public int getItemCount() {
-        return pulseLists.size();
+        return data.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -85,13 +78,7 @@ public class PulseRecyclerListAdapter extends RecyclerView.Adapter<PulseRecycler
 
         @Override
         public void onClick(View view) {
-
-            adapterCallBack.adapterOnClick(getAdapterPosition());
-
-            Intent intent = new Intent(context, PulseDetailActivity.class);
-            intent.putExtra("PULSE", (Serializable) pulseLists);
-            intent.putExtra("POSITION", getAdapterPosition());
-            context.startActivity(intent);
+            adapterCallBack.adapterOnClick(data.get(getAdapterPosition()).getEventID());
         }
     }
 

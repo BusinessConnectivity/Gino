@@ -1,10 +1,17 @@
 package com.bizconnectivity.gino.models;
 
+import java.util.Date;
+
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class DealModel extends RealmObject{
 
+    @PrimaryKey
+    @Index
     private int dealID;
+    @Index
     private String dealName;
     private String dealDescription;
     private String dealPromoStartDate;
@@ -13,12 +20,16 @@ public class DealModel extends RealmObject{
     private String dealRedeemEndDate;
     private String dealUsualPrice;
     private String dealPromoPrice;
+    @Index
     private String dealLocation;
     private String dealImageFile;
     private String dealImageName;
     private String dealImageExt;
+    private int dealNoOfView;
+    private Date createdDate;
     private int dealCategoryID;
     private int merchantID;
+    private boolean isDismissed;
 
     public int getDealID() {
         return dealID;
@@ -138,5 +149,29 @@ public class DealModel extends RealmObject{
 
     public void setMerchantID(int merchantID) {
         this.merchantID = merchantID;
+    }
+
+    public int getDealNoOfView() {
+        return dealNoOfView;
+    }
+
+    public void setDealNoOfView(int dealNoOfView) {
+        this.dealNoOfView = dealNoOfView;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public boolean isDismissed() {
+        return isDismissed;
+    }
+
+    public void setDismissed(boolean dismissed) {
+        isDismissed = dismissed;
     }
 }

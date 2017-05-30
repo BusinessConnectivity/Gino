@@ -1,5 +1,8 @@
 package com.bizconnectivity.gino.fragments;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -7,21 +10,29 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.activities.DealHistoryActivity;
 import com.bizconnectivity.gino.adapters.HistoryDealsAdapter;
-import com.bizconnectivity.gino.models.DealList;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserDealAsyncTask;
+import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.UserDealModel;
+import com.bizconnectivity.gino.models.UserModel;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
-public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack{
+import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+
+public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack, RetrieveUserDealAsyncTask.AsyncResponse {
 
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -29,7 +40,10 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
     @BindView(R.id.history_list)
     RecyclerView mRecyclerViewHistory;
 
-    Realm realm;
+    private SharedPreferences sharedPreferences;
+    private Realm realm;
+    private UserModel user;
+    private RealmResults<UserDealModel> userDeal;
     HistoryDealsAdapter mRecyclerListAdapter;
 
     public HistoryFragment() {
@@ -51,62 +65,105 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
         // Layout Binding
         ButterKnife.bind(this, view);
 
+        // Shared Preferences
+        sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
         // Initial Realm
         realm = Realm.getDefaultInstance();
-
-        mSwipeRefreshLayout.setRefreshing(true);
-
-        historyDealList();
+        user = realm.where(UserModel.class).findFirst();
+        userDeal = realm.where(UserDealModel.class).equalTo("isRedeemed", true).or().equalTo("isExpired", true).findAll();
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                historyDealList();
+                fetchData();
             }
         });
+
+        fetchData();
     }
 
-    private void historyDealList() {
+    private void fetchData() {
 
-        mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerListAdapter = new HistoryDealsAdapter(getContext(),
-                realm.where(DealList.class).equalTo("isExpired", "Expired").or().equalTo("isExpired", "Redeemed").findAll(), this);
-        mRecyclerViewHistory.setAdapter(mRecyclerListAdapter);
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            if (isNetworkAvailable(getContext())) {
+                new RetrieveUserDealAsyncTask(this, user.getUserID()).execute();
+            } else {
+                updateUI();
+            }
+
+        } else {
+            updateUI();
+        }
+    }
+
+    @Override
+    public void retrieveUserDeal(final List<UserDealModel> userDealModelList) {
+
+        if (userDealModelList != null) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.where(UserDealModel.class).findAll().deleteAllFromRealm();
+
+                    for (int i=0; i<userDealModelList.size(); i++) {
+
+                        UserDealModel userDealModel = realm.createObject(UserDealModel.class, i+1);
+                        userDealModel.setDealID(userDealModelList.get(i).getDealID());
+                        userDealModel.setUserID(userDealModelList.get(i).getUserID());
+                        userDealModel.setQuantity(userDealModelList.get(i).getQuantity());
+                        userDealModel.setRedeemed(userDealModelList.get(i).isRedeemed());
+                        userDealModel.setExpired(userDealModelList.get(i).isExpired());
+                        userDealModel.setRedeemedDate(userDealModelList.get(i).getRedeemedDate());
+                        userDealModel.getDeals().add(realm.where(DealModel.class)
+                                .equalTo("dealID", userDealModelList.get(i).getDealID())
+                                .findFirst());
+
+                        realm.copyToRealmOrUpdate(userDealModel);
+                    }
+                }
+            });
+
+            updateUI();
+        }
+    }
+
+    private void updateUI() {
+
+        if (userDeal != null) {
+            mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerListAdapter = new HistoryDealsAdapter(getContext(), userDeal, this);
+            mRecyclerViewHistory.setAdapter(mRecyclerListAdapter);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_history, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case R.id.action_filter:
-
-                break;
-
-            default:
-                break;
-        }
-
-        return true;
-    }
-
+    // User Deal OnClick Callback
     @Override
     public void adapterOnClick(int adapterPosition) {
 
+        Intent intent = new Intent(getContext(), DealHistoryActivity.class);
+        intent.putExtra("POSITION", userDeal.get(adapterPosition).getDealID());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        realm = Realm.getDefaultInstance();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (realm != null) realm.close();
     }
 }

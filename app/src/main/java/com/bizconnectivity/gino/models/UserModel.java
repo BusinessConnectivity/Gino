@@ -1,13 +1,16 @@
 package com.bizconnectivity.gino.models;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class UserModel extends RealmObject{
 
+    @PrimaryKey
+    @Index
     private int userID;
-    private String userName;
-    private String userPassword;
     private String userEmail;
+    private String userName;
     private String userDOB;
     private String userGender;
     private String facebookID;
@@ -15,6 +18,7 @@ public class UserModel extends RealmObject{
     private String photoName;
     private String photoExt;
     private String photoFile;
+    private String photoUrl;
 
     public int getUserID() {
         return userID;
@@ -30,14 +34,6 @@ public class UserModel extends RealmObject{
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getUserPassword() {
-        return userPassword;
-    }
-
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
     }
 
     public String getUserEmail() {
@@ -102,5 +98,13 @@ public class UserModel extends RealmObject{
 
     public void setPhotoFile(String photoFile) {
         this.photoFile = photoFile;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

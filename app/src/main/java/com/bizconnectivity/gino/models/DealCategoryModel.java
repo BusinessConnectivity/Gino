@@ -1,14 +1,18 @@
 package com.bizconnectivity.gino.models;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class DealCategoryModel extends RealmObject{
 
+    @PrimaryKey
+    @Index
     private int dealCategoryID;
     private String dealCategoryName;
+    private String imageFile;
     private String imageName;
     private String imageExt;
-    private String imageFile;
 
     public int getDealCategoryID() {
         return dealCategoryID;

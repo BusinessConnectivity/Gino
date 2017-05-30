@@ -42,7 +42,7 @@ public class PurchasedDealActivity extends AppCompatActivity {
     @OnClick(R.id.button_redeem)
     public void redeemOnClick(View view) {
 
-        Intent intent = new Intent(this, DealRedeemActivity.class);
+        Intent intent = new Intent(this, OfferRedeemActivity.class);
         startActivity(intent);
     }
 

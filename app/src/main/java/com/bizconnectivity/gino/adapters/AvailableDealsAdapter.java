@@ -1,10 +1,12 @@
 package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,26 +14,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealRedeemActivity;
-import com.bizconnectivity.gino.models.DealList;
-import com.squareup.picasso.Picasso;
+import com.bizconnectivity.gino.models.UserDealModel;
 
+import java.text.ParseException;
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class AvailableDealsAdapter extends RealmRecyclerViewAdapter<DealList, AvailableDealsAdapter.ViewHolder> {
+import static com.bizconnectivity.gino.Constant.format1;
+import static com.bizconnectivity.gino.Constant.format3;
+
+public class AvailableDealsAdapter extends RealmRecyclerViewAdapter<UserDealModel, AvailableDealsAdapter.ViewHolder> {
 
     private Context context;
-    private List<DealList> dealLists;
-    AdapterCallBack adapterCallBack;
+    private List<UserDealModel> data;
+    private AdapterCallBack adapterCallBack;
 
-    public AvailableDealsAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<DealList> data, AdapterCallBack adapterCallBack) {
+    public AvailableDealsAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<UserDealModel> data, AdapterCallBack adapterCallBack) {
 
         super(data, true);
         this.context = context;
-        this.dealLists = data;
+        this.data = data;
         this.adapterCallBack = adapterCallBack;
     }
 
@@ -45,16 +49,24 @@ public class AvailableDealsAdapter extends RealmRecyclerViewAdapter<DealList, Av
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (!dealLists.get(position).getDealImageURL().isEmpty())
-            Picasso.with(context).load(dealLists.get(position).getDealImageURL()).into(holder.mImageViewDeal);
+        if (data.get(position).getDeals().get(0).getDealImageFile() != null) {
+            byte[] bloc = Base64.decode(data.get(position).getDeals().get(0).getDealImageFile(), Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
+            holder.mImageViewDeal.setImageBitmap(bitmap);
+        }
 
-        holder.mTextViewTitle.setText(dealLists.get(position).getDealTitle());
-        holder.mTextViewRedeemEnd.setText(dealLists.get(position).getDealRedeemEnd());
+        holder.mTextViewTitle.setText(data.get(position).getDeals().get(0).getDealName());
+
+        try {
+            holder.mTextViewRedeemEnd.setText(format3.format(format1.parse(data.get(position).getDeals().get(0).getDealRedeemEndDate())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int getItemCount() {
-        return dealLists.size();
+        return data.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -76,12 +88,7 @@ public class AvailableDealsAdapter extends RealmRecyclerViewAdapter<DealList, Av
 
         @Override
         public void onClick(View v) {
-
             adapterCallBack.adapterOnClick(getAdapterPosition());
-
-            Intent intent = new Intent(context, DealRedeemActivity.class);
-            intent.putExtra("POSITION", dealLists.get(getAdapterPosition()).getDealID());
-            context.startActivity(intent);
         }
     }
 

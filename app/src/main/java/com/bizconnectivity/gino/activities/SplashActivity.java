@@ -3,21 +3,25 @@ package com.bizconnectivity.gino.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.bizconnectivity.gino.R;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
-import static com.bizconnectivity.gino.Constant.*;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 
 public class SplashActivity extends AppCompatActivity {
 
     boolean isActivityStarted = false;
     SharedPreferences sharedPreferences;
+    Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +34,9 @@ public class SplashActivity extends AppCompatActivity {
 
         // Shared Preferences
         sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
 
         // Check User Signed IN
         isSignedIn();
@@ -71,9 +78,8 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-
         super.onStop();
-
+        if (!realm.isClosed()) realm.close();
         if (isActivityStarted) finish();
     }
 }

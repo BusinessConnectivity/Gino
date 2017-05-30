@@ -1,4 +1,5 @@
 <android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -37,10 +38,16 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ScrollView
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/bottom_bar_height"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <com.flipboard.bottomsheet.BottomSheetLayout
             android:id="@+id/bottom_sheet_layout"
@@ -62,34 +69,26 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/margin_5"
                         android:orientation="vertical">
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/profile_picture"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_perm_identity_black_24dp"
                             android:onClick="profilePictureOnClick"/>
 
-                        <com.andexert.library.RippleView
-                            android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/text_name"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:rv_centered="true"
-                            app:rv_rippleDuration="500">
-
-                            <TextView
-                                android:id="@+id/text_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textAlignment="center"
-                                android:layout_marginTop="3dp"
-                                android:layout_marginBottom="3dp"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:visibility="gone"/>
-
-                        </com.andexert.library.RippleView>
+                            android:textAlignment="center"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:textSize="@dimen/subheading"
+                            android:textStyle="bold"/>
 
                     </LinearLayout>
 
@@ -262,11 +261,24 @@
                 </android.support.v7.widget.CardView>
 
                 <Button
+                    android:id="@+id/button_sign_in_out"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/round_shape_button"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:text="Sign In / Sign Up"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/caption"
+                    android:textColor="@color/colorWhite"
+                    android:visibility="gone"
+                    android:onClick="signInOutOnClick"/>
+
+                <Button
                     android:id="@+id/button_logout"
                     android:layout_width="150dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/margin_5"
                     android:background="@drawable/round_shape_button"
                     android:backgroundTint="@color/colorPrimaryDark"
                     android:text="Log Out"
@@ -281,5 +293,7 @@
         </com.flipboard.bottomsheet.BottomSheetLayout>
 
     </ScrollView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.design.widget.CoordinatorLayout>

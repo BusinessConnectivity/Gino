@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bizconnectivity.gino.activities.DealsActivity">
+    tools:context="com.bizconnectivity.gino.activities.OfferDetailActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -159,16 +159,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="@dimen/padding_10"
                             android:tint="@color/colorPrimaryDark"
                             android:src="@drawable/ic_date_range_white_24dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/padding_10"
-                            android:paddingEnd="@dimen/padding_10"
-                            android:layout_gravity="center"
-                            android:text="Redeem Period: "/>
 
                         <TextView
                             android:id="@+id/text_redeem_start"
@@ -280,5 +274,12 @@
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

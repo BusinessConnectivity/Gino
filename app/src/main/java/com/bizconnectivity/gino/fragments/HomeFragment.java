@@ -23,8 +23,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.bizconnectivity.gino.Common.shortToast;
-import static com.bizconnectivity.gino.Constant.*;
+import static com.bizconnectivity.gino.Constant.TAB_OFFER;
+import static com.bizconnectivity.gino.Constant.TAB_PULSE;
 
 public class HomeFragment extends Fragment {
 
@@ -72,21 +72,22 @@ public class HomeFragment extends Fragment {
 
     private void setupTabLayout() {
 
+        LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
+        LinearLayout tabLinearLayout2 = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
+
         if (mTabLayout != null) {
             if (mTabLayout.getTabAt(0) != null) {
 
-                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
                 TextView tabOne = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabOne.setText("  " + TAB_PULSE);
+                tabOne.setText(TAB_PULSE);
                 tabOne.setCompoundDrawablesWithIntrinsicBounds(tabIcons[0], 0, 0, 0);
                 mTabLayout.getTabAt(0).setCustomView(tabOne);
             }
 
             if (mTabLayout.getTabAt(1) != null) {
 
-                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);
-                TextView tabTwo = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabTwo.setText("  " + TAB_OFFER);
+                TextView tabTwo = (TextView) tabLinearLayout2.findViewById(R.id.custom_tab_title);
+                tabTwo.setText(TAB_OFFER);
                 tabTwo.setCompoundDrawablesWithIntrinsicBounds(tabIcons[1], 0, 0, 0);
                 mTabLayout.getTabAt(1).setCustomView(tabTwo);
             }

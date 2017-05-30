@@ -1,10 +1,10 @@
 package com.bizconnectivity.gino.adapters;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,31 +12,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealsActivity;
+import com.bizconnectivity.gino.asynctasks.CreateDismissedDealAsyncTask;
+import com.bizconnectivity.gino.asynctasks.CreateFavouriteDealAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperAdapter;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperViewHolder;
-import com.bizconnectivity.gino.models.DealList;
-import com.squareup.picasso.Picasso;
+import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.UserModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealList, OfferRecyclerListAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
+public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealModel, OfferRecyclerListAdapter.ItemViewHolder> implements
+        ItemTouchHelperAdapter {
 
-    private List<DealList> dealLists = new ArrayList<>();
-    private Context context;
+    private List<DealModel> data;
     private Realm realm;
-    AdapterCallBack adapterCallBack;
+    private AdapterCallBack adapterCallBack;
 
-    public OfferRecyclerListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<DealList> data, boolean autoUpdate, Realm realm, AdapterCallBack adapterCallBack) {
+    public OfferRecyclerListAdapter(@Nullable OrderedRealmCollection<DealModel> data, Realm realm, AdapterCallBack adapterCallBack) {
 
-        super(data, autoUpdate);
-        this.context = context;
-        this.dealLists = data;
+        super(data, true);
+        this.data = data;
         this.realm = realm;
         this.adapterCallBack = adapterCallBack;
     }
@@ -51,74 +50,60 @@ public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealList,
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
 
-        if (!dealLists.get(position).getDealImageURL().isEmpty())
-            Picasso.with(context).load(dealLists.get(position).getDealImageURL()).into(holder.mImageViewDeal);
-
-        holder.mTextViewTitle.setText(dealLists.get(position).getDealTitle());
-        holder.mTextViewLocation.setText(dealLists.get(position).getDealLocation());
-        holder.mTextViewPrice.setText(dealLists.get(position).getDealPrice());
+        if (data.get(0).getDealImageFile() != null) {
+            byte[] bloc = Base64.decode(data.get(position).getDealImageFile(), Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
+            holder.mImageViewDeal.setImageBitmap(bitmap);
+        }
+        holder.mTextViewTitle.setText(data.get(position).getDealName());
+        holder.mTextViewLocation.setText(data.get(position).getDealLocation());
+        holder.mTextViewPrice.setText(data.get(position).getDealPromoPrice());
     }
 
-
-
+    // Swipe Left
     @Override
-    public void onItemLeftSwipe(int position) {
-
-        // Update Deal to Dismissed
-        updateDismissedDealList(position);
-
-        dealLists.remove(position);
-        notifyItemRemoved(position);
-    }
-
-    private void updateDismissedDealList(final int position) {
+    public void onItemLeftSwipe(final int position) {
 
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
 
-                DealList dealList = realm.where(DealList.class).equalTo("dealID", dealLists.get(position).getDealID()).findFirst();
-                dealList.setIsFavorite("No");
-                realm.copyToRealmOrUpdate(dealList);
+                DealModel deal = realm.where(DealModel.class).equalTo("dealID", data.get(position).getDealID()).findFirst();
+                deal.setDismissed(true);
+                realm.copyToRealmOrUpdate(deal);
             }
         });
+
+        UserModel user = realm.where(UserModel.class).findFirst();
+
+        new CreateDismissedDealAsyncTask(user.getUserID(), data.get(position).getDealID()).execute();
     }
 
+    // Swipe Right
     @Override
-    public void onItemRightSwipe(int position) {
-
-        // Update Deal to Favorite
-        updateFavoriteDealList(position);
-
-        dealLists.add(position, dealLists.get(position));
-        notifyItemInserted(position);
-
-        dealLists.remove(position + 1);
-        notifyItemRemoved(position + 1);
-    }
-
-    private void updateFavoriteDealList(final int position) {
+    public void onItemRightSwipe(final int position) {
 
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
 
-                DealList dealList = realm.where(DealList.class).equalTo("dealID", dealLists.get(position).getDealID()).findFirst();
-                dealList.setIsFavorite("Yes");
-                realm.copyToRealmOrUpdate(dealList);
+                DealModel deal = realm.where(DealModel.class).equalTo("dealID", data.get(position).getDealID()).findFirst();
+                deal.setDismissed(false);
+                realm.copyToRealmOrUpdate(deal);
             }
         });
+
+        UserModel userModel = realm.where(UserModel.class).findFirst();
+
+        new CreateFavouriteDealAsyncTask(userModel.getUserID(), data.get(position).getDealID()).execute();
     }
 
     @Override
     public int getItemCount() {
-        return dealLists.size();
+        return data.size();
     }
 
-    /**
-     * Simple example of a view holder that implements {@link ItemTouchHelperViewHolder} and has a
-     * "handle" view that initiates a drag event when touched.
-     */
+
     public class ItemViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder, View.OnClickListener {
 
         public TextView mTextViewTitle;
@@ -150,12 +135,7 @@ public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealList,
 
         @Override
         public void onClick(View v) {
-
-            adapterCallBack.dealAdapterOnClick(getAdapterPosition());
-
-            Intent intent = new Intent(context, DealsActivity.class);
-            intent.putExtra("POSITION", dealLists.get(getAdapterPosition()).getDealID());
-            context.startActivity(intent);
+            adapterCallBack.dealAdapterOnClick(data.get(getAdapterPosition()).getDealID());
         }
     }
 

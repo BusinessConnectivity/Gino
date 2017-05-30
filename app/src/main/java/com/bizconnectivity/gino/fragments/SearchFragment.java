@@ -22,7 +22,7 @@ import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.SearchResultsListAdapter;
-import com.bizconnectivity.gino.models.DealList;
+import com.bizconnectivity.gino.models.DealModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,6 @@ import butterknife.ButterKnife;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmObject;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
@@ -82,11 +81,11 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         setupSearchBar();
 
         // Setup RecycleView
-        List<DealList> dealLists = new ArrayList<>();
+        List<DealModel> dealLists = new ArrayList<>();
         searchRecyclerView(dealLists);
     }
 
-    private void searchRecyclerView(List<DealList> dealLists) {
+    private void searchRecyclerView(List<DealModel> dealLists) {
 
         mSearchResultsAdapter = new SearchResultsListAdapter(getContext(), dealLists, this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -263,11 +262,11 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             @Override
             public void onSearchAction(String currentQuery) {
 
-                RealmResults<DealList> results;
-                results = search(realm, DealList.class, currentQuery, false);
+                RealmResults<DealModel> results;
+                results = search(realm, DealModel.class, currentQuery, false);
 
-                List<DealList> dealLists = new ArrayList<>();
-                for (DealList dealList : results) {
+                List<DealModel> dealLists = new ArrayList<>();
+                for (DealModel dealList : results) {
 
                     dealLists.add(dealList);
                 }
@@ -277,9 +276,9 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         });
     }
 
-    public static <DealSearch extends RealmObject> RealmResults<DealList> search(Realm realm, Class<DealList> modelClass, String query, boolean partialSearch){
+    public static <DealSearch extends RealmObject> RealmResults<DealModel> search(Realm realm, Class<DealModel> modelClass, String query, boolean partialSearch){
 
-        RealmResults<DealList> realmResults = realm.where(modelClass).findAll();
+        RealmResults<DealModel> realmResults = realm.where(modelClass).findAll();
 
         if (TextUtils.isEmpty(query)) {
             return realmResults;
@@ -317,11 +316,11 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             mSearchView.setSearchText(spokenText);
 
             // Search spoken text
-            RealmResults<DealList> dealResults;
-            dealResults = search(realm, DealList.class, spokenText, false);
+            RealmResults<DealModel> dealResults;
+            dealResults = search(realm, DealModel.class, spokenText, false);
 
-            List<DealList> dealLists = new ArrayList<>();
-            for (DealList dealList : dealResults) {
+            List<DealModel> dealLists = new ArrayList<>();
+            for (DealModel dealList : dealResults) {
 
                 dealLists.add(dealList);
             }

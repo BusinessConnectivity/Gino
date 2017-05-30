@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -66,21 +67,11 @@
                         android:tint="@color/colorPrimaryDark"
                         android:src="@drawable/ic_person_white_24dp"/>
 
-                    <!--<TextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:paddingStart="@dimen/padding_16"-->
-                        <!--android:paddingEnd="0dp"-->
-                        <!--android:textAlignment="viewStart"-->
-                        <!--android:textSize="@dimen/subheading"-->
-                        <!--android:textStyle="bold"-->
-                        <!--android:text="Name"/>-->
-
                     <com.rengwuxian.materialedittext.MaterialEditText
                         android:id="@+id/edit_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Gino"/>
+                        android:textSize="@dimen/subheading"/>
 
                 </LinearLayout>
 
@@ -128,22 +119,12 @@
                         android:tint="@color/colorPrimaryDark"
                         android:src="@drawable/ic_gender_male_female_white_24dp"/>
 
-                    <!--<TextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:paddingStart="@dimen/padding_16"-->
-                        <!--android:paddingEnd="0dp"-->
-                        <!--android:textAlignment="viewStart"-->
-                        <!--android:textSize="@dimen/subheading"-->
-                        <!--android:textStyle="bold"-->
-                        <!--android:text="Gender"/>-->
-
                     <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
                         android:id="@+id/spinner_gender"
                         android:layout_width="100dp"
                         android:layout_height="@dimen/single_line_height"
                         android:text="Male"
-                        android:textSize="@dimen/body"
+                        android:textSize="@dimen/subheading"
                         app:met_floatingLabel="none"/>
 
                 </LinearLayout>
@@ -164,22 +145,12 @@
                         android:tint="@color/colorPrimaryDark"
                         android:src="@drawable/ic_location_on_white_24dp"/>
 
-                    <!--<TextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:paddingStart="@dimen/padding_16"-->
-                        <!--android:paddingEnd="0dp"-->
-                        <!--android:textAlignment="viewStart"-->
-                        <!--android:textSize="@dimen/subheading"-->
-                        <!--android:textStyle="bold"-->
-                        <!--android:text="Location"/>-->
-
                     <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
                         android:id="@+id/spinner_location"
                         android:layout_width="100dp"
                         android:layout_height="@dimen/single_line_height"
                         android:text="Singapore"
-                        android:textSize="@dimen/body"
+                        android:textSize="@dimen/subheading"
                         app:met_floatingLabel="none"/>
 
                 </LinearLayout>
@@ -218,5 +189,12 @@
         </android.support.v7.widget.CardView>
 
     </android.support.v4.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

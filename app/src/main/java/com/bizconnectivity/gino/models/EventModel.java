@@ -1,9 +1,13 @@
 package com.bizconnectivity.gino.models;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class EventModel extends RealmObject{
 
+    @PrimaryKey
+    @Index
     private int eventID;
     private String eventName;
     private String eventDescription;
@@ -17,6 +21,7 @@ public class EventModel extends RealmObject{
     private String imageName;
     private String imageExt;
     private String imageFile;
+    private String imageUrl;
 
     public int getEventID() {
         return eventID;
@@ -120,5 +125,13 @@ public class EventModel extends RealmObject{
 
     public void setImageFile(String imageFile) {
         this.imageFile = imageFile;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

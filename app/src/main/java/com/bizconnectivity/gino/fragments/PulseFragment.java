@@ -1,9 +1,18 @@
 package com.bizconnectivity.gino.fragments;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,35 +25,28 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.activities.PulseDetailActivity;
 import com.bizconnectivity.gino.adapters.PulseRecyclerListAdapter;
-import com.bizconnectivity.gino.services.EventbriteAPI;
-import com.bizconnectivity.gino.models.EventList;
-import com.bizconnectivity.gino.models.PulseList;
-import com.bizconnectivity.gino.models.Pulses;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.bizconnectivity.gino.asynctasks.RetrieveEventAsyncTask;
+import com.bizconnectivity.gino.models.EventModel;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_API_URL;
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_EXPAND;
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_LOCATION;
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_SORT_BY;
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_START_DATE;
-import static com.bizconnectivity.gino.Constant.EVENTBRITE_TOKEN;
+import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 
-public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.AdapterCallBack{
+public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.AdapterCallBack, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener , RetrieveEventAsyncTask.AsyncResponse{
 
     @BindView(R.id.pulses_list)
     RecyclerView mRecyclerView;
@@ -55,12 +57,18 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
-    Retrofit retrofit;
-    EventbriteAPI eventbriteAPI;
-    PulseRecyclerListAdapter pulseListAdapter;
-    List<PulseList> pulseLists;
-    Pulses pulses;
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
+    private GoogleApiClient mGoogleApiClient;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private Realm realm;
+    private RealmResults<EventModel> event;
+    private String latitude = "";
+    private String longitude = "";
+    private String kilometer = "5";
+    private boolean isVisibleToUser;
 
     public PulseFragment() {
         // Required empty public constructor
@@ -82,76 +90,34 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
         // Layout Binding
         ButterKnife.bind(this, view);
 
-        // Initial Retrofit with Eventbrite API
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .create();
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
+        event = realm.where(EventModel.class).findAll();
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(EVENTBRITE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+        // Google API Client
+        if (mGoogleApiClient == null) {
 
-        eventbriteAPI = retrofit.create(EventbriteAPI.class);
+            mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                    // The next two lines tell the new client that “this” current class will handle connection stuff
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    //fourth line adds the LocationServices API endpoint from GooglePlayServices
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
-        mSwipeRefreshLayout.setRefreshing(true);
-
-        // Call Eventbrite API
-        Call<Pulses> call = eventbriteAPI.getEvents(
-                EVENTBRITE_TOKEN,
-                EVENTBRITE_SORT_BY,
-                EVENTBRITE_LOCATION,
-                EVENTBRITE_START_DATE,
-                EVENTBRITE_EXPAND);
-
-        call.enqueue(new Callback<Pulses>() {
-            @Override
-            public void onResponse(Call<Pulses> call, Response<Pulses> response) {
-
-                pulses = response.body();
-
-                // Pulse RecyclerView Setup
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                pulseListAdapter = new PulseRecyclerListAdapter(getContext(), retrieveEventFromEventbrite(pulses), PulseFragment.this);
-                mRecyclerView.setAdapter(pulseListAdapter);
-
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(Call<Pulses> call, Throwable t) {
-
-                Log.d("TAG", "onFailure: " + t);
-            }
-        });
-
+        // Swipe Refresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                Call<Pulses> call = eventbriteAPI.getEvents(
-                        EVENTBRITE_TOKEN,
-                        EVENTBRITE_SORT_BY,
-                        EVENTBRITE_LOCATION,
-                        EVENTBRITE_START_DATE,
-                        EVENTBRITE_EXPAND);
-
-                call.enqueue(new Callback<Pulses>() {
-                    @Override
-                    public void onResponse(Call<Pulses> call, Response<Pulses> response) {
-
-                        pulses = response.body();
-                        pulseListAdapter.swapData(retrieveEventFromEventbrite(pulses));
-
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onFailure(Call<Pulses> call, Throwable t) {
-
-                        Log.d("TAG", "onFailure: " + t);
-                    }
-                });
+                if (isNetworkAvailable(getContext())) {
+                    fetchData();
+                } else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    snackBar(getParentView(), ERR_MSG_NO_INTERNET_CONNECTION);
+                }
             }
         });
 
@@ -201,44 +167,38 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
                 }
             }
         });
+
+        if (isVisibleToUser) {
+            // Retrieve data from WS
+            mSwipeRefreshLayout.setRefreshing(true);
+            fetchData();
+        }
     }
 
-    private List<PulseList> retrieveEventFromEventbrite(Pulses pulses) {
+    @Override
+    public void setUserVisibleHint(boolean visible) {
 
-        pulseLists = new ArrayList<>();
+        super.setUserVisibleHint(visible);
 
-        for (EventList event : pulses.getEvents()) {
-
-            PulseList pulse = new PulseList();
-
-            String pulseID = event.getId() != null ? event.getId() : "";
-            pulse.setPulseID(pulseID);
-
-            String pulseTitle = event.getName() != null ? event.getName().getText() : "";
-            pulse.setPulseTitle(pulseTitle);
-
-            String pulseDescription = event.getDescription() != null ? event.getDescription().getText() : "";
-            pulse.setPulseDescription(pulseDescription);
-
-            String pulseLocation = event.getVenue() != null ? event.getVenue().getName() : "";
-            pulse.setPulseLocation(pulseLocation);
-
-            String pulseDatetime = event.getEnd() != null ? simpleDateFormat.format(event.getEnd().getLocal()) : "";
-            pulse.setPulseDatetime(pulseDatetime);
-
-            String pulseImage = event.getLogo() != null ? event.getLogo().getUrl() : "";
-            pulse.setPulseImage(pulseImage);
-
-            String pulseOrganizer = event.getOrganizer() != null ? event.getOrganizer().getName() : "";
-            pulse.setPulseOrganizer(pulseOrganizer);
-
-            String pulseURL = event.getUrl() != null ? event.getUrl() : "";
-            pulse.setPulseURL(pulseURL);
-
-            pulseLists.add(pulse);
+        if (visible) {
+            isVisibleToUser = true;
         }
+    }
 
-        return pulseLists;
+    private void fetchData() {
+
+        if (isNetworkAvailable(getContext())) {
+
+            if (!longitude.isEmpty() && !longitude.isEmpty()) {
+                new RetrieveEventAsyncTask(this, latitude, longitude, kilometer).execute();
+            } else {
+                updateUI(event);
+            }
+
+        } else {
+            updateUI(event);
+            snackBar(getParentView(), ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     @Override
@@ -270,7 +230,150 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     }
 
     @Override
-    public void adapterOnClick(int adapterPosition) {
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+        realm = Realm.getDefaultInstance();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+        if (realm != null) realm.close();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+
+        } else {
+
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            if (mLastLocation != null) {
+
+                latitude = String.valueOf(mLastLocation.getLatitude());
+                longitude = String.valueOf(mLastLocation.getLongitude());
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        /*
+             * Google Play services can resolve some errors it detects.
+             * If the error has a resolution, try sending an Intent to
+             * start a Google Play services activity that can resolve
+             * error.
+             */
+        if (connectionResult.hasResolution()) {
+
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(getActivity(), CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                    /*
+                     * Thrown if Google Play services canceled the original
+                     * PendingIntent
+                     */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+
+        } else {
+                /*
+                 * If no resolution is available, display a dialog to the
+                 * user with the error.
+                 */
+            Log.d("Error", "Location services connection failed with code " + connectionResult.getErrorCode());
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        if (location != null) {
+            latitude = String.valueOf(location.getLatitude());
+            longitude = String.valueOf(location.getLongitude());
+
+            fetchData();
+        }
+    }
+
+    // Retrieve Nearby Event Callback
+    @Override
+    public void retrieveNearbyEvent(final List<EventModel> eventModelList) {
+
+        if (eventModelList != null && eventModelList.size() > 0) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.where(EventModel.class).findAll().deleteAllFromRealm();
+
+                    for (EventModel eventModel : eventModelList) {
+                        realm.copyToRealm(eventModel);
+                    }
+                }
+            });
+
+            updateUI(event);
+        } else {
+            updateUI(event);
+        }
+    }
+
+    @Override
+    public void adapterOnClick(int eventId) {
+
+        Intent intent = new Intent(getContext(), PulseDetailActivity.class);
+        intent.putExtra("POSITION",  eventId);
+        startActivity(intent);
+    }
+
+    private void updateUI(RealmResults<EventModel> event) {
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        PulseRecyclerListAdapter pulseListAdapter = new PulseRecyclerListAdapter(getContext(), event, PulseFragment.this);
+        mRecyclerView.setAdapter(pulseListAdapter);
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Nullable
+    public View getParentView() {
+        return (CoordinatorLayout) getParentFragment().getView().findViewById(R.id.coordinator_layout);
     }
 }

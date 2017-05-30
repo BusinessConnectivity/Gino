@@ -10,9 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealsActivity;
-import com.bizconnectivity.gino.models.DealList;
-import com.squareup.picasso.Picasso;
+import com.bizconnectivity.gino.activities.OfferDetailActivity;
+import com.bizconnectivity.gino.models.DealModel;
 
 import java.util.List;
 
@@ -20,25 +19,25 @@ import java.util.List;
 public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResultsListAdapter.ViewHolder> {
 
     private Context context;
-    private List<DealList> dealLists;
-    AdapterCallBack adapterCallBack;
+    private List<DealModel> data;
+    private AdapterCallBack adapterCallBack;
 
-    public SearchResultsListAdapter(Context context, List<DealList> dealLists, AdapterCallBack adapterCallBack) {
+    public SearchResultsListAdapter(Context context, List<DealModel> dealLists, AdapterCallBack adapterCallBack) {
 
         this.context = context;
-        this.dealLists = dealLists;
+        this.data = dealLists;
         this.adapterCallBack = adapterCallBack;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (!dealLists.get(position).getDealImageURL().isEmpty())
-            Picasso.with(context).load(dealLists.get(position).getDealImageURL()).into(holder.mImageViewDeal);
+//        if (!dealLists.get(position).getDealImageURL().isEmpty())
+//            Picasso.with(context).load(dealLists.get(position).getDealImageURL()).into(holder.mImageViewDeal);
 
-        holder.mTextViewTitle.setText(dealLists.get(position).getDealTitle());
-        holder.mTextViewLocation.setText(dealLists.get(position).getDealLocation());
-        holder.mTextViewPrice.setText(dealLists.get(position).getDealPrice());
+//        holder.mTextViewTitle.setText(dealLists.get(position).getDealTitle());
+//        holder.mTextViewLocation.setText(dealLists.get(position).getDealLocation());
+//        holder.mTextViewPrice.setText(dealLists.get(position).getDealPrice());
     }
 
     @Override
@@ -50,7 +49,7 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
     @Override
     public int getItemCount() {
-        return dealLists.size();
+        return data.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -77,8 +76,8 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
             adapterCallBack.adapterOnClick(getAdapterPosition());
 
-            Intent intent = new Intent(context, DealsActivity.class);
-            intent.putExtra("POSITION", dealLists.get(getAdapterPosition()).getDealID());
+            Intent intent = new Intent(context, OfferDetailActivity.class);
+            intent.putExtra("POSITION", data.get(getAdapterPosition()).getDealID());
             context.startActivity(intent);
         }
     }

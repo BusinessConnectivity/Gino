@@ -11,7 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
+        android:name=".GinoApplication"
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -31,7 +33,7 @@
         </activity>
         <activity android:name=".activities.SignUpActivity">
         </activity>
-        <activity android:name=".activities.DealsActivity">
+        <activity android:name=".activities.OfferDetailActivity">
         </activity>
         <activity android:name=".activities.HelpSupportActivity">
         </activity>
@@ -39,15 +41,13 @@
         </activity>
         <activity android:name=".activities.SettingsActivity">
         </activity>
-        <activity android:name=".activities.PrelovedActivity">
+        <activity android:name=".activities.DismissedActivity">
         </activity>
-        <activity android:name=".activities.LoveActivity">
+        <activity android:name=".activities.FavouriteActivity">
         </activity>
         <activity android:name=".activities.InboxActivity">
         </activity>
         <activity android:name=".activities.PulseDetailActivity">
-        </activity>
-        <activity android:name=".activities.DealsListActivity">
         </activity>
         <activity android:name=".activities.PrivacyPolicyActivity">
         </activity>
@@ -69,9 +69,9 @@
         </activity>
         <activity android:name=".activities.PaymentMethodActivity">
         </activity>
-        <activity android:name=".activities.DealPurchaseActivity">
+        <activity android:name=".activities.OfferPurchaseActivity">
         </activity>
-        <activity android:name=".activities.DealRedeemActivity">
+        <activity android:name=".activities.OfferRedeemActivity">
         </activity>
         <activity android:name=".activities.PaymentActivity">
         </activity>

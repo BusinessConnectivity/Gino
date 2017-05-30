@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -57,8 +58,7 @@
                 <ImageView
                     android:id="@+id/image_pulse"
                     android:layout_width="match_parent"
-                    android:layout_height="180dp"
-                    android:src="@drawable/feed1"
+                    android:layout_height="200dp"
                     android:scaleType="fitXY"/>
 
             </android.support.v7.widget.CardView>
@@ -288,9 +288,15 @@
 
         </LinearLayout>
 
-
     </android.support.v4.widget.NestedScrollView>
 
 </com.flipboard.bottomsheet.BottomSheetLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

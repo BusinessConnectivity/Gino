@@ -7,30 +7,47 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.AboutGinoActivity;
+import com.bizconnectivity.gino.activities.DismissedActivity;
 import com.bizconnectivity.gino.activities.HelpSupportActivity;
-import com.bizconnectivity.gino.activities.LoveActivity;
-import com.bizconnectivity.gino.activities.PrelovedActivity;
+import com.bizconnectivity.gino.activities.FavouriteActivity;
 import com.bizconnectivity.gino.activities.SettingsActivity;
+import com.bizconnectivity.gino.activities.SplashActivity;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserAsyncTask;
+import com.bizconnectivity.gino.models.UserModel;
 import com.bumptech.glide.Glide;
+import com.facebook.login.LoginManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.ImagePickerSheetView;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,11 +58,19 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
-import static com.bizconnectivity.gino.Common.*;
-import static com.bizconnectivity.gino.Constant.*;
+import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.shortToast;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.MSG_CANNOT_ACCESS_DEVICE_STORAGE;
+import static com.bizconnectivity.gino.Constant.MSG_SOMETHING_WENT_WRONG;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.AsyncResponse, GoogleApiClient.OnConnectionFailedListener {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -56,15 +81,31 @@ public class ProfileFragment extends Fragment {
     @BindView(R.id.profile_picture)
     ImageView mImageViewProfile;
 
+    @BindView(R.id.text_name)
+    TextView mTextViewName;
+
+    @BindView(R.id.button_sign_in_out)
+    Button mButtonSignInOut;
+
     @BindView(R.id.button_logout)
     Button mButtonLogout;
+
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private Uri cameraImageUri = null;
     public static final int REQUEST_STORAGE = 0;
     public static final int REQUEST_IMAGE_CAPTURE = REQUEST_STORAGE + 1;
     public static final int REQUEST_LOAD_IMAGE = REQUEST_IMAGE_CAPTURE + 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
-    SharedPreferences sharedPreferences;
+    private GoogleApiClient mGoogleApiClient;
+    private SharedPreferences sharedPreferences;
+    private Realm realm;
+    private RealmResults<UserModel> user;
+    String loginType;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -92,22 +133,149 @@ public class ProfileFragment extends Fragment {
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
+        // Initial Realm
+        realm = Realm.getDefaultInstance();
+        user = realm.where(UserModel.class).findAll();
+
+        initializeGoogle();
+
+        // Swipe Refresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                fetchData();
+            }
+        });
+
+        mSwipeRefreshLayout.setRefreshing(true);
+        fetchData();
+    }
+
+    private void fetchData() {
+
+        // Check User Sign In
         if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-            mButtonLogout.setVisibility(View.VISIBLE);
+
+            if (isNetworkAvailable(getContext())) {
+                new RetrieveUserAsyncTask(this, user.get(0).getUserEmail()).execute();
+            } else {
+                updateUI(true);
+                snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+            }
+
+        } else {
+            updateUI(false);
         }
+    }
+
+    private void initializeGoogle() {
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .requestProfile()
+                .build();
+
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .enableAutoManage(getActivity() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+    }
+
+    @Override
+    public void retrieveUserDetail(final UserModel response) {
+
+        if (response != null) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.copyToRealmOrUpdate(response);
+                }
+            });
+
+            // Retrieve Latest User Details
+            if (response.getFacebookID() != null) {
+                loginType = "FACEBOOK";
+            } else if (response.getGoogleID() != null) {
+                loginType = "GOOGLE";
+            } else {
+                loginType = "EMAIL";
+            }
+
+            updateUI(true);
+        } else {
+            updateUI(true);
+        }
+    }
+
+    // Update UI
+    private void updateUI(boolean response) {
+
+        if (response) {
+
+            mButtonLogout.setVisibility(View.VISIBLE);
+            mButtonSignInOut.setVisibility(View.GONE);
+
+            if (user.get(0).getUserName() != null) {
+                mTextViewName.setVisibility(View.VISIBLE);
+                mTextViewName.setText(user.get(0).getUserName());
+            } else {
+                mTextViewName.setVisibility(View.GONE);
+            }
+
+            if (user.get(0).getPhotoFile() != null) {
+                byte[] bloc = Base64.decode(user.get(0).getPhotoFile(), Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
+                mImageViewProfile.setImageBitmap(bitmap);
+            } else if (user.get(0).getPhotoUrl() != null) {
+                Picasso.with(getContext()).load(Uri.parse(user.get(0).getPhotoUrl())).into(mImageViewProfile);
+            } else {
+                mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
+            }
+
+            mSwipeRefreshLayout.setRefreshing(false);
+
+        } else {
+
+            mButtonLogout.setVisibility(View.GONE);
+            mButtonSignInOut.setVisibility(View.VISIBLE);
+            mTextViewName.setVisibility(View.GONE);
+            mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
+
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    // Google Sign Out
+    private void googleSignOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        updateUI(false);
+                    }
+                });
     }
 
     @OnClick(R.id.love_layout)
     public void loveOnClick(View view) {
 
-        Intent intent = new Intent(getContext(), LoveActivity.class);
+        Intent intent = new Intent(getContext(), FavouriteActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.preloved_layout)
     public void prelovedOnClick(View view) {
 
-        Intent intent = new Intent(getContext(), PrelovedActivity.class);
+        Intent intent = new Intent(getContext(), DismissedActivity.class);
         startActivity(intent);
     }
 
@@ -135,7 +303,63 @@ public class ProfileFragment extends Fragment {
     @OnClick(R.id.button_logout)
     public void logoutOnClick(View view) {
 
+        switch (loginType) {
 
+            case "FACEBOOK":
+
+                clearUserData();
+                updateIsLogOut();
+                LoginManager.getInstance().logOut();
+                updateUI(false);
+                navigateToSplashScreen();
+                break;
+
+            case "GOOGLE":
+
+                clearUserData();
+                updateIsLogOut();
+                googleSignOut();
+                navigateToSplashScreen();
+                break;
+
+            default:
+
+                clearUserData();
+                updateIsLogOut();
+                updateUI(false);
+                navigateToSplashScreen();
+                break;
+        }
+    }
+
+    @OnClick(R.id.button_sign_in_out)
+    public void signInOutOnClick(View view) {
+
+        navigateToSplashScreen();
+    }
+
+    private void navigateToSplashScreen() {
+
+        Intent intent = new Intent(getContext(), SplashActivity.class);
+        startActivity(intent);
+    }
+
+    // Update shared preference log out
+    private void updateIsLogOut() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, false).apply();
+    }
+
+    // Clear User Data
+    private void clearUserData() {
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                realm.where(UserModel.class).findAll().deleteAllFromRealm();
+            }
+        });
     }
 
     @OnClick(R.id.profile_picture)
@@ -153,6 +377,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    // region BottomSheetLayout & ImagePicker
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
@@ -180,7 +405,6 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    // region BottomSheetLayout & ImagePicker
     private void showSheetView() {
 
         ImagePickerSheetView sheetView = new ImagePickerSheetView.Builder(getActivity())
@@ -354,4 +578,28 @@ public class ProfileFragment extends Fragment {
         }
     }
     // endregion
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        realm = Realm.getDefaultInstance();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (!realm.isClosed()) realm.close();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.stopAutoManage(getActivity());
+        mGoogleApiClient.disconnect();
+    }
 }

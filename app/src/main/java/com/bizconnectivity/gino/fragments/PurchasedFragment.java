@@ -23,7 +23,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.bizconnectivity.gino.Constant.*;
+import static com.bizconnectivity.gino.Constant.TAB_AVAILABLE;
+import static com.bizconnectivity.gino.Constant.TAB_HISTORY;
 
 public class PurchasedFragment extends Fragment {
 
@@ -71,21 +72,24 @@ public class PurchasedFragment extends Fragment {
 
     private void setupTabLayout() {
 
+        LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+        LinearLayout tabLinearLayout2 = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+
         if (mTabLayout != null) {
             if (mTabLayout.getTabAt(0) != null) {
 
-                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+//                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
                 TextView tabOne = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabOne.setText("  " + TAB_AVAILABLE);
+                tabOne.setText(TAB_AVAILABLE);
                 tabOne.setCompoundDrawablesWithIntrinsicBounds(tabIcons[0], 0, 0, 0);
                 mTabLayout.getTabAt(0).setCustomView(tabOne);
             }
 
             if (mTabLayout.getTabAt(1) != null) {
 
-                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
-                TextView tabTwo = (TextView) tabLinearLayout.findViewById(R.id.custom_tab_title);
-                tabTwo.setText("  " + TAB_HISTORY);
+//                LinearLayout tabLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.custom_tab_two, null);
+                TextView tabTwo = (TextView) tabLinearLayout2.findViewById(R.id.custom_tab_title);
+                tabTwo.setText(TAB_HISTORY);
                 tabTwo.setCompoundDrawablesWithIntrinsicBounds(tabIcons[1], 0, 0, 0);
                 mTabLayout.getTabAt(1).setCustomView(tabTwo);
             }

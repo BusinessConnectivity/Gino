@@ -1,16 +1,25 @@
 package com.bizconnectivity.gino.models;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 public class UserDealModel extends RealmObject{
 
+    @PrimaryKey
+    @Index
     private int userDealID;
+    @Index
     private int userID;
+    @Index
     private int dealID;
+    private int quantity;
     private String redeemedDate;
     private boolean isRedeemed;
     private boolean isExpired;
-    private boolean isDeleted;
+    private String createdDate;
+    private RealmList<DealModel> deals;
 
     public int getUserDealID() {
         return userDealID;
@@ -34,6 +43,14 @@ public class UserDealModel extends RealmObject{
 
     public void setDealID(int dealID) {
         this.dealID = dealID;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getRedeemedDate() {
@@ -60,11 +77,19 @@ public class UserDealModel extends RealmObject{
         isExpired = expired;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
+    public String getCreatedDate() {
+        return createdDate;
     }
 
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public RealmList<DealModel> getDeals() {
+        return deals;
+    }
+
+    public void setDeals(RealmList<DealModel> deals) {
+        this.deals = deals;
     }
 }

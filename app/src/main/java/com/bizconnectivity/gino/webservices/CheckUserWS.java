@@ -10,10 +10,10 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_CHECK_USER;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_CHECK_USER;
 
 public class CheckUserWS {
 
@@ -22,7 +22,6 @@ public class CheckUserWS {
         boolean returnResult = false;
 
         SoapObject request = new SoapObject(NAMESPACE, WS_CHECK_USER);
-
 
         PropertyInfo emailPI = new PropertyInfo();
         // Set Name

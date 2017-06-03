@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.MerchantModel;
+import com.bizconnectivity.gino.models.Merchant;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,16 +13,16 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_MERCHANT_BY_ID;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_MERCHANT_BY_ID;
 
 public class RetrieveMerchantByIDWS {
 
-    public static MerchantModel invokeRetrieveMerchantByID(int merchantId) {
+    public static Merchant invokeRetrieveMerchantByID(int merchantId) {
 
-        MerchantModel merchantModel = new MerchantModel();
+        Merchant merchantModel = new Merchant();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_MERCHANT_BY_ID);

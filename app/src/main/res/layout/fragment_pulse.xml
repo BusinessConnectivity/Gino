@@ -12,10 +12,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/pulses_list"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/pulses_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/text_message"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="@dimen/subheading"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="No Internet Connection"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:visibility="gone"/>
+
+        </LinearLayout>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

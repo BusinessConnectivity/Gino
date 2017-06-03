@@ -6,40 +6,45 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.asynctasks.CheckFavouriteEventAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CreateFavouriteEventAsyncTask;
 import com.bizconnectivity.gino.asynctasks.DeleteFavouriteEventAsyncTask;
 import com.bizconnectivity.gino.asynctasks.RetrieveEventByIdAsyncTask;
-import com.bizconnectivity.gino.models.EventModel;
-import com.bizconnectivity.gino.models.FavEventModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.Event;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
 import java.util.Comparator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
+import static com.bizconnectivity.gino.Constant.format1;
+import static com.bizconnectivity.gino.Constant.format2;
 
-public class PulseDetailActivity extends AppCompatActivity implements RetrieveEventByIdAsyncTask.AsyncResponse{
+public class PulseDetailActivity extends AppCompatActivity implements RetrieveEventByIdAsyncTask.AsyncResponse,
+        CheckFavouriteEventAsyncTask.AsyncResponse {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -65,19 +70,26 @@ public class PulseDetailActivity extends AppCompatActivity implements RetrieveEv
     @BindView(R.id.bottom_sheet_layout)
     BottomSheetLayout mBottomSheetLayout;
 
-    @BindView(R.id.progress_bar)
-    ProgressBar mProgressBar;
-
     @BindView(R.id.button_save)
     ImageButton mImageButtonSave;
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
+    @BindView(R.id.content_layout)
+    LinearLayout mLinearLayoutContent;
+
     private SharedPreferences sharedPreferences;
-    private Realm realm;
-    private int eventID;
-    private RealmResults<EventModel> event;
+    private int eventId;
+    private int userFavEventId;
+    private Event event;
+    private boolean isFavouriteEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,109 +111,164 @@ public class PulseDetailActivity extends AppCompatActivity implements RetrieveEv
         // Shared Preferences
         sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
+        // Swipe Refresh OnRefresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                fetchData();
+            }
+        });
 
         // Retrieve Event ID
-        eventID = getIntent().getIntExtra("POSITION", 0);
-        event = realm.where(EventModel.class).equalTo("eventID", eventID).findAll();
+        eventId = getIntent().getIntExtra("POSITION", 0);
 
-        // Retrieve data from WS
         fetchData();
     }
 
+    // Retrieve data from WS
     private void fetchData() {
 
-        mProgressBar.setVisibility(View.VISIBLE);
-        new RetrieveEventByIdAsyncTask(this, eventID).execute();
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        if (isNetworkAvailable(this)) {
+
+            new RetrieveEventByIdAsyncTask(this, eventId).execute();
+
+        } else {
+
+            mLinearLayoutContent.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+        }
     }
 
     // Retrieve Event Callback
     @Override
-    public void retrieveEventById(final EventModel eventModel) {
+    public void retrieveEventById(Event eventModel) {
 
         if (eventModel != null) {
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
+            event = eventModel;
 
-                    realm.copyToRealmOrUpdate(eventModel);
-                }
-            });
+            // Check User Sign In
+            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+                new CheckFavouriteEventAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0),
+                        eventModel.getEventID()).execute();
+            }
+            else {
+                updateUI(false);
+            }
         }
-
-        updateUI();
     }
 
-    private void updateUI() {
+    // Check User Favourite Event Callback
+    @Override
+    public void checkFavouriteEventRespond(Event result) {
 
-        mTextViewTitle.setText(event.get(0).getEventName());
-        mTextViewDescription.setText(event.get(0).getEventDescription());
-        mTextViewDatetime.setText(event.get(0).getEventStartDateTime());
-        mTextViewLocation.setText(event.get(0).getEventLocation());
-        mTextViewOrganizer.setText(event.get(0).getEventOrganizer());
+        if (result != null && result.getUserFavEventId() != 0) {
 
-        if (event.get(0).getImageUrl() != null && !event.get(0).getImageUrl().isEmpty())
-            Picasso.with(this).load(event.get(0).getImageUrl()).into(mImageViewPulse);
+            isFavouriteEvent = true;
+            userFavEventId = result.getUserFavEventId();
+            updateUI(true);
+        } else {
 
-        if (realm.where(FavEventModel.class).equalTo("eventID", eventID).count() > 0) {
+            isFavouriteEvent = false;
+            updateUI(false);
+        }
+    }
+
+    // Update UI
+    private void updateUI(boolean response) {
+
+        if (event.getEventName() != null && !event.getEventName().isEmpty())
+            mTextViewTitle.setText(event.getEventName());
+
+        if (event.getEventDescription() != null && !event.getEventDescription().isEmpty())
+            mTextViewDescription.setText(event.getEventDescription());
+
+        if (event.getEventStartDateTime() != null && !event.getEventStartDateTime().isEmpty()) {
+            try {
+                mTextViewDatetime.setText(format2.format(format1.parse(event.getEventStartDateTime())));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (event.getEventLocation() != null && !event.getEventLocation().isEmpty())
+            mTextViewLocation.setText(event.getEventLocation());
+
+        if (event.getEventOrganizer() != null && !event.getEventOrganizer().isEmpty())
+            mTextViewOrganizer.setText(event.getEventOrganizer());
+
+        if (event.getImageUrl() != null && !event.getImageUrl().isEmpty())
+            Picasso.with(this).load(event.getImageUrl()).into(mImageViewPulse);
+
+        if (response) {
             mImageButtonSave.setImageResource(R.drawable.ic_favorite_white_24dp);
         } else {
             mImageButtonSave.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         }
 
-        mProgressBar.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @OnClick(R.id.button_save)
     public void saveOnClick(View view) {
 
-        if (isNetworkAvailable(this)) {
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
 
-            // Check User Sign In
-            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+            if (isNetworkAvailable(this)) {
 
-                if (realm.where(FavEventModel.class).equalTo("eventID", eventID).count() == 0) {
+                if (!isFavouriteEvent) {
+
+                    new CreateFavouriteEventAsyncTask(sharedPreferences.getInt(SHARED_PREF_USER_ID, 0), eventId).execute();
 
                     mImageButtonSave.setImageResource(R.drawable.ic_favorite_white_24dp);
 
-                    UserModel user = realm.where(UserModel.class).findFirst();
-                    new CreateFavouriteEventAsyncTask(user.getUserID(), eventID).execute();
+                    isFavouriteEvent = true;
 
                 } else {
 
+                    new DeleteFavouriteEventAsyncTask(userFavEventId).execute();
+
                     mImageButtonSave.setImageResource(R.drawable.ic_favorite_border_white_24dp);
 
-                    FavEventModel favEvent= realm.where(FavEventModel.class).equalTo("eventID", eventID).findFirst();
-                    new DeleteFavouriteEventAsyncTask(favEvent.getUserFavEventID()).execute();
+                    isFavouriteEvent = false;
                 }
+
+
+            } else {
+                snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
             }
 
         } else {
-            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+            snackBar(mCoordinatorLayout, "Please sign in to save the event");
         }
     }
 
     @OnClick(R.id.button_share)
     public void shareOnClick(View view) {
 
-        if (event.get(0).getImageUrl() != null && !event.get(0).getImageUrl().isEmpty()) {
-            showSheetView(event.get(0).getImageUrl());
+        if (event.getEventURL() != null && !event.getEventURL().isEmpty()) {
+            showSheetView(event.getEventURL());
         }
     }
 
     @OnClick(R.id.button_website)
     public void websiteOnClick(View view) {
 
-        if (event.get(0).getImageUrl() != null && !event.get(0).getImageUrl().isEmpty()) {
+        if (event.getEventURL() != null && !event.getEventURL().isEmpty()) {
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(event.get(0).getImageUrl()));
+            intent.setData(Uri.parse(event.getEventURL()));
             startActivity(intent);
         }
     }
 
+    // Bottom Sheet Layout
     private void showSheetView(String url) {
 
         final Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -229,20 +296,23 @@ public class PulseDetailActivity extends AppCompatActivity implements RetrieveEv
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        //noinspection SimplifiableIfStatement
+        if (item.getItemId() == android.R.id.home) {
+
+            onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (realm != null) realm.close();
+    public void onBackPressed() {
+        finish();
     }
 }

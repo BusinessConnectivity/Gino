@@ -45,255 +45,266 @@
         android:layout_marginBottom="@dimen/bottom_bar_height"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <com.flipboard.bottomsheet.BottomSheetLayout
             android:id="@+id/bottom_sheet_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="@dimen/margin_5"
-                android:paddingBottom="@dimen/margin_5">
+                android:layout_height="match_parent">
 
-                <android.support.v7.widget.CardView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/CardView.Light">
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/margin_5"
+                    android:paddingBottom="@dimen/margin_5">
 
-                    <LinearLayout
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/margin_5"
-                        android:orientation="vertical">
+                        style="@style/CardView.Light">
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/profile_picture"
-                            android:layout_width="120dp"
-                            android:layout_height="120dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_perm_identity_black_24dp"
-                            android:onClick="profilePictureOnClick"/>
-
-                        <TextView
-                            android:id="@+id/text_name"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textAlignment="center"
-                            android:layout_marginTop="3dp"
-                            android:layout_marginBottom="3dp"
-                            android:textSize="@dimen/subheading"
-                            android:textStyle="bold"/>
+                            android:layout_margin="@dimen/margin_5"
+                            android:orientation="vertical">
 
-                    </LinearLayout>
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/profile_picture"
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_perm_identity_black_24dp"
+                                android:onClick="profilePictureOnClick"/>
 
-                </android.support.v7.widget.CardView>
+                            <TextView
+                                android:id="@+id/text_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="center"
+                                android:layout_marginTop="3dp"
+                                android:layout_marginBottom="3dp"
+                                android:textSize="@dimen/subheading"
+                                android:textStyle="bold"/>
 
-                <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_5"
-                    android:layout_marginBottom="@dimen/margin_5"
-                    style="@style/CardView.Light">
+                        </LinearLayout>
 
-                    <LinearLayout
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.v7.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_marginTop="@dimen/margin_5"
+                        android:layout_marginBottom="@dimen/margin_5"
+                        style="@style/CardView.Light">
 
                         <LinearLayout
-                            android:id="@+id/love_layout"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/single_line_height"
-                            android:paddingStart="@dimen/padding_16"
-                            android:paddingEnd="@dimen/padding_16"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            tools:ignore="UseCompoundDrawables"
-                            android:onClick="loveOnClick">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
 
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_favorite_white_24dp"
-                                android:contentDescription="@string/icon_love"/>
+                            <LinearLayout
+                                android:id="@+id/layout_favourite"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/single_line_height"
+                                android:paddingStart="@dimen/padding_16"
+                                android:paddingEnd="@dimen/padding_16"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                tools:ignore="UseCompoundDrawables"
+                                android:onClick="loveOnClick">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/padding_32"
-                                android:paddingEnd="0dp"
-                                android:textAlignment="viewStart"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:text="@string/title_favorite"/>
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:tint="@color/colorPrimaryDark"
+                                    android:src="@drawable/ic_favorite_white_24dp"
+                                    android:contentDescription="@string/icon_love"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/padding_32"
+                                    android:paddingEnd="0dp"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/subheading"
+                                    android:textStyle="bold"
+                                    android:text="@string/title_favorite"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/layout_dismissed"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/single_line_height"
+                                android:paddingStart="@dimen/padding_16"
+                                android:paddingEnd="@dimen/padding_16"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                tools:ignore="UseCompoundDrawables"
+                                android:onClick="prelovedOnClick">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:tint="@color/colorPrimaryDark"
+                                    android:src="@drawable/ic_favorite_border_white_24dp"
+                                    android:contentDescription="@string/icon_preloved"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/padding_32"
+                                    android:paddingEnd="0dp"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/subheading"
+                                    android:textStyle="bold"
+                                    android:text="@string/title_dismissed"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/layout_settings"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/single_line_height"
+                                android:paddingStart="@dimen/padding_16"
+                                android:paddingEnd="@dimen/padding_16"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                tools:ignore="UseCompoundDrawables"
+                                android:onClick="settingsOnClick">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:tint="@color/colorPrimaryDark"
+                                    android:src="@drawable/ic_settings_white_24dp"
+                                    android:contentDescription="@string/icon_settings"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/padding_32"
+                                    android:paddingEnd="0dp"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/subheading"
+                                    android:textStyle="bold"
+                                    android:text="@string/title_settings"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/feedback_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/single_line_height"
+                                android:paddingStart="@dimen/padding_16"
+                                android:paddingEnd="@dimen/padding_16"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                tools:ignore="UseCompoundDrawables"
+                                android:onClick="feedbackOnClick">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:tint="@color/colorPrimaryDark"
+                                    android:src="@drawable/ic_live_help_white_24dp"
+                                    android:contentDescription="@string/icon_feedback"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/padding_32"
+                                    android:paddingEnd="0dp"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/subheading"
+                                    android:textStyle="bold"
+                                    android:text="@string/title_help_support"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/about_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/single_line_height"
+                                android:paddingStart="@dimen/padding_16"
+                                android:paddingEnd="@dimen/padding_16"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                tools:ignore="UseCompoundDrawables"
+                                android:onClick="aboutOnClick">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:tint="@color/colorPrimaryDark"
+                                    android:src="@drawable/ic_info_outline_white_24dp"
+                                    android:contentDescription="@string/icon_about"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/padding_32"
+                                    android:paddingEnd="0dp"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/subheading"
+                                    android:textStyle="bold"
+                                    android:text="@string/title_about_gino"/>
+
+                            </LinearLayout>
 
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:id="@+id/preloved_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/single_line_height"
-                            android:paddingStart="@dimen/padding_16"
-                            android:paddingEnd="@dimen/padding_16"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            tools:ignore="UseCompoundDrawables"
-                            android:onClick="prelovedOnClick">
+                    </android.support.v7.widget.CardView>
 
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_favorite_border_white_24dp"
-                                android:contentDescription="@string/icon_preloved"/>
+                    <Button
+                        android:id="@+id/button_sign_in_out"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/round_shape_button"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:text="Sign In / Sign Up"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/caption"
+                        android:textColor="@color/colorWhite"
+                        android:visibility="gone"
+                        android:onClick="signInOutOnClick"/>
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/padding_32"
-                                android:paddingEnd="0dp"
-                                android:textAlignment="viewStart"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:text="@string/title_dismissed"/>
+                    <Button
+                        android:id="@+id/button_logout"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/round_shape_button"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:text="Log Out"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/caption"
+                        android:textColor="@color/colorWhite"
+                        android:visibility="gone"
+                        android:onClick="logoutOnClick"/>
 
-                        </LinearLayout>
+                </LinearLayout>
 
-                        <LinearLayout
-                            android:id="@+id/settings_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/single_line_height"
-                            android:paddingStart="@dimen/padding_16"
-                            android:paddingEnd="@dimen/padding_16"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            tools:ignore="UseCompoundDrawables"
-                            android:onClick="settingsOnClick">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_settings_white_24dp"
-                                android:contentDescription="@string/icon_settings"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/padding_32"
-                                android:paddingEnd="0dp"
-                                android:textAlignment="viewStart"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:text="@string/title_settings"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/feedback_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/single_line_height"
-                            android:paddingStart="@dimen/padding_16"
-                            android:paddingEnd="@dimen/padding_16"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            tools:ignore="UseCompoundDrawables"
-                            android:onClick="feedbackOnClick">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_live_help_white_24dp"
-                                android:contentDescription="@string/icon_feedback"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/padding_32"
-                                android:paddingEnd="0dp"
-                                android:textAlignment="viewStart"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:text="@string/title_help_support"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/about_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/single_line_height"
-                            android:paddingStart="@dimen/padding_16"
-                            android:paddingEnd="@dimen/padding_16"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            tools:ignore="UseCompoundDrawables"
-                            android:onClick="aboutOnClick">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:tint="@color/colorPrimaryDark"
-                                android:src="@drawable/ic_info_outline_white_24dp"
-                                android:contentDescription="@string/icon_about"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/padding_32"
-                                android:paddingEnd="0dp"
-                                android:textAlignment="viewStart"
-                                android:textSize="@dimen/subheading"
-                                android:textStyle="bold"
-                                android:text="@string/title_about_gino"/>
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </android.support.v7.widget.CardView>
-
-                <Button
-                    android:id="@+id/button_sign_in_out"
-                    android:layout_width="150dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/round_shape_button"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:text="Sign In / Sign Up"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/caption"
-                    android:textColor="@color/colorWhite"
-                    android:visibility="gone"
-                    android:onClick="signInOutOnClick"/>
-
-                <Button
-                    android:id="@+id/button_logout"
-                    android:layout_width="150dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/round_shape_button"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:text="Log Out"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/caption"
-                    android:textColor="@color/colorWhite"
-                    android:visibility="gone"
-                    android:onClick="logoutOnClick"/>
-
-            </LinearLayout>
+            </ScrollView>
 
         </com.flipboard.bottomsheet.BottomSheetLayout>
 
-    </ScrollView>
-
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/text_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/subheading"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="No Internet Connection"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

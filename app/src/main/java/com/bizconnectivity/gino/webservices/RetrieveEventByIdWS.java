@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.EventModel;
+import com.bizconnectivity.gino.models.Event;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,16 +13,16 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_EVENT_BY_ID;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_EVENT_BY_ID;
 
 public class RetrieveEventByIdWS {
 
-    public static EventModel invokeRetrieveEventById(int eventId) {
+    public static Event invokeRetrieveEventById(int eventId) {
 
-        EventModel eventModel = new EventModel();
+        Event event = new Event();
 
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_EVENT_BY_ID);
 
@@ -71,47 +71,47 @@ public class RetrieveEventByIdWS {
                     SoapObject table = (SoapObject) newDataSet.getProperty(0);
 
                     if (isValidateProperty(table, "EventId")) {
-                        eventModel.setEventID(Integer.parseInt(dataReturn(table, "EventId")));
+                        event.setEventID(Integer.parseInt(dataReturn(table, "EventId")));
                     }
 
                     if (isValidateProperty(table, "EventName")) {
-                        eventModel.setEventName(dataReturn(table, "EventName"));
+                        event.setEventName(dataReturn(table, "EventName"));
                     }
 
                     if (isValidateProperty(table, "EventDescription")) {
-                        eventModel.setEventDescription(dataReturn(table, "EventDescription"));
+                        event.setEventDescription(dataReturn(table, "EventDescription"));
                     }
 
                     if (isValidateProperty(table, "EventStartDateTime")) {
-                        eventModel.setEventStartDateTime(dataReturn(table, "EventStartDateTime"));
+                        event.setEventStartDateTime(dataReturn(table, "EventStartDateTime"));
                     }
 
                     if (isValidateProperty(table, "EventEndDateTime")) {
-                        eventModel.setEventEndDateTime(dataReturn(table, "EventEndDateTime"));
+                        event.setEventEndDateTime(dataReturn(table, "EventEndDateTime"));
                     }
 
                     if (isValidateProperty(table, "EventLocation")) {
-                        eventModel.setEventLocation(dataReturn(table, "EventLocation"));
+                        event.setEventLocation(dataReturn(table, "EventLocation"));
                     }
 
                     if (isValidateProperty(table, "EventOrganizer")) {
-                        eventModel.setEventOrganizer(dataReturn(table, "EventOrganizer"));
+                        event.setEventOrganizer(dataReturn(table, "EventOrganizer"));
                     }
 
                     if (isValidateProperty(table, "EventLatitude")) {
-                        eventModel.setEventLatitude(dataReturn(table, "EventLatitude"));
+                        event.setEventLatitude(dataReturn(table, "EventLatitude"));
                     }
 
                     if (isValidateProperty(table, "EventLongitude")) {
-                        eventModel.setEventLongitude(dataReturn(table, "EventLongitude"));
+                        event.setEventLongitude(dataReturn(table, "EventLongitude"));
                     }
 
                     if (isValidateProperty(table, "EventUrl")) {
-                        eventModel.setEventURL(dataReturn(table, "EventUrl"));
+                        event.setEventURL(dataReturn(table, "EventUrl"));
                     }
 
                     if (isValidateProperty(table, "ImageUrl")) {
-                        eventModel.setImageUrl(dataReturn(table, "ImageUrl"));
+                        event.setImageUrl(dataReturn(table, "ImageUrl"));
                     }
                 }
             }
@@ -120,6 +120,6 @@ public class RetrieveEventByIdWS {
             e.printStackTrace();
         }
 
-        return eventModel;
+        return event;
     }
 }

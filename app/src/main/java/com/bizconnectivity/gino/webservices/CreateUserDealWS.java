@@ -10,14 +10,14 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_CREATE_USER_DEAL;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_CREATE_USER_DEAL;
 
 public class CreateUserDealWS {
 
-    public static boolean invokeCreateUserDeal(int memberId, int dealId, int quantity) {
+    public static boolean invokeCreateUserDeal(int memberId, int dealId, int quantity, String totalPrice, String subTotalPrice) {
 
         boolean returnResult = false;
 
@@ -52,6 +52,26 @@ public class CreateUserDealWS {
         quantityPI.setType(int.class);
         // Add the property to request object
         request.addProperty(quantityPI);
+
+        PropertyInfo totalPI = new PropertyInfo();
+        // Set Name
+        totalPI.setName("totalPrice");
+        // Set Value
+        totalPI.setValue(totalPrice);
+        // Set dataType
+        totalPI.setType(String.class);
+        // Add the property to request object
+        request.addProperty(totalPI);
+
+        PropertyInfo subtotalPI = new PropertyInfo();
+        // Set Name
+        subtotalPI.setName("subTotalPrice");
+        // Set Value
+        subtotalPI.setValue(subTotalPrice);
+        // Set dataType
+        subtotalPI.setType(String.class);
+        // Add the property to request object
+        request.addProperty(subtotalPI);
 
         // Create envelope
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);

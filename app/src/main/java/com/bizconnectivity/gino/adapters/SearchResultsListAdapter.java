@@ -2,7 +2,10 @@ package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +14,7 @@ import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.OfferDetailActivity;
-import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.Deal;
 
 import java.util.List;
 
@@ -19,25 +22,34 @@ import java.util.List;
 public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResultsListAdapter.ViewHolder> {
 
     private Context context;
-    private List<DealModel> data;
+    private List<Deal> data;
     private AdapterCallBack adapterCallBack;
 
-    public SearchResultsListAdapter(Context context, List<DealModel> dealLists, AdapterCallBack adapterCallBack) {
+    public SearchResultsListAdapter(Context context, List<Deal> dealLists, AdapterCallBack adapterCallBack) {
 
         this.context = context;
         this.data = dealLists;
         this.adapterCallBack = adapterCallBack;
     }
 
+    public void swapData(List<Deal> newData) {
+        data = newData;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-//        if (!dealLists.get(position).getDealImageURL().isEmpty())
-//            Picasso.with(context).load(dealLists.get(position).getDealImageURL()).into(holder.mImageViewDeal);
+        if (data.get(position).getDealImageFile() != null) {
+            byte[] bloc = Base64.decode(data.get(position).getDealImageFile(), Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
+            holder.mImageViewDeal.setImageBitmap(bitmap);
+        }
 
-//        holder.mTextViewTitle.setText(dealLists.get(position).getDealTitle());
-//        holder.mTextViewLocation.setText(dealLists.get(position).getDealLocation());
-//        holder.mTextViewPrice.setText(dealLists.get(position).getDealPrice());
+        holder.mTextViewTitle.setText(data.get(position).getDealName());
+        holder.mTextViewLocation.setText(data.get(position).getDealLocation());
+        holder.mTextViewPromoPrice.setText(data.get(position).getDealPromoPrice());
+        holder.mTextViewUsualPrice.setText(data.get(position).getDealUsualPrice());
     }
 
     @Override
@@ -54,10 +66,11 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView mTextViewTitle;
-        public TextView mTextViewLocation;
-        public TextView mTextViewPrice;
-        public ImageView mImageViewDeal;
+        TextView mTextViewTitle;
+        TextView mTextViewLocation;
+        TextView mTextViewUsualPrice;
+        TextView mTextViewPromoPrice;
+        ImageView mImageViewDeal;
 
         public ViewHolder(final View itemView) {
 
@@ -65,7 +78,8 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewLocation = (TextView) itemView.findViewById(R.id.text_location);
-            mTextViewPrice = (TextView) itemView.findViewById(R.id.text_price);
+            mTextViewPromoPrice = (TextView) itemView.findViewById(R.id.text_promo_price);
+            mTextViewUsualPrice = (TextView) itemView.findViewById(R.id.text_usual_price);
             mImageViewDeal = (ImageView) itemView.findViewById(R.id.image_deal);
 
             itemView.setOnClickListener(this);

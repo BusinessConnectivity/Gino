@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -15,27 +15,24 @@ import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.asynctasks.DeleteFavouriteDealAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperAdapter;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperViewHolder;
-import com.bizconnectivity.gino.models.FavDealModel;
+import com.bizconnectivity.gino.models.Deal;
 
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
-import io.realm.RealmRecyclerViewAdapter;
+public class FavouriteDealAdapter extends RecyclerView.Adapter<FavouriteDealAdapter.ItemViewHolder> implements ItemTouchHelperAdapter {
 
-public class FavouriteDealAdapter extends RealmRecyclerViewAdapter<FavDealModel, FavouriteDealAdapter.ItemViewHolder> implements
-        ItemTouchHelperAdapter {
-
-    private List<FavDealModel> data;
-    private Realm realm;
+    private List<Deal> data;
     private AdapterCallBack adapterCallBack;
 
-    public FavouriteDealAdapter(@Nullable OrderedRealmCollection<FavDealModel> data, Realm realm, AdapterCallBack adapterCallBack) {
+    public FavouriteDealAdapter(List<Deal> data, AdapterCallBack adapterCallBack) {
 
-        super(data, true);
         this.data = data;
-        this.realm = realm;
         this.adapterCallBack = adapterCallBack;
+    }
+
+    public void swapData(List<Deal> newData) {
+        data = newData;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -48,14 +45,17 @@ public class FavouriteDealAdapter extends RealmRecyclerViewAdapter<FavDealModel,
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
 
-        if (data.get(position).getDeals().get(0).getDealImageFile() != null) {
-            byte[] bloc = Base64.decode(data.get(position).getDeals().get(0).getDealImageFile(), Base64.DEFAULT);
+        if (data.get(position).getDealImageFile() != null) {
+            byte[] bloc = Base64.decode(data.get(position).getDealImageFile(), Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
             holder.mImageViewDeal.setImageBitmap(bitmap);
         }
-        holder.mTextViewTitle.setText(data.get(position).getDeals().get(0).getDealName());
-        holder.mTextViewLocation.setText(data.get(position).getDeals().get(0).getDealLocation());
-        holder.mTextViewPrice.setText(data.get(position).getDeals().get(0).getDealPromoPrice());
+
+        holder.mTextViewTitle.setText(data.get(position).getDealName());
+        holder.mTextViewLocation.setText(data.get(position).getDealLocation());
+        holder.mTextViewUsualPrice.setText(data.get(position).getDealUsualPrice());
+        holder.mTextViewUsualPrice.setPaintFlags(holder.mTextViewUsualPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.mTextViewPromoPrice.setText(data.get(position).getDealPromoPrice());
     }
 
     @Override
@@ -64,30 +64,26 @@ public class FavouriteDealAdapter extends RealmRecyclerViewAdapter<FavDealModel,
     }
 
     @Override
-    public void onItemLeftSwipe(final int position) {
+    public void onItemLeftSwipe(int userId, int position) {
 
-        new DeleteFavouriteDealAsyncTask(data.get(position).getUserFavDealID()).execute();
+        new DeleteFavouriteDealAsyncTask(data.get(position).getUserFavDealId()).execute();
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-
-                realm.where(FavDealModel.class).equalTo("userFavDealID", data.get(position).getUserFavDealID()).findFirst().deleteFromRealm();
-            }
-        });
+        data.remove(position);
+        notifyItemRemoved(position);
     }
 
     @Override
-    public void onItemRightSwipe(int position) {
+    public void onItemRightSwipe(int userId, int position) {
 
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder, View.OnClickListener {
 
-        public TextView mTextViewTitle;
-        public TextView mTextViewLocation;
-        public TextView mTextViewPrice;
-        public ImageView mImageViewDeal;
+        TextView mTextViewTitle;
+        TextView mTextViewLocation;
+        TextView mTextViewUsualPrice;
+        TextView mTextViewPromoPrice;
+        ImageView mImageViewDeal;
 
         public ItemViewHolder(final View itemView) {
 
@@ -95,7 +91,8 @@ public class FavouriteDealAdapter extends RealmRecyclerViewAdapter<FavDealModel,
 
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewLocation = (TextView) itemView.findViewById(R.id.text_location);
-            mTextViewPrice = (TextView) itemView.findViewById(R.id.text_price);
+            mTextViewUsualPrice = (TextView) itemView.findViewById(R.id.text_usual_price);
+            mTextViewPromoPrice = (TextView) itemView.findViewById(R.id.text_promo_price);
             mImageViewDeal = (ImageView) itemView.findViewById(R.id.image_deal);
 
             itemView.setOnClickListener(this);

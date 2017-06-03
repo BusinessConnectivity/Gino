@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.EventModel;
+import com.bizconnectivity.gino.models.Event;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -16,16 +16,16 @@ import java.util.List;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_EVENT;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_EVENT;
 
 public class RetrieveEventWS {
 
-    public static List<EventModel> invokeRetrieveNearbyEvent(String latitude, String longitutde, String kilometer) {
+    public static List<Event> invokeRetrieveNearbyEvent(String latitude, String longitutde, String kilometer) {
 
-        List<EventModel> eventModelList = new ArrayList<>();
+        List<Event> eventModelList = new ArrayList<>();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_EVENT);
@@ -98,7 +98,7 @@ public class RetrieveEventWS {
                         //get the number of dataSet
                         SoapObject table = (SoapObject) newDataSet.getProperty(i);
 
-                        EventModel eventModel = new EventModel();
+                        Event eventModel = new Event();
 
                         if (isValidateProperty(table, "EventId")) {
                             eventModel.setEventID(Integer.parseInt(dataReturn(table, "EventId")));

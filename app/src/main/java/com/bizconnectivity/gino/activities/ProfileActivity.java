@@ -1,21 +1,24 @@
 package com.bizconnectivity.gino.activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.asynctasks.RetrieveUserAsyncTask;
 import com.bizconnectivity.gino.asynctasks.UpdateUserAsyncTask;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.User;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
@@ -26,12 +29,14 @@ import java.util.Calendar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.LOGIN_EMAIL;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_EMAIL;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_SIGN_IN_TYPE;
 import static com.bizconnectivity.gino.Constant.format1;
 import static com.bizconnectivity.gino.Constant.format2;
 
@@ -53,15 +58,21 @@ public class ProfileActivity extends AppCompatActivity implements DatePickerDial
     @BindView(R.id.spinner_location)
     MaterialBetterSpinner maSpinnerLocation;
 
-    @BindView(R.id.progress_bar)
-    ProgressBar mProgressBar;
-
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 
-    private Realm realm;
-    private RealmResults<UserModel> user;
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
+    @BindView(R.id.change_password)
+    LinearLayout mLayoutChangePassword;
+
+    private SharedPreferences sharedPreferences;
     private Calendar now = Calendar.getInstance();
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,9 +91,25 @@ public class ProfileActivity extends AppCompatActivity implements DatePickerDial
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        user = realm.where(UserModel.class).findAll();
+        // Shared Preferences
+        sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
+        initialDefaultData();
+
+        switch (sharedPreferences.getString(SHARED_PREF_USER_SIGN_IN_TYPE, "")) {
+
+            case LOGIN_EMAIL:
+                mLayoutChangePassword.setVisibility(View.VISIBLE);
+                break;
+            default:
+                mLayoutChangePassword.setVisibility(View.GONE);
+                break;
+        }
+
+        fetchData();
+    }
+
+    private void initialDefaultData() {
 
         mTextViewBirthday.setText("01 / 01 / 1990");
 
@@ -93,54 +120,74 @@ public class ProfileActivity extends AppCompatActivity implements DatePickerDial
         String[] location = {"Singapore", "Malaysia", "Indonesia"};
         ArrayAdapter<String> adapterLocation = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, location);
         maSpinnerLocation.setAdapter(adapterLocation);
-
-        fetchData();
     }
 
     private void fetchData(){
 
-        mProgressBar.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(this)) {
-            new RetrieveUserAsyncTask(this, user.get(0).getUserEmail()).execute();
+
+            new RetrieveUserAsyncTask(this, sharedPreferences.getString(SHARED_PREF_USER_EMAIL, "")).execute();
+
         } else {
-            updateUI();
-            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void retrieveUserDetail(final User result) {
+
+        if (result != null) user = result;
+
+        updateUI();
     }
 
     private void updateUI (){
 
-        if (user.get(0).getUserName() != null)
-            mEditTextName.setText(user.get(0).getUserName());
-        if (user.get(0).getUserDOB() != null) {
+        if (user.getUserName() != null)
+            mEditTextName.setText(user.getUserName());
+
+        if (user.getUserDOB() != null) {
+
             try {
-                mTextViewBirthday.setText(format2.format(format1.parse(user.get(0).getUserDOB())));
+                mTextViewBirthday.setText(format2.format(format1.parse(user.getUserDOB())));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-        if (user.get(0).getUserGender() != null)
-            mSpinnerGender.setText(user.get(0).getUserGender().toUpperCase());
 
-        mProgressBar.setVisibility(View.GONE);
+        if (user.getUserGender() != null)
+            mSpinnerGender.setText(user.getUserGender().toUpperCase());
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void updateData() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        String email = user.getUserEmail();
+        String name = mEditTextName.getText().toString();
+        String gender = mSpinnerGender.getText().toString();
+        String dob = mTextViewBirthday.getText().toString();
+
+        new UpdateUserAsyncTask(this, email, name, gender, dob).execute();
     }
 
     @Override
-    public void retrieveUserDetail(final UserModel userModel) {
+    public void updateUserResponse(boolean response) {
 
-        if (userModel != null) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.copyToRealmOrUpdate(userModel);
-                }
-            });
+        if (response) {
+            snackBar(mCoordinatorLayout, "Update Successfully");
+        } else {
+            snackBar(mCoordinatorLayout, "Update Failed");
         }
 
-        updateUI();
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @OnClick(R.id.text_birthday)
@@ -197,38 +244,17 @@ public class ProfileActivity extends AppCompatActivity implements DatePickerDial
             } else {
                 snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
             }
+
+        } else if (item.getItemId() == android.R.id.home) {
+
+            onBackPressed();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateData() {
-
-        mProgressBar.setVisibility(View.VISIBLE);
-
-        String email = user.get(0).getUserEmail();
-        String name = mEditTextName.getText().toString();
-        String gender = mSpinnerGender.getText().toString();
-        String dob = mTextViewBirthday.getText().toString();
-
-        new UpdateUserAsyncTask(this, email, name, gender, dob).execute();
-
-        mProgressBar.setVisibility(View.GONE);
-    }
-
     @Override
-    public void updateUserResponse(boolean response) {
-
-        if (response) {
-            snackBar(mCoordinatorLayout, "Update Successfully");
-        } else {
-            snackBar(mCoordinatorLayout, "Update Failed");
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    public void onBackPressed() {
+        finish();
     }
 }

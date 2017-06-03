@@ -13,10 +13,9 @@
         <ImageView
             android:id="@+id/image_pulse"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="170dp"
             android:scaleType="fitXY"
-            android:contentDescription="@string/pulse_image"
-            android:src="@drawable/feed1"/>
+            android:contentDescription="@string/pulse_image"/>
 
         <LinearLayout
             android:layout_width="match_parent"

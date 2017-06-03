@@ -5,34 +5,38 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.DealHistoryActivity;
+import com.bizconnectivity.gino.activities.OfferHistoryActivity;
 import com.bizconnectivity.gino.adapters.HistoryDealsAdapter;
-import com.bizconnectivity.gino.asynctasks.RetrieveUserDealAsyncTask;
-import com.bizconnectivity.gino.models.DealModel;
-import com.bizconnectivity.gino.models.UserDealModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.asynctasks.RetrieveHistoryDealAsyncTask;
+import com.bizconnectivity.gino.models.PurchasedDeal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
-public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack, RetrieveUserDealAsyncTask.AsyncResponse {
+public class HistoryFragment extends Fragment implements HistoryDealsAdapter.AdapterCallBack, RetrieveHistoryDealAsyncTask.AsyncResponse {
 
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -40,11 +44,12 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
     @BindView(R.id.history_list)
     RecyclerView mRecyclerViewHistory;
 
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
     private SharedPreferences sharedPreferences;
-    private Realm realm;
-    private UserModel user;
-    private RealmResults<UserDealModel> userDeal;
-    HistoryDealsAdapter mRecyclerListAdapter;
+    private HistoryDealsAdapter historyDealsAdapter;
+    private List<PurchasedDeal> purchasedDealList = new ArrayList<>();
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -68,102 +73,103 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        user = realm.where(UserModel.class).findFirst();
-        userDeal = realm.where(UserDealModel.class).equalTo("isRedeemed", true).or().equalTo("isExpired", true).findAll();
-
+        // Swipe Refresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 fetchData();
             }
         });
 
+        mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
+        historyDealsAdapter = new HistoryDealsAdapter(purchasedDealList, this);
+        mRecyclerViewHistory.setAdapter(historyDealsAdapter);
+
         fetchData();
     }
 
+    // Retrieve data from WS
     private void fetchData() {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        // Check User Sign In
-        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+        if (isNetworkAvailable(getContext())) {
 
-            if (isNetworkAvailable(getContext())) {
-                new RetrieveUserDealAsyncTask(this, user.getUserID()).execute();
+            // Check User Sign In
+            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+                new RetrieveHistoryDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
             } else {
-                updateUI();
+
+                mSwipeRefreshLayout.setRefreshing(false);
+                snackBar(getParentView(), ERR_MSG_USER_SIGN_IN);
             }
 
         } else {
-            updateUI();
+
+            mSwipeRefreshLayout.setRefreshing(false);
+            mRecyclerViewHistory.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
         }
     }
 
+    // Retrieve User Deal Callback
     @Override
-    public void retrieveUserDeal(final List<UserDealModel> userDealModelList) {
+    public void retrieveHistoryDeal(List<PurchasedDeal> result) {
 
-        if (userDealModelList != null) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(UserDealModel.class).findAll().deleteAllFromRealm();
-
-                    for (int i=0; i<userDealModelList.size(); i++) {
-
-                        UserDealModel userDealModel = realm.createObject(UserDealModel.class, i+1);
-                        userDealModel.setDealID(userDealModelList.get(i).getDealID());
-                        userDealModel.setUserID(userDealModelList.get(i).getUserID());
-                        userDealModel.setQuantity(userDealModelList.get(i).getQuantity());
-                        userDealModel.setRedeemed(userDealModelList.get(i).isRedeemed());
-                        userDealModel.setExpired(userDealModelList.get(i).isExpired());
-                        userDealModel.setRedeemedDate(userDealModelList.get(i).getRedeemedDate());
-                        userDealModel.getDeals().add(realm.where(DealModel.class)
-                                .equalTo("dealID", userDealModelList.get(i).getDealID())
-                                .findFirst());
-
-                        realm.copyToRealmOrUpdate(userDealModel);
-                    }
-                }
-            });
-
-            updateUI();
+        if (result != null && result.size() > 0) {
+            purchasedDealList = result;
+        } else {
+            purchasedDealList = new ArrayList<>();
         }
+
+        updateUI();
     }
 
+    // Update UI
     private void updateUI() {
 
-        if (userDeal != null) {
-            mRecyclerViewHistory.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mRecyclerListAdapter = new HistoryDealsAdapter(getContext(), userDeal, this);
-            mRecyclerViewHistory.setAdapter(mRecyclerListAdapter);
-        }
+        historyDealsAdapter.swapData(purchasedDealList);
+
+        if (purchasedDealList.isEmpty()) snackBar(getParentView(), "No Record");
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     // User Deal OnClick Callback
     @Override
-    public void adapterOnClick(int adapterPosition) {
+    public void adapterOnClick(int position) {
 
-        Intent intent = new Intent(getContext(), DealHistoryActivity.class);
-        intent.putExtra("POSITION", userDeal.get(adapterPosition).getDealID());
-        startActivity(intent);
+        if (isNetworkAvailable(getContext())) {
+
+            Intent intent = new Intent(getContext(), OfferHistoryActivity.class);
+            intent.putExtra("USER_DEAL_ID", purchasedDealList.get(position).getUserDealId());
+
+            if (purchasedDealList.get(position).isRedeemed()) {
+                intent.putExtra("DEAL_STATUS", "REDEEMED");
+                intent.putExtra("DEAL_STATUS_DATE", purchasedDealList.get(position).getRedeemedDate());
+            } else {
+                intent.putExtra("DEAL_STATUS", "EXPIRED");
+                intent.putExtra("DEAL_STATUS_DATE", purchasedDealList.get(position).getDealRedeemEndDate());
+            }
+
+            startActivity(intent);
+
+        } else {
+            snackBar(getParentView(), ERR_MSG_NO_INTERNET_CONNECTION);
+        }
+    }
+
+    @Nullable
+    public View getParentView() {
+        return (CoordinatorLayout) getParentFragment().getView().findViewById(R.id.coordinator_layout);
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (realm != null) realm.close();
+        fetchData();
     }
 }

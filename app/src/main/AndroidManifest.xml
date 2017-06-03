@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
-        android:name=".GinoApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,6 +25,11 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_label">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.SignInActivity"
@@ -53,8 +57,6 @@
         </activity>
         <activity android:name=".activities.TermsActivity">
         </activity>
-        <activity android:name=".activities.PurchasedDealActivity">
-        </activity>
         <activity android:name=".activities.HistoryDealActivity">
         </activity>
         <activity android:name=".activities.FAQActivity">
@@ -71,7 +73,7 @@
         </activity>
         <activity android:name=".activities.OfferPurchaseActivity">
         </activity>
-        <activity android:name=".activities.OfferRedeemActivity">
+        <activity android:name=".activities.OfferAvailableActivity">
         </activity>
         <activity android:name=".activities.PaymentActivity">
         </activity>
@@ -93,20 +95,17 @@
                 <data android:scheme="@string/fb_login_protocol_scheme"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DealHistoryActivity">
+        <activity android:name=".activities.OfferHistoryActivity">
         </activity>
         <activity android:name=".activities.SplashActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity android:name=".activities.ForgotPasswordActivity">
         </activity>
-        <activity android:name=".activities.GetCurrentLocationActivity">
-
-        </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="650f0c577915e91f0ce4c09548ec6aadba496dc5"
+            />
     </application>
 
 </manifest>

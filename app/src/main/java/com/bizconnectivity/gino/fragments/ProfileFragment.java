@@ -26,17 +26,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.AboutGinoActivity;
 import com.bizconnectivity.gino.activities.DismissedActivity;
-import com.bizconnectivity.gino.activities.HelpSupportActivity;
 import com.bizconnectivity.gino.activities.FavouriteActivity;
+import com.bizconnectivity.gino.activities.HelpSupportActivity;
 import com.bizconnectivity.gino.activities.SettingsActivity;
 import com.bizconnectivity.gino.activities.SplashActivity;
 import com.bizconnectivity.gino.asynctasks.RetrieveUserAsyncTask;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.asynctasks.UpdateUserPhotoAsyncTask;
+import com.bizconnectivity.gino.models.User;
 import com.bumptech.glide.Glide;
 import com.facebook.login.LoginManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
@@ -49,6 +53,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -58,17 +63,18 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
-import static com.bizconnectivity.gino.Common.shortToast;
 import static com.bizconnectivity.gino.Common.snackBar;
-import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.LOGIN_FACEBOOK;
+import static com.bizconnectivity.gino.Constant.LOGIN_GOOGLE;
 import static com.bizconnectivity.gino.Constant.MSG_CANNOT_ACCESS_DEVICE_STORAGE;
 import static com.bizconnectivity.gino.Constant.MSG_SOMETHING_WENT_WRONG;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_EMAIL;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_SIGN_IN_TYPE;
 
 public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.AsyncResponse, GoogleApiClient.OnConnectionFailedListener {
 
@@ -96,6 +102,18 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     @BindView(R.id.swipeRefreshLayout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
+    @BindView(R.id.layout_favourite)
+    LinearLayout mLayoutFavourite;
+
+    @BindView(R.id.layout_dismissed)
+    LinearLayout mLayoutDismissed;
+
+    @BindView(R.id.layout_settings)
+    LinearLayout mLayoutSettings;
+
     private Uri cameraImageUri = null;
     public static final int REQUEST_STORAGE = 0;
     public static final int REQUEST_IMAGE_CAPTURE = REQUEST_STORAGE + 1;
@@ -103,9 +121,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private GoogleApiClient mGoogleApiClient;
     private SharedPreferences sharedPreferences;
-    private Realm realm;
-    private RealmResults<UserModel> user;
-    String loginType;
+    private User user;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -133,10 +149,6 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        user = realm.where(UserModel.class).findAll();
-
         initializeGoogle();
 
         // Swipe Refresh Listener
@@ -149,25 +161,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
             }
         });
 
-        mSwipeRefreshLayout.setRefreshing(true);
         fetchData();
-    }
-
-    private void fetchData() {
-
-        // Check User Sign In
-        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-            if (isNetworkAvailable(getContext())) {
-                new RetrieveUserAsyncTask(this, user.get(0).getUserEmail()).execute();
-            } else {
-                updateUI(true);
-                snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
-            }
-
-        } else {
-            updateUI(false);
-        }
     }
 
     private void initializeGoogle() {
@@ -188,31 +182,44 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
                 .build();
     }
 
-    @Override
-    public void retrieveUserDetail(final UserModel response) {
+    // Retrieve data from WS
+    private void fetchData() {
 
-        if (response != null) {
+        mSwipeRefreshLayout.setRefreshing(true);
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
+        if (isNetworkAvailable(getContext())) {
 
-                    realm.copyToRealmOrUpdate(response);
-                }
-            });
+            // Check User Sign In
+            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
 
-            // Retrieve Latest User Details
-            if (response.getFacebookID() != null) {
-                loginType = "FACEBOOK";
-            } else if (response.getGoogleID() != null) {
-                loginType = "GOOGLE";
+                new RetrieveUserAsyncTask(this, sharedPreferences.getString(SHARED_PREF_USER_EMAIL, "")).execute();
+
             } else {
-                loginType = "EMAIL";
+
+                updateUI(false);
             }
 
-            updateUI(true);
         } else {
+
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Retrieve User Detail Callback
+    @Override
+    public void retrieveUserDetail(User result) {
+
+        if (result != null) {
+
+            user = result;
             updateUI(true);
+
+        } else {
+
+            snackBar(mCoordinatorLayout, "Retrieve User Detail Error");
+            updateUI(false);
         }
     }
 
@@ -224,20 +231,24 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
             mButtonLogout.setVisibility(View.VISIBLE);
             mButtonSignInOut.setVisibility(View.GONE);
 
-            if (user.get(0).getUserName() != null) {
+            if (user.getUserName() != null) {
                 mTextViewName.setVisibility(View.VISIBLE);
-                mTextViewName.setText(user.get(0).getUserName());
+                mTextViewName.setText(user.getUserName());
             } else {
                 mTextViewName.setVisibility(View.GONE);
             }
 
-            if (user.get(0).getPhotoFile() != null) {
-                byte[] bloc = Base64.decode(user.get(0).getPhotoFile(), Base64.DEFAULT);
+            if (user.getPhotoFile() != null) {
+
+                byte[] bloc = Base64.decode(user.getPhotoFile(), Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
                 mImageViewProfile.setImageBitmap(bitmap);
-            } else if (user.get(0).getPhotoUrl() != null) {
-                Picasso.with(getContext()).load(Uri.parse(user.get(0).getPhotoUrl())).into(mImageViewProfile);
+
+            } else if (user.getPhotoUrl() != null) {
+
+                Picasso.with(getContext()).load(Uri.parse(user.getPhotoUrl())).into(mImageViewProfile);
             } else {
+
                 mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
             }
 
@@ -248,10 +259,23 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
             mButtonLogout.setVisibility(View.GONE);
             mButtonSignInOut.setVisibility(View.VISIBLE);
             mTextViewName.setVisibility(View.GONE);
+            mLayoutFavourite.setVisibility(View.GONE);
+            mLayoutDismissed.setVisibility(View.GONE);
+            mLayoutSettings.setVisibility(View.GONE);
             mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
+            mImageViewProfile.setOnClickListener(null);
 
             mSwipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    // Update shared preference log out
+    private void updateIsLogOut() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, false).apply();
+        editor.remove(SHARED_PREF_USER_ID).apply();
+        editor.remove(SHARED_PREF_USER_EMAIL).apply();
+        editor.remove(SHARED_PREF_USER_SIGN_IN_TYPE).apply();
     }
 
     // Google Sign Out
@@ -265,21 +289,21 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
                 });
     }
 
-    @OnClick(R.id.love_layout)
+    @OnClick(R.id.layout_favourite)
     public void loveOnClick(View view) {
 
         Intent intent = new Intent(getContext(), FavouriteActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.preloved_layout)
+    @OnClick(R.id.layout_dismissed)
     public void prelovedOnClick(View view) {
 
         Intent intent = new Intent(getContext(), DismissedActivity.class);
         startActivity(intent);
     }
 
-    @OnClick(R.id.settings_layout)
+    @OnClick(R.id.layout_settings)
     public void settingsOnClick(View view) {
 
         Intent intent = new Intent(getContext(), SettingsActivity.class);
@@ -303,38 +327,52 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     @OnClick(R.id.button_logout)
     public void logoutOnClick(View view) {
 
-        switch (loginType) {
+        new MaterialDialog.Builder(getContext())
+                .title("Logout Confirmation")
+                .content("Are you sure you want to log out?")
+                .positiveText(android.R.string.ok)
+                .negativeText(android.R.string.cancel)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
-            case "FACEBOOK":
+                        switch (sharedPreferences.getString(SHARED_PREF_USER_SIGN_IN_TYPE, "")) {
 
-                clearUserData();
-                updateIsLogOut();
-                LoginManager.getInstance().logOut();
-                updateUI(false);
-                navigateToSplashScreen();
-                break;
+                            case LOGIN_FACEBOOK:
 
-            case "GOOGLE":
+                                updateIsLogOut();
+                                LoginManager.getInstance().logOut();
+                                updateUI(false);
+                                navigateToSplashScreen();
+                                break;
 
-                clearUserData();
-                updateIsLogOut();
-                googleSignOut();
-                navigateToSplashScreen();
-                break;
+                            case LOGIN_GOOGLE:
 
-            default:
+                                updateIsLogOut();
+                                googleSignOut();
+                                navigateToSplashScreen();
+                                break;
 
-                clearUserData();
-                updateIsLogOut();
-                updateUI(false);
-                navigateToSplashScreen();
-                break;
-        }
+                            default:
+
+                                updateIsLogOut();
+                                updateUI(false);
+                                navigateToSplashScreen();
+                                break;
+                        }
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                    }
+                })
+                .show();
     }
 
     @OnClick(R.id.button_sign_in_out)
     public void signInOutOnClick(View view) {
-
         navigateToSplashScreen();
     }
 
@@ -344,23 +382,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         startActivity(intent);
     }
 
-    // Update shared preference log out
-    private void updateIsLogOut() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, false).apply();
-    }
-
-    // Clear User Data
-    private void clearUserData() {
-
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-
-                realm.where(UserModel.class).findAll().deleteAllFromRealm();
-            }
-        });
-    }
+    // region Profile Pictue BottomSheetLayout & ImagePicker
 
     @OnClick(R.id.profile_picture)
     public void profilePictureOnClick(View view) {
@@ -369,17 +391,18 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
                     MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
         } else {
 
             showSheetView();
         }
     }
 
-    // region BottomSheetLayout & ImagePicker
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
@@ -387,28 +410,22 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    showSheetView();
 
                 } else {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    shortToast(getContext(), MSG_CANNOT_ACCESS_DEVICE_STORAGE);
+                    snackBar(mCoordinatorLayout, MSG_CANNOT_ACCESS_DEVICE_STORAGE);
                 }
-
-                return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
     private void showSheetView() {
 
         ImagePickerSheetView sheetView = new ImagePickerSheetView.Builder(getActivity())
-                .setMaxItems(50)
+                .setMaxItems(30)
                 .setShowCameraOption(createCameraIntent() != null)
                 .setShowPickerOption(createPickIntent() != null)
                 .setImageProvider(new ImagePickerSheetView.ImageProvider() {
@@ -442,7 +459,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
                         } else {
 
-                            shortToast(getActivity(), MSG_SOMETHING_WENT_WRONG);
+                            snackBar(mCoordinatorLayout, MSG_SOMETHING_WENT_WRONG);
                         }
                     }
                 })
@@ -458,10 +475,12 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            return takePictureIntent;
+            takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         } else {
-            return null;
+            takePictureIntent = null;
         }
+
+        return takePictureIntent;
     }
 
     @Nullable
@@ -476,13 +495,6 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         }
     }
 
-    /**
-     * This utility function combines the camera intent creation and image file creation, and
-     * ultimately fires the intent.
-     *
-     * @see {@link #createCameraIntent()}
-     * @see {@link #createImageFile()}
-     */
     private void dispatchTakePictureIntent() {
 
         Intent takePictureIntent = createCameraIntent();
@@ -498,26 +510,20 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
             } catch (IOException e) {
                 // Error occurred while creating the File
-                shortToast(getContext(), "Could not create imageFile for camera");
+                snackBar(mCoordinatorLayout, "Could not create imageFile for camera");
             }
         }
     }
 
-    /**
-     * For images captured from the camera, we need to create a File first to tell the camera
-     * where to store the image.
-     *
-     * @return the File created for the image to be store under.
-     */
     private File createImageFile() throws IOException {
 
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "PNG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File imageFile = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
+                ".png",         /* suffix */
                 storageDir      /* directory */
         );
 
@@ -530,9 +536,20 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
         try {
 
+            byte[] photoFile;
+            String photoName, photoExt;
+
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImageUri);
             int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
             Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+
+            File file = new File(String.valueOf(selectedImageUri));
+            photoName = file.getName();
+            photoExt = photoName.substring(photoName.indexOf(".") + 1);
+            photoFile = convertToBinary(scaled);
+
+            new UpdateUserPhotoAsyncTask(sharedPreferences.getInt(SHARED_PREF_USER_ID, 0), photoFile,
+                    photoName, photoExt).execute();
 
             mImageViewProfile.setImageDrawable(null);
             mImageViewProfile.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -541,6 +558,13 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] convertToBinary(Bitmap image) {
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
 
     @Override
@@ -558,7 +582,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
                 if (selectedImage == null) {
 
-                    shortToast(getContext(), MSG_SOMETHING_WENT_WRONG);
+                    snackBar(mCoordinatorLayout, MSG_SOMETHING_WENT_WRONG);
                 }
 
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
@@ -573,7 +597,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
             } else {
 
-                shortToast(getActivity(), MSG_SOMETHING_WENT_WRONG);
+                snackBar(mCoordinatorLayout, MSG_SOMETHING_WENT_WRONG);
             }
         }
     }
@@ -581,19 +605,6 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (!realm.isClosed()) realm.close();
     }
 
     @Override
@@ -601,5 +612,11 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
         super.onDestroy();
         mGoogleApiClient.stopAutoManage(getActivity());
         mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchData();
     }
 }

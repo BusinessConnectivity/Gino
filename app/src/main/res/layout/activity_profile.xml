@@ -36,165 +36,177 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v7.widget.CardView
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/CardView.Light">
+            android:layout_height="match_parent">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                style="@style/CardView.Light">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_marginEnd="@dimen/padding_16"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_person_white_24dp"/>
-
-                    <com.rengwuxian.materialedittext.MaterialEditText
-                        android:id="@+id/edit_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/subheading"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_cake_white_24dp"/>
-
-                    <TextView
-                        android:id="@+id/text_birthday"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/single_line_height"
                         android:paddingStart="@dimen/padding_16"
-                        android:paddingEnd="0dp"
-                        android:gravity="center|start"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:onClick="birthdayOnClick"/>
+                        android:paddingEnd="@dimen/padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
 
-                </LinearLayout>
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_marginEnd="@dimen/padding_16"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_person_white_24dp"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
+                        <com.rengwuxian.materialedittext.MaterialEditText
+                            android:id="@+id/edit_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/subheading"/>
 
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_marginEnd="@dimen/padding_16"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_gender_male_female_white_24dp"/>
+                    </LinearLayout>
 
-                    <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                        android:id="@+id/spinner_gender"
-                        android:layout_width="100dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="@dimen/single_line_height"
-                        android:text="Male"
-                        android:textSize="@dimen/subheading"
-                        app:met_floatingLabel="none"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_marginEnd="@dimen/padding_16"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_location_on_white_24dp"/>
-
-                    <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                        android:id="@+id/spinner_location"
-                        android:layout_width="100dp"
-                        android:layout_height="@dimen/single_line_height"
-                        android:text="Singapore"
-                        android:textSize="@dimen/subheading"
-                        app:met_floatingLabel="none"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/change_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/single_line_height"
-                    android:paddingStart="@dimen/padding_16"
-                    android:paddingEnd="@dimen/padding_16"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables"
-                    android:onClick="changePasswordOnClick">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_lock_open_white_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:paddingStart="@dimen/padding_16"
-                        android:paddingEnd="0dp"
-                        android:textAlignment="viewStart"
-                        android:textSize="@dimen/subheading"
-                        android:textStyle="bold"
-                        android:text="Change Password"/>
+                        android:paddingEnd="@dimen/padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_cake_white_24dp"/>
+
+                        <TextView
+                            android:id="@+id/text_birthday"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/single_line_height"
+                            android:paddingStart="@dimen/padding_16"
+                            android:paddingEnd="0dp"
+                            android:gravity="center|start"
+                            android:textSize="@dimen/subheading"
+                            android:textStyle="bold"
+                            android:onClick="birthdayOnClick"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/single_line_height"
+                        android:paddingStart="@dimen/padding_16"
+                        android:paddingEnd="@dimen/padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_marginEnd="@dimen/padding_16"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_gender_male_female_white_24dp"/>
+
+                        <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                            android:id="@+id/spinner_gender"
+                            android:layout_width="100dp"
+                            android:layout_height="@dimen/single_line_height"
+                            android:text="Male"
+                            android:textSize="@dimen/subheading"
+                            app:met_floatingLabel="none"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/single_line_height"
+                        android:paddingStart="@dimen/padding_16"
+                        android:paddingEnd="@dimen/padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_marginEnd="@dimen/padding_16"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_location_on_white_24dp"/>
+
+                        <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+                            android:id="@+id/spinner_location"
+                            android:layout_width="100dp"
+                            android:layout_height="@dimen/single_line_height"
+                            android:text="Singapore"
+                            android:textSize="@dimen/subheading"
+                            app:met_floatingLabel="none"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/change_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/single_line_height"
+                        android:paddingStart="@dimen/padding_16"
+                        android:paddingEnd="@dimen/padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables"
+                        android:visibility="gone"
+                        android:onClick="changePasswordOnClick">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_lock_open_white_24dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/padding_16"
+                            android:paddingEnd="0dp"
+                            android:textAlignment="viewStart"
+                            android:textSize="@dimen/subheading"
+                            android:textStyle="bold"
+                            android:text="Change Password"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </android.support.v7.widget.CardView>
 
-        </android.support.v7.widget.CardView>
+        </ScrollView>
 
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+    <TextView
+        android:id="@+id/text_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/subheading"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="No Internet Connection"
+        android:textStyle="bold"
+        android:gravity="center"
         android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

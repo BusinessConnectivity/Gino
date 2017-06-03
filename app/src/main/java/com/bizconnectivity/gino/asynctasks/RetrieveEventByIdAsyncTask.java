@@ -2,10 +2,10 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.EventModel;
+import com.bizconnectivity.gino.models.Event;
 import com.bizconnectivity.gino.webservices.RetrieveEventByIdWS;
 
-public class RetrieveEventByIdAsyncTask extends AsyncTask<String, Void, EventModel>{
+public class RetrieveEventByIdAsyncTask extends AsyncTask<String, Void, Event>{
 
     private final AsyncResponse asyncResponse;
     private int eventId;
@@ -17,12 +17,12 @@ public class RetrieveEventByIdAsyncTask extends AsyncTask<String, Void, EventMod
     }
 
     @Override
-    protected EventModel doInBackground(String... params) {
+    protected Event doInBackground(String... params) {
         return RetrieveEventByIdWS.invokeRetrieveEventById(eventId);
     }
 
     @Override
-    protected void onPostExecute(EventModel result) {
+    protected void onPostExecute(Event result) {
 
         if (result != null) {
             asyncResponse.retrieveEventById(result);
@@ -32,6 +32,6 @@ public class RetrieveEventByIdAsyncTask extends AsyncTask<String, Void, EventMod
     }
 
     public interface AsyncResponse {
-        void retrieveEventById(EventModel eventModel);
+        void retrieveEventById(Event eventModel);
     }
 }

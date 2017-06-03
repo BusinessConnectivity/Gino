@@ -2,8 +2,6 @@ package com.bizconnectivity.gino.adapters;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,26 +10,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.models.FavEventModel;
+import com.bizconnectivity.gino.models.Event;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.RealmRecyclerViewAdapter;
-
-public class FavouriteEventAdapter extends RealmRecyclerViewAdapter<FavEventModel, FavouriteEventAdapter.ViewHolder> {
+public class FavouriteEventAdapter extends RecyclerView.Adapter<FavouriteEventAdapter.ViewHolder> {
 
     private Context context;
-    private List<FavEventModel> data;
+    private List<Event> data;
     private AdapterCallBack adapterCallBack;
 
-    public FavouriteEventAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<FavEventModel> data, AdapterCallBack adapterCallBack) {
+    public FavouriteEventAdapter(Context context, List<Event> data, AdapterCallBack adapterCallBack) {
 
-        super(data, true);
         this.context = context;
         this.data = data;
         this.adapterCallBack = adapterCallBack;
+    }
+
+    public void swapData(List<Event> newData) {
+        data = newData;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -44,12 +43,12 @@ public class FavouriteEventAdapter extends RealmRecyclerViewAdapter<FavEventMode
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (data.get(position).getEvents().get(0).getImageUrl() != null)
-            Picasso.with(context).load(Uri.parse(data.get(position).getEvents().get(0).getImageUrl())).into(holder.mImageViewPulse);
+        if (data.get(position).getImageUrl() != null)
+            Picasso.with(context).load(Uri.parse(data.get(position).getImageUrl())).into(holder.mImageViewPulse);
 
-        holder.mTextViewTitle.setText(data.get(position).getEvents().get(0).getEventName());
-        holder.mTextViewDatetime.setText(data.get(position).getEvents().get(0).getEventStartDateTime());
-        holder.mTextViewLocation.setText(data.get(position).getEvents().get(0).getEventLocation());
+        holder.mTextViewTitle.setText(data.get(position).getEventName());
+        holder.mTextViewDatetime.setText(data.get(position).getEventStartDateTime());
+        holder.mTextViewLocation.setText(data.get(position).getEventLocation());
     }
 
     @Override
@@ -59,15 +58,14 @@ public class FavouriteEventAdapter extends RealmRecyclerViewAdapter<FavEventMode
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public ImageView mImageViewPulse;
-        public TextView mTextViewTitle;
-        public TextView mTextViewDatetime;
-        public TextView mTextViewLocation;
+        ImageView mImageViewPulse;
+        TextView mTextViewTitle;
+        TextView mTextViewDatetime;
+        TextView mTextViewLocation;
 
         public ViewHolder(final View itemView) {
 
             super(itemView);
-
             mImageViewPulse = (ImageView) itemView.findViewById(R.id.image_pulse);
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewDatetime = (TextView) itemView.findViewById(R.id.text_datetime);

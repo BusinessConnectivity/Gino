@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.User;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -12,13 +12,13 @@ import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import static com.bizconnectivity.gino.Common.*;
-import static com.bizconnectivity.gino.webservices.ConstantWS.*;
+import static com.bizconnectivity.gino.ConstantWS.*;
 
 public class RetrieveUserWS {
 
-    public static UserModel invokeRetrieveUser(String email) {
+    public static User invokeRetrieveUser(String email) {
 
-        UserModel userModel = new UserModel();
+        User user = new User();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_USER);
@@ -47,7 +47,7 @@ public class RetrieveUserWS {
 
             if (envelope.bodyIn instanceof SoapFault) {
 
-                Log.d("TAG", "invokeCheckUser: " + envelope.bodyIn.toString());
+                Log.d("TAG", "invokeRetrieveUser: " + envelope.bodyIn.toString());
 
             } else {
 
@@ -68,47 +68,47 @@ public class RetrieveUserWS {
                     SoapObject table = (SoapObject) newDataSet.getProperty(0);
 
                     if (isValidateProperty(table, "MemberId")) {
-                        userModel.setUserID(Integer.parseInt(dataReturn(table, "MemberId")));
+                        user.setUserID(Integer.parseInt(dataReturn(table, "MemberId")));
                     }
 
                     if (isValidateProperty(table, "MemberName")) {
-                        userModel.setUserName(dataReturn(table, "MemberName"));
+                        user.setUserName(dataReturn(table, "MemberName"));
                     }
 
                     if (isValidateProperty(table, "MemberEmail")) {
-                        userModel.setUserEmail(dataReturn(table, "MemberEmail"));
+                        user.setUserEmail(dataReturn(table, "MemberEmail"));
                     }
 
                     if (isValidateProperty(table, "MemberGender")) {
-                        userModel.setUserGender(dataReturn(table, "MemberGender"));
+                        user.setUserGender(dataReturn(table, "MemberGender"));
                     }
 
                     if (isValidateProperty(table, "MemberDOB")) {
-                        userModel.setUserDOB(dataReturn(table, "MemberDOB"));
+                        user.setUserDOB(dataReturn(table, "MemberDOB"));
                     }
 
                     if (isValidateProperty(table, "FacebookId")) {
-                        userModel.setFacebookID(dataReturn(table, "FacebookId"));
+                        user.setFacebookID(dataReturn(table, "FacebookId"));
                     }
 
                     if (isValidateProperty(table, "GoogleId")) {
-                        userModel.setGoogleID(dataReturn(table, "GoogleId"));
+                        user.setGoogleID(dataReturn(table, "GoogleId"));
                     }
 
                     if (isValidateProperty(table, "PhotoFile")) {
-                        userModel.setPhotoFile(dataReturn(table, "PhotoFile"));
+                        user.setPhotoFile(dataReturn(table, "PhotoFile"));
                     }
 
                     if (isValidateProperty(table, "PhotoName")) {
-                        userModel.setPhotoName(dataReturn(table, "PhotoName"));
+                        user.setPhotoName(dataReturn(table, "PhotoName"));
                     }
 
                     if (isValidateProperty(table, "PhotoExt")) {
-                        userModel.setPhotoExt(dataReturn(table, "PhotoExt"));
+                        user.setPhotoExt(dataReturn(table, "PhotoExt"));
                     }
 
                     if (isValidateProperty(table, "PhotoUrl")) {
-                        userModel.setPhotoUrl(dataReturn(table, "PhotoUrl"));
+                        user.setPhotoUrl(dataReturn(table, "PhotoUrl"));
                     }
                 }
             }
@@ -117,6 +117,6 @@ public class RetrieveUserWS {
             e.printStackTrace();
         }
 
-        return userModel;
+        return user;
     }
 }

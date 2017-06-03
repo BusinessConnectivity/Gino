@@ -10,18 +10,23 @@ public class CreateUserDealAsyncTask extends AsyncTask<String, Void, Boolean>{
     private int userId;
     private int dealId;
     private int quantity;
+    private String total;
+    private String subtotal;
 
-    public CreateUserDealAsyncTask(AsyncResponse asyncResponse, int userId, int dealId, int quantity) {
+    public CreateUserDealAsyncTask(AsyncResponse asyncResponse, int userId, int dealId, int quantity,
+                                   String total, String subtotal) {
 
         this.asyncResponse = asyncResponse;
         this.userId = userId;
         this.dealId = dealId;
         this.quantity = quantity;
+        this.total = total;
+        this.subtotal = subtotal;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
-        return CreateUserDealWS.invokeCreateUserDeal(userId, dealId, quantity);
+        return CreateUserDealWS.invokeCreateUserDeal(userId, dealId, quantity, total, subtotal);
     }
 
     @Override

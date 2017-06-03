@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -18,7 +18,7 @@ import com.bizconnectivity.gino.asynctasks.CheckUserEmailAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CheckUserLoginAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CreateUserAsyncTask;
 import com.bizconnectivity.gino.asynctasks.RetrieveUserAsyncTask;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.User;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -40,15 +40,23 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
 
 import static com.bizconnectivity.gino.Common.isEmailValid;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.LOGIN_EMAIL;
+import static com.bizconnectivity.gino.Constant.LOGIN_FACEBOOK;
+import static com.bizconnectivity.gino.Constant.LOGIN_GOOGLE;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_EMAIL;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_SIGN_IN_TYPE;
 
 public class SignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, CreateUserAsyncTask.AsyncResponse,
-        CheckUserAsyncTask.AsyncResponse, CheckUserEmailAsyncTask.AsyncResponse, CheckUserLoginAsyncTask.AsyncResponse, RetrieveUserAsyncTask.AsyncResponse{
+        CheckUserAsyncTask.AsyncResponse, CheckUserEmailAsyncTask.AsyncResponse, CheckUserLoginAsyncTask.AsyncResponse,
+        RetrieveUserAsyncTask.AsyncResponse{
 
     @BindView(R.id.button_facebook_login)
     LoginButton mButtonFacebookLogin;
@@ -65,15 +73,15 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     @BindView(R.id.edit_password)
     TextInputEditText mPassword;
 
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
     private CallbackManager mCallbackManager;
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
-    boolean isActivityStarted = false;
-    SharedPreferences sharedPreferences;
-    Realm realm;
-    View focusView;
-    Snackbar snackbar;
-
+    private boolean isActivityStarted = false;
+    private SharedPreferences sharedPreferences;
+    private View focusView;
     private String name = "";
     private String password = "";
     private String email = "";
@@ -82,6 +90,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     private String facebookId = "";
     private String googleId = "";
     private String photoUrl = "";
+    private String signInType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,14 +104,25 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         // Shared Preferences
         sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-
-        // Initialize & handle Facebook Sign In
+        // Initialize Facebook Sign In
         facebookSignIn();
 
         // Initialize Google Sign In
         initializeGoogle();
+    }
+
+    //region Facebook Sign In
+    @OnClick(R.id.button_facebook)
+    public void buttonFacebookOnClick (View view) {
+
+        if (isNetworkAvailable(this)) {
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mButtonFacebookLogin.performClick();
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     private void facebookSignIn() {
@@ -132,6 +152,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                                     photoUrl = object.isNull("picture") ? null : object.getJSONObject("picture").getJSONObject("data").getString("url");
 
                                     if (!email.isEmpty() && email != null) {
+                                        signInType = LOGIN_FACEBOOK;
                                         new CheckUserAsyncTask(SignInActivity.this, email).execute();
                                     }
 
@@ -151,16 +172,32 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             public void onCancel() {
 
                 mProgressBar.setVisibility(View.GONE);
-                showSnackBar("Facebook Sign In Cancelled");
+                snackBar(mCoordinatorLayout, "Facebook Sign In Cancelled");
             }
 
             @Override
             public void onError(FacebookException error) {
 
                 mProgressBar.setVisibility(View.GONE);
-                showSnackBar("Authentication Failed");
+                snackBar(mCoordinatorLayout, "Authentication Failed");
             }
         });
+    }
+    //endregion
+
+    // region Google Sign In
+    @OnClick(R.id.button_google)
+    public void buttonGoogleOnClick(View view) {
+
+        if (isNetworkAvailable(this)) {
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mButtonGoogleLogin.performClick();
+            googleSignIn();
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     private void initializeGoogle() {
@@ -187,7 +224,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    // Google Sign In Result
     private void handleGoggleSignInResult(GoogleSignInResult result) {
 
         if (result.isSuccess()) {
@@ -207,6 +243,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                 photoUrl = googleAcc.getPhotoUrl() == null ? null : googleAcc.getPhotoUrl().toString();
 
                 if (!email.isEmpty() && email != null) {
+                    signInType = LOGIN_GOOGLE;
                     new CheckUserAsyncTask(this, email).execute();
                 }
             }
@@ -214,9 +251,17 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         } else {
             // Signed out, show unauthenticated UI.
             mProgressBar.setVisibility(View.GONE);
-            showSnackBar("Authentication Failed");
+            snackBar(mCoordinatorLayout, "Authentication Failed");
         }
     }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        mProgressBar.setVisibility(View.GONE);
+        snackBar(mCoordinatorLayout, "Google Play Services Error");
+    }
+    // endregion
 
     // Google & Facebook email checking Callback
     @Override
@@ -225,7 +270,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         if (response) {
             new CreateUserAsyncTask(this, name, password, email, gender, dob, facebookId, googleId, photoUrl).execute();
         } else {
-            updateIsSignedIn();
             new RetrieveUserAsyncTask(this, email).execute();
         }
     }
@@ -233,24 +277,24 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     // Normal email checking Callback
     @Override
     public void checkUserEmailRespond(boolean response) {
-        if (response) {
+
+        if (!response) {
             new CheckUserLoginAsyncTask(this, mEmail.getText().toString(), mPassword.getText().toString()).execute();
         } else {
             mProgressBar.setVisibility(View.GONE);
-            showSnackBar("This account doesn't exist");
+            snackBar(mCoordinatorLayout, "This account doesn't exist");
         }
     }
 
-    // Check User Login
+    // Verify User Login
     @Override
     public void checkUserLoginRespond(boolean response) {
 
         if (response) {
-            updateIsSignedIn();
             new RetrieveUserAsyncTask(this, mEmail.getText().toString()).execute();
         } else {
             mProgressBar.setVisibility(View.GONE);
-            showSnackBar("Password Incorrect");
+            snackBar(mCoordinatorLayout, "Password Incorrect");
         }
     }
 
@@ -259,55 +303,30 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     public void createUserResponse(boolean response) {
 
         if (response) {
-            updateIsSignedIn();
             new RetrieveUserAsyncTask(this, email).execute();
         } else {
-            showSnackBar("Sign In failed");
+            snackBar(mCoordinatorLayout, "Sign In failed");
         }
     }
 
     // Retrieve User Detail Callback
     @Override
-    public void retrieveUserDetail(final UserModel response) {
+    public void retrieveUserDetail(User user) {
 
-        if (response != null) {
+        if (user != null) updateIsSignedIn(user.getUserID(), user.getUserEmail());
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    UserModel userModel = realm.createObject(UserModel.class, response.getUserID());
-                    if (response.getUserEmail() != null) userModel.setUserEmail(response.getUserEmail());
-                    if (response.getUserName() != null) userModel.setUserName(response.getUserName());
-                    if (response.getUserDOB() != null) userModel.setUserDOB(response.getUserDOB());
-                    if (response.getUserGender() != null) userModel.setUserGender(response.getUserGender());
-                    if (response.getFacebookID() != null) userModel.setFacebookID(response.getFacebookID());
-                    if (response.getGoogleID() != null) userModel.setGoogleID(response.getGoogleID());
-                    if (response.getPhotoFile() != null) userModel.setPhotoFile(response.getPhotoFile());
-                    if (response.getPhotoName() != null) userModel.setPhotoName(response.getPhotoName());
-                    if (response.getPhotoExt() != null) userModel.setPhotoExt(response.getPhotoExt());
-                    if (response.getPhotoUrl() != null) userModel.setPhotoUrl(response.getPhotoUrl());
-
-                    realm.copyToRealmOrUpdate(userModel);
-                }
-            });
-
-            mProgressBar.setVisibility(View.GONE);
-            navigateToMain();
-        }
+        mProgressBar.setVisibility(View.GONE);
+        finish();
     }
 
     // Update shared preference signed in
-    private void updateIsSignedIn() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, true).apply();
-    }
+    private void updateIsSignedIn(int userId, String userEmail) {
 
-    // Navigate to main activity
-    private void navigateToMain() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        isActivityStarted = true;
-        startActivity(intent);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(SHARED_PREF_USER_ID, userId).apply();
+        editor.putString(SHARED_PREF_USER_EMAIL, userEmail).apply();
+        editor.putString(SHARED_PREF_USER_SIGN_IN_TYPE, signInType).apply();
+        editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, true).apply();
     }
 
     @Override
@@ -325,13 +344,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         }
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        mProgressBar.setVisibility(View.GONE);
-        showSnackBar("Google Play Services Error");
-    }
-
     @OnClick(R.id.button_sign_in)
     public void buttonSignInOnClick(View view) {
 
@@ -340,19 +352,19 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
         if (TextUtils.isEmpty(email)) {
 
-            showSnackBar("Email can't be empty");
+            snackBar(mCoordinatorLayout, "Email can't be empty");
             focusView = mEmail;
             focusView.requestFocus();
 
         } else if (TextUtils.isEmpty(password)) {
 
-            showSnackBar("Password can't be empty");
+            snackBar(mCoordinatorLayout, "Password can't be empty");
             focusView = mPassword;
             focusView.requestFocus();
 
         } else if (!isEmailValid(email)) {
 
-            showSnackBar("Invalid Email Format");
+            snackBar(mCoordinatorLayout, "Invalid Email Format");
             focusView = mEmail;
             focusView.requestFocus();
 
@@ -360,42 +372,16 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
             if (isNetworkAvailable(this)) {
                 mProgressBar.setVisibility(View.VISIBLE);
+                signInType = LOGIN_EMAIL;
                 new CheckUserEmailAsyncTask(this, email).execute();
             } else {
-                showSnackBar("No Internet Connection");
+                snackBar(mCoordinatorLayout, "No Internet Connection");
             }
         }
     }
 
     @OnClick(R.id.text_forgot_password)
     public void forgotPasswordOnClick(View view) {
-
-//        Intent intent = new Intent(this, ForgotPasswordActivity.class);
-//        isActivityStarted = true;
-//        startActivity(intent);
-    }
-
-    @OnClick(R.id.button_facebook)
-    public void buttonFacebookOnClick (View view) {
-
-        if (isNetworkAvailable(this)) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mButtonFacebookLogin.performClick();
-        } else {
-            showSnackBar("No Internet Connection");
-        }
-    }
-
-    @OnClick(R.id.button_google)
-    public void buttonGoogleOnClick(View view) {
-
-        if (isNetworkAvailable(this)) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mButtonGoogleLogin.performClick();
-            googleSignIn();
-        } else {
-            showSnackBar("No Internet Connection");
-        }
     }
 
     @OnClick(R.id.text_sign_up)
@@ -406,15 +392,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         startActivity(intent);
     }
 
-    // Display Snackbar
-    private void showSnackBar(String message){
-        snackbar = Snackbar.make(findViewById(R.id.coordinator_layout), message, Snackbar.LENGTH_SHORT);
-        snackbar.show();
-    }
-
     @Override
     public void onBackPressed() {
-
         Intent intent = new Intent(this, SplashActivity.class);
         isActivityStarted = true;
         startActivity(intent);
@@ -423,7 +402,6 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     @Override
     protected void onStop() {
         super.onStop();
-        if (!realm.isClosed()) realm.close();
         if (isActivityStarted) finish();
     }
 }

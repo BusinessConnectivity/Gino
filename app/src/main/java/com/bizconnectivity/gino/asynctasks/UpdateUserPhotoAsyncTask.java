@@ -2,24 +2,24 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-public class UpdateUserPhotoAsyncTask extends AsyncTask<String, Void, Void>{
+import com.bizconnectivity.gino.webservices.UpdateUserPhotoWS;
 
-    private UpdateUserPhotoAsyncTask() {
+public class UpdateUserPhotoAsyncTask extends AsyncTask<String, Void, Boolean>{
 
+    private int memberId;
+    private byte[] photoFile;
+    private String photoName;
+    private String photoExt;
+
+    public UpdateUserPhotoAsyncTask(int memberId, byte[] photoFile, String photoName, String photoExt) {
+        this.memberId = memberId;
+        this.photoFile = photoFile;
+        this.photoName = photoName;
+        this.photoExt = photoExt;
     }
 
     @Override
-    protected void onPreExecute() {
-
-    }
-
-    @Override
-    protected Void doInBackground(String... params) {
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void result) {
-
+    protected Boolean doInBackground(String... params) {
+        return UpdateUserPhotoWS.invokeUpdateUserPhoto(memberId, photoFile, photoName, photoExt);
     }
 }

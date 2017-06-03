@@ -2,12 +2,12 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.DismissedDealModel;
+import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.webservices.RetrieveDismissedDealWS;
 
 import java.util.List;
 
-public class RetrieveDismissedDealAsyncTask extends AsyncTask<String, Void, List<DismissedDealModel>> {
+public class RetrieveDismissedDealAsyncTask extends AsyncTask<String, Void, List<Deal>> {
 
     private final AsyncResponse asyncResponse;
     private int memberId;
@@ -19,12 +19,12 @@ public class RetrieveDismissedDealAsyncTask extends AsyncTask<String, Void, List
     }
 
     @Override
-    protected List<DismissedDealModel> doInBackground(String... params) {
-        return RetrieveDismissedDealWS.invokeRetrieveFavouriteDeal(memberId);
+    protected List<Deal> doInBackground(String... params) {
+        return RetrieveDismissedDealWS.invokeRetrieveDismissedDeal(memberId);
     }
 
     @Override
-    protected void onPostExecute(List<DismissedDealModel> result) {
+    protected void onPostExecute(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
             asyncResponse.retrieveDismissedDeal(result);
@@ -34,6 +34,6 @@ public class RetrieveDismissedDealAsyncTask extends AsyncTask<String, Void, List
     }
 
     public interface AsyncResponse {
-        void retrieveDismissedDeal(List<DismissedDealModel> dismissedDealList);
+        void retrieveDismissedDeal(List<Deal> result);
     }
 }

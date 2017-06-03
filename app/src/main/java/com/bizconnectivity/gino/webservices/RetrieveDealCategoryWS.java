@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.DealCategoryModel;
+import com.bizconnectivity.gino.models.DealCategory;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bizconnectivity.gino.Common.*;
-import static com.bizconnectivity.gino.webservices.ConstantWS.*;
+import static com.bizconnectivity.gino.ConstantWS.*;
 
 public class RetrieveDealCategoryWS {
 
-    public static List<DealCategoryModel> invokeRetrieveDealCategory() {
+    public static List<DealCategory> invokeRetrieveDealCategory() {
 
-        List<DealCategoryModel> dealCategoryModelList = new ArrayList<>();
+        List<DealCategory> dealCategoryModelList = new ArrayList<>();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_DEAL_CATEGORY);
@@ -31,14 +31,14 @@ public class RetrieveDealCategoryWS {
         //set output SOAP object
         envelope.setOutputSoapObject(request);
         //create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL, 2000);
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
 
         try {
             androidHttpTransport.call(SOAP_ACTION + WS_RETRIEVE_DEAL_CATEGORY, envelope);
 
             if (envelope.bodyIn instanceof SoapFault) {
 
-                Log.d("TAG", "invokeRetrieveDeal: " + envelope.bodyIn.toString());
+                Log.d("TAG", "invokeRetrieveDealCategory: " + envelope.bodyIn.toString());
 
             } else {
 
@@ -60,7 +60,7 @@ public class RetrieveDealCategoryWS {
                         //get the number of dataSet
                         SoapObject table = (SoapObject) newDataSet.getProperty(i);
 
-                        DealCategoryModel dealCategoryModel = new DealCategoryModel();
+                        DealCategory dealCategoryModel = new DealCategory();
 
                         if (isValidateProperty(table, "DealCategoryId")) {
                             dealCategoryModel.setDealCategoryID(Integer.parseInt(dataReturn(table, "DealCategoryId")));
@@ -88,7 +88,6 @@ public class RetrieveDealCategoryWS {
             }
 
         } catch (Exception e) {
-
             Log.d("TAG", "invokeRetrieveDealCategory: " + e.toString());
         }
 

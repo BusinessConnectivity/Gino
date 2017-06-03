@@ -15,14 +15,15 @@ import com.bizconnectivity.gino.R;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-    public static final float ALPHA_FULL = 1.0f;
+    private static final float ALPHA_FULL = 1.0f;
     private Paint paint = new Paint();
-
     private final ItemTouchHelperAdapter mAdapter;
     private Context context;
+    private int userId;
 
-    public ItemTouchHelperCallback(Context context, ItemTouchHelperAdapter adapter) {
+    public ItemTouchHelperCallback(Context context, int userId, ItemTouchHelperAdapter adapter) {
         this.context = context;
+        this.userId = userId;
         this.mAdapter = adapter;
     }
 
@@ -55,11 +56,11 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         // Check if the swipe is left side
         if (direction == ItemTouchHelper.START) {
 
-            mAdapter.onItemLeftSwipe(viewHolder.getAdapterPosition());
+            mAdapter.onItemLeftSwipe(userId, viewHolder.getAdapterPosition());
 
         } else {
 
-            mAdapter.onItemRightSwipe(viewHolder.getAdapterPosition());
+            mAdapter.onItemRightSwipe(userId, viewHolder.getAdapterPosition());
         }
     }
 

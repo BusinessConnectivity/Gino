@@ -1,5 +1,7 @@
 package com.bizconnectivity.gino.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -23,6 +25,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_OFFER_TAB;
 import static com.bizconnectivity.gino.Constant.TAB_OFFER;
 import static com.bizconnectivity.gino.Constant.TAB_PULSE;
 
@@ -41,6 +45,8 @@ public class HomeFragment extends Fragment {
             R.drawable.ic_event_white_24dp,
             R.drawable.ic_local_mall_white_24dp
     };
+
+    private SharedPreferences sharedPreferences;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -64,10 +70,22 @@ public class HomeFragment extends Fragment {
         // Action Bar
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
 
+        // Shared Preferences
+        sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
         // View Pager
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
         setupTabLayout();
+
+        // Check Previous Tab Selected
+        if (sharedPreferences.getBoolean(SHARED_PREF_OFFER_TAB, false)) {
+            if (mTabLayout != null) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(SHARED_PREF_OFFER_TAB, false).apply();
+                mTabLayout.getTabAt(1).select();
+            }
+        }
     }
 
     private void setupTabLayout() {
@@ -125,7 +143,10 @@ public class HomeFragment extends Fragment {
         public void addFragment(Fragment fragment) {
             mFragmentList.add(fragment);
         }
+    }
 
-
+    @Override
+    public void onResume(){
+        super.onResume();
     }
 }

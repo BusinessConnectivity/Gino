@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -17,7 +17,7 @@ import com.bizconnectivity.gino.asynctasks.CheckUserAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CheckUserEmailAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CreateUserAsyncTask;
 import com.bizconnectivity.gino.asynctasks.RetrieveUserAsyncTask;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.User;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -39,10 +39,15 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
 
-import static com.bizconnectivity.gino.Common.*;
-import static com.bizconnectivity.gino.Constant.*;
+import static com.bizconnectivity.gino.Common.isEmailValid;
+import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_EMAIL;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
 public class SignUpActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
         CreateUserAsyncTask.AsyncResponse, CheckUserAsyncTask.AsyncResponse, CheckUserEmailAsyncTask.AsyncResponse, RetrieveUserAsyncTask.AsyncResponse {
@@ -65,11 +70,12 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
     @BindView(R.id.edit_confirm_password)
     TextInputEditText mConfirmPassword;
 
-    boolean isActivityStarted = false;
-    SharedPreferences sharedPreferences;
-    Realm realm;
-    View focusView;
-    Snackbar snackbar;
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
+    private boolean isActivityStarted = false;
+    private SharedPreferences sharedPreferences;
+    private View focusView;
     private CallbackManager mCallbackManager;
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
@@ -95,14 +101,25 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
         // Shared Preferences
         sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-
-        // Initialize & handle Facebook Sign In
+        // Initialize Facebook Sign In
         facebookSignIn();
 
         // Initialize Google Sign In
         initializeGoogle();
+    }
+
+    // region Facebook Sign In
+    @OnClick(R.id.button_facebook)
+    public void buttonFacebookOnClick (View view) {
+
+        if (isNetworkAvailable(this)) {
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mButtonFacebookSignUp.performClick();
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     private void facebookSignIn() {
@@ -150,15 +167,31 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
             @Override
             public void onCancel() {
                 mProgressBar.setVisibility(View.GONE);
-                showSnackBar("Facebook Sign In Cancelled");
+                snackBar(mCoordinatorLayout, "Facebook Sign In Cancelled");
             }
 
             @Override
             public void onError(FacebookException error) {
                 mProgressBar.setVisibility(View.GONE);
-                showSnackBar("Authentication Failed");
+                snackBar(mCoordinatorLayout, "Authentication Failed");
             }
         });
+    }
+    // endregion
+
+    // region Google Sign In
+    @OnClick(R.id.button_google)
+    public void buttonGoogleOnClick(View view) {
+
+        if (isNetworkAvailable(this)) {
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mButtonGoogleSignUp.performClick();
+            googleSignIn();
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     private void initializeGoogle() {
@@ -185,7 +218,6 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    // Google Sign In Result
     private void handleGoggleSignInResult(GoogleSignInResult result) {
 
         if (result.isSuccess()) {
@@ -212,9 +244,17 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
         } else {
             // Signed out, show unauthenticated UI.
             mProgressBar.setVisibility(View.GONE);
-            showSnackBar("Authentication Failed");
+            snackBar(mCoordinatorLayout, "Authentication Failed");
         }
     }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        mProgressBar.setVisibility(View.GONE);
+        snackBar(mCoordinatorLayout, "Google Play Services Error");
+    }
+    // endregion
 
     // Google & Facebook email checking Callback
     @Override
@@ -223,10 +263,7 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
         if (response) {
             new CreateUserAsyncTask(this, name, password, email, gender, dob, facebookId, googleId, photoUrl).execute();
         } else {
-
-            updateIsSignedIn();
-            mProgressBar.setVisibility(View.GONE);
-            navigateToMain();
+            new RetrieveUserAsyncTask(this, email).execute();
         }
     }
 
@@ -249,7 +286,7 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
 
         } else {
             mProgressBar.setVisibility(View.GONE);
-            showSnackBar("This account already exist");
+            snackBar(mCoordinatorLayout, "This account already exist");
         }
     }
 
@@ -259,57 +296,30 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
 
         if (response) {
 
-            showSnackBar("Sign Up successfully");
-            updateIsSignedIn();
+            snackBar(mCoordinatorLayout, "Sign Up successfully");
             new RetrieveUserAsyncTask(this, email).execute();
 
         } else {
-            showSnackBar("Sign Up failed");
+            snackBar(mCoordinatorLayout, "Sign Up failed");
         }
     }
 
     // Retrieve User Detail Callback
     @Override
-    public void retrieveUserDetail(final UserModel response) {
+    public void retrieveUserDetail(final User user) {
 
-        if (response != null) {
+        if (user != null) updateIsSignedIn(user.getUserID(), user.getUserEmail());
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    UserModel userModel = realm.createObject(UserModel.class, response.getUserID());
-                    if (response.getUserEmail() != null) userModel.setUserEmail(response.getUserEmail());
-                    if (response.getUserName() != null) userModel.setUserName(response.getUserName());
-                    if (response.getUserDOB() != null) userModel.setUserDOB(response.getUserDOB());
-                    if (response.getUserGender() != null) userModel.setUserGender(response.getUserGender());
-                    if (response.getFacebookID() != null) userModel.setFacebookID(response.getFacebookID());
-                    if (response.getGoogleID() != null) userModel.setGoogleID(response.getGoogleID());
-                    if (response.getPhotoFile() != null) userModel.setPhotoFile(response.getPhotoFile());
-                    if (response.getPhotoName() != null) userModel.setPhotoName(response.getPhotoName());
-                    if (response.getPhotoExt() != null) userModel.setPhotoExt(response.getPhotoExt());
-                    if (response.getPhotoUrl() != null) userModel.setPhotoUrl(response.getPhotoUrl());
-
-                    realm.copyToRealmOrUpdate(userModel);
-                }
-            });
-
-            mProgressBar.setVisibility(View.GONE);
-            navigateToMain();
-        }
+        mProgressBar.setVisibility(View.GONE);
+        finish();
     }
 
     // Update shared preference signed in
-    private void updateIsSignedIn() {
+    private void updateIsSignedIn(int userId, String userEmail) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(SHARED_PREF_USER_ID, userId).apply();
+        editor.putString(SHARED_PREF_USER_EMAIL, userEmail).apply();
         editor.putBoolean(SHARED_PREF_IS_SIGNED_IN, true).apply();
-    }
-
-    // Navigate to main activity
-    private void navigateToMain() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        isActivityStarted = true;
-        startActivity(intent);
     }
 
     @Override
@@ -327,36 +337,6 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
         }
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        mProgressBar.setVisibility(View.GONE);
-        showSnackBar("Google Play Services Error");
-    }
-
-    @OnClick(R.id.button_facebook)
-    public void buttonFacebookOnClick (View view) {
-
-        if (isNetworkAvailable(this)) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mButtonFacebookSignUp.performClick();
-        } else {
-            showSnackBar("No Internet Connection");
-        }
-    }
-
-    @OnClick(R.id.button_google)
-    public void buttonGoogleOnClick(View view) {
-
-        if (isNetworkAvailable(this)) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mButtonGoogleSignUp.performClick();
-            googleSignIn();
-        } else {
-            showSnackBar("No Internet Connection");
-        }
-    }
-
     @OnClick(R.id.button_sign_up)
     public void buttonSignUpOnClick(View view) {
 
@@ -366,31 +346,31 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
 
         if (TextUtils.isEmpty(email)) {
 
-            showSnackBar("Email can't be empty");
+            snackBar(mCoordinatorLayout, "Email can't be empty");
             focusView = mEmail;
             focusView.requestFocus();
 
         } else if (TextUtils.isEmpty(password)) {
 
-            showSnackBar("Password can't be empty");
+            snackBar(mCoordinatorLayout, "Password can't be empty");
             focusView = mPassword;
             focusView.requestFocus();
 
         } else if (TextUtils.isEmpty(confirmPassword)) {
 
-            showSnackBar("Confirm Password can't be empty");
+            snackBar(mCoordinatorLayout, "Confirm Password can't be empty");
             focusView = mConfirmPassword;
             focusView.requestFocus();
 
         } else if (!isEmailValid(email)) {
 
-            showSnackBar("Invalid Email Format");
+            snackBar(mCoordinatorLayout, "Invalid Email Format");
             focusView = mEmail;
             focusView.requestFocus();
 
         } else if (!password.equals(confirmPassword)) {
 
-            showSnackBar("Password doesn't match");
+            snackBar(mCoordinatorLayout, "Password doesn't match");
             focusView = mConfirmPassword;
             focusView.requestFocus();
 
@@ -400,20 +380,13 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
                 mProgressBar.setVisibility(View.VISIBLE);
                 new CheckUserEmailAsyncTask(this, email).execute();
             } else {
-                showSnackBar("No Internet Connection");
+                snackBar(mCoordinatorLayout, "No Internet Connection");
             }
         }
     }
 
-    // Display Snackbar
-    private void showSnackBar(String message){
-        snackbar = Snackbar.make(findViewById(R.id.coordinator_layout), message, Snackbar.LENGTH_SHORT);
-        snackbar.show();
-    }
-
     @Override
     public void onBackPressed() {
-
         Intent intent = new Intent(this, SplashActivity.class);
         isActivityStarted = true;
         startActivity(intent);
@@ -422,7 +395,6 @@ public class SignUpActivity extends AppCompatActivity implements GoogleApiClient
     @Override
     protected void onStop() {
         super.onStop();
-        if (!realm.isClosed()) realm.close();
         if (isActivityStarted) finish();
     }
 }

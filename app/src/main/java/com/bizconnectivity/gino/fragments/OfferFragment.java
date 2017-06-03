@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -17,39 +16,43 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.OfferDetailActivity;
 import com.bizconnectivity.gino.adapters.OfferCategoryAdapter;
 import com.bizconnectivity.gino.adapters.OfferRecyclerListAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveDealAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveDealByCategoryAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveDealByDateAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveDealByViewAsyncTask;
 import com.bizconnectivity.gino.asynctasks.RetrieveDealCategoryAsyncTask;
-import com.bizconnectivity.gino.asynctasks.RetrieveDismissedDealAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserDealAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserDealByCategoryAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserDealByDateAsyncTask;
+import com.bizconnectivity.gino.asynctasks.RetrieveUserDealByViewAsyncTask;
 import com.bizconnectivity.gino.asynctasks.UpdateDealNoOfViewAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback;
-import com.bizconnectivity.gino.models.DealCategoryModel;
-import com.bizconnectivity.gino.models.DealModel;
-import com.bizconnectivity.gino.models.DismissedDealModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.Deal;
+import com.bizconnectivity.gino.models.DealCategory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
-import io.realm.RealmResults;
-import io.realm.Sort;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
-import static com.bizconnectivity.gino.Common.snackBar;
-import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
-public class OfferFragment extends Fragment implements OfferCategoryAdapter.AdapterCallBack, OfferRecyclerListAdapter.AdapterCallBack,
-        RetrieveDealAsyncTask.AsyncResponse, RetrieveDealCategoryAsyncTask.AsyncResponse, UpdateDealNoOfViewAsyncTask.AsyncResponse,
-        RetrieveDismissedDealAsyncTask.AsyncResponse {
+public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask.AsyncResponse, RetrieveDealAsyncTask.AsyncResponse,
+        RetrieveDealCategoryAsyncTask.AsyncResponse, OfferRecyclerListAdapter.AdapterCallBack, OfferCategoryAdapter.AdapterCallBack,
+        RetrieveUserDealByDateAsyncTask.AsyncResponse, RetrieveUserDealByViewAsyncTask.AsyncResponse, RetrieveDealByViewAsyncTask.AsyncResponse,
+        RetrieveDealByDateAsyncTask.AsyncResponse, RetrieveUserDealByCategoryAsyncTask.AsyncResponse, RetrieveDealByCategoryAsyncTask.AsyncResponse {
 
     @BindView(R.id.categories_list)
     RecyclerView mRecyclerViewCategory;
@@ -66,12 +69,17 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
+    @BindView(R.id.layout_deal_category)
+    LinearLayout mLayoutDealCategory;
+
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
+    private OfferCategoryAdapter offerCategoryAdapter;
     private OfferRecyclerListAdapter offerDealListAdapter;
     private SharedPreferences sharedPreferences;
-    private Realm realm;
-    private RealmResults<DealModel> deal;
-    private RealmResults<DealCategoryModel> dealCategory;
-    private int isFirstTime = 0;
+    private List<Deal> dealList = new ArrayList<>();
+    private List<DealCategory> dealCategoryList = new ArrayList<>();
 
     public OfferFragment() {
         // Required empty public constructor
@@ -96,23 +104,12 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        deal = realm.where(DealModel.class).equalTo("isDismissed", false).findAllSorted("createdDate", Sort.DESCENDING);
-        dealCategory = realm.where(DealCategoryModel.class).findAll();
-
         // Swipe Refresh OnRefresh Listener
         mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-                if (isNetworkAvailable(getContext())) {
-                    fetchData();
-                } else {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    snackBar(getParentView(), ERR_MSG_NO_INTERNET_CONNECTION);
-                }
+                fetchData();
             }
         });
 
@@ -153,19 +150,26 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
             }
         });
 
-        if (deal != null && dealCategory != null) {
-            updateUI(deal, dealCategory);
-        }
-    }
+        mLayoutDealCategory.setVisibility(View.GONE);
 
-    @Override
-    public void setUserVisibleHint(boolean visible) {
+        // Category List Recycler View
+        offerCategoryAdapter = new OfferCategoryAdapter(getContext(), dealCategoryList, this);
+        mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
+        mRecyclerViewCategory.setNestedScrollingEnabled(false);
 
-        super.setUserVisibleHint(visible);
+        // Deal List Recycler View
+        offerDealListAdapter = new OfferRecyclerListAdapter(dealList, this);
+        mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        mRecyclerViewDeals.setNestedScrollingEnabled(false);
 
-        if (visible) {
-            fetchData();
-        }
+        int userId = sharedPreferences.getInt(SHARED_PREF_USER_ID, 0);
+
+        // ItemTouchHelper for Deals List RecyclerView
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(getContext(), userId, offerDealListAdapter);
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
+
+        fetchData();
     }
 
     // Retrieve Data From WS
@@ -174,64 +178,211 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
         mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(getContext())) {
+
             new RetrieveDealCategoryAsyncTask(this).execute();
+
         } else {
-            updateUI(deal, dealCategory);
-            snackBar(getParentView(), ERR_MSG_NO_INTERNET_CONNECTION);
+
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
+    // Retrieve Deal Category Callback
+    @Override
+    public void retrieveDealCategory(List<DealCategory> result) {
+
+        if (result != null && result.size() > 0) {
+
+            dealCategoryList = result;
+        }
+
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            new RetrieveUserDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
+        } else {
+
+            new RetrieveDealAsyncTask(this).execute();
+        }
+    }
+
+    // Retrieve User Deal Callback
+    @Override
+    public void retrieveUserDeal(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            dealList = result;
+        }
+
+        updateUI();
+    }
+
+    // Retrieve Deal Callback
+    @Override
+    public void retrieveDeals(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            dealList = result;
+        }
+
+        updateUI();
+    }
+
     // Update UI
-    private void updateUI(RealmResults<DealModel> deal, RealmResults<DealCategoryModel> dealCategory) {
+    private void updateUI() {
 
-        // Category List Recycler View
-        OfferCategoryAdapter offerCategoryAdapter = new OfferCategoryAdapter(getContext(), dealCategory, true, this);
-        mRecyclerViewCategory.setAdapter(offerCategoryAdapter);
-        mRecyclerViewCategory.setNestedScrollingEnabled(false);
+        offerCategoryAdapter.swapData(dealCategoryList);
+        offerDealListAdapter.swapData(dealList);
 
-        // Deal List Recycler View
-        offerDealListAdapter = new OfferRecyclerListAdapter(deal, realm, this);
-        mRecyclerViewDeals.setAdapter(offerDealListAdapter);
-        mRecyclerViewDeals.setNestedScrollingEnabled(false);
-
-        // ItemTouchHelper for Deals List RecyclerView
-        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(getContext(), offerDealListAdapter);
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
+        mLayoutDealCategory.setVisibility(View.VISIBLE);
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     // Deal Category OnClick
     @Override
-    public void categoryAdapterOnClick(int categoryID) {
+    public void categoryAdapterOnClick(int position) {
 
         mSwipeRefreshLayout.setRefreshing(true);
 
-        switch (dealCategory.get(categoryID).getDealCategoryName()) {
+        switch (dealCategoryList.get(position).getDealCategoryName()) {
 
             case "POPULAR":
-
-                RealmResults<DealModel> resultsPopular = realm.where(DealModel.class).findAllSorted("dealNoOfView", Sort.DESCENDING);
-                offerDealListAdapter = new OfferRecyclerListAdapter(resultsPopular, realm, this);
-
+                dealCategoryNew();
                 break;
 
             case "NEW":
-
-                RealmResults<DealModel> resultsNew = realm.where(DealModel.class).findAllSorted("createdDate", Sort.DESCENDING);
-                offerDealListAdapter = new OfferRecyclerListAdapter(resultsNew, realm, this);
+                dealCategoryPopular();
                 break;
 
             default:
-
-                offerDealListAdapter = new OfferRecyclerListAdapter(
-                        realm.where(DealModel.class).equalTo("dealCategoryID", dealCategory.get(categoryID).getDealCategoryID()).findAll(), realm, this);
+                dealCategorySelected(dealCategoryList.get(position).getDealCategoryID());
                 break;
         }
+    }
 
-        // Reset RecyclerView
-        mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+    // Deal Category order by created date
+    private void dealCategoryNew() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            new RetrieveUserDealByDateAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
+        } else {
+
+            new RetrieveDealByDateAsyncTask(this).execute();
+        }
+    }
+
+    // Retrieve Deal Category (New) Callback
+    @Override
+    public void retrieveUserDealByDate(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void retrieveDealByView(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    // Deal Category order by no of view
+    private void dealCategoryPopular() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            new RetrieveUserDealByViewAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
+        } else {
+
+            new RetrieveDealByViewAsyncTask(this).execute();
+        }
+    }
+
+    // Retrieve Deal Category (Popular) Callback
+    @Override
+    public void retrieveUserDealByView(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void retrieveDealByDate(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    // Deal Category Selected
+    private void dealCategorySelected(int dealCategoryId) {
+
+        // Check User Sign In
+        if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            new RetrieveUserDealByCategoryAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0), dealCategoryId).execute();
+
+        } else {
+
+            new RetrieveDealByCategoryAsyncTask(this, dealCategoryId).execute();
+        }
+    }
+
+    // Retrieve Deal Category (Selected) Callback
+    @Override
+    public void retrieveUserDealByCategory(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
+
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void retrieveDealByCategory(List<Deal> result) {
+
+        if (result != null && result.size() > 0) {
+
+            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
+            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -240,109 +391,12 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     @Override
     public void dealAdapterOnClick(int dealId) {
 
-        if (isNetworkAvailable(getContext())) {
-            new UpdateDealNoOfViewAsyncTask(this, dealId).execute();
-        } else {
-            Intent intent = new Intent(getContext(), OfferDetailActivity.class);
-            intent.putExtra("POSITION", dealId);
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public void updateDealNoOfViewResponse(boolean response, int dealId) {
+        // Update Deal No of View
+        if (isNetworkAvailable(getContext())) new UpdateDealNoOfViewAsyncTask(dealId).execute();
 
         Intent intent = new Intent(getContext(), OfferDetailActivity.class);
         intent.putExtra("POSITION", dealId);
         startActivity(intent);
-    }
-
-    // Retrieve Deal Category Callback
-    @Override
-    public void retrieveDealCategory(final List<DealCategoryModel> dealCategoryModelList) {
-
-        if (dealCategoryModelList != null && dealCategoryModelList.size() > 0) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    for (DealCategoryModel dealCategoryModel : dealCategoryModelList) {
-                        realm.copyToRealmOrUpdate(dealCategoryModel);
-                    }
-                }
-            });
-        }
-
-        new RetrieveDealAsyncTask(this).execute();
-    }
-
-    // Retrieve Deal Callback
-    @Override
-    public void retrieveDeal(final List<DealModel> dealModelList) {
-
-        if (dealModelList != null && dealModelList.size() > 0) {
-
-            // Check User Sign In
-            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        for (DealModel dealModel : dealModelList) {
-                            dealModel.setDismissed(false);
-                            realm.copyToRealmOrUpdate(dealModel);
-                        }
-                    }
-                });
-
-                UserModel user = realm.where(UserModel.class).findFirst();
-
-                new RetrieveDismissedDealAsyncTask(this, user.getUserID()).execute();
-
-            } else {
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        for (DealModel dealModel : dealModelList) {
-                            dealModel.setDismissed(false);
-                            realm.copyToRealmOrUpdate(dealModel);
-                        }
-                    }
-                });
-
-                updateUI(deal, dealCategory);
-            }
-        }
-    }
-
-    // Retrieve User Dismissed Deal Callback
-    @Override
-    public void retrieveDismissedDeal(final List<DismissedDealModel> dismissedDealList) {
-
-        if (dismissedDealList != null && dismissedDealList.size() > 0) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    for (DismissedDealModel result : dismissedDealList) {
-
-                        DealModel deal = realm.where(DealModel.class).equalTo("dealID", result.getDealID()).findFirst();
-                        deal.setDismissed(true);
-
-                        realm.copyToRealmOrUpdate(deal);
-                    }
-
-                    realm.copyToRealmOrUpdate(dismissedDealList);
-                }
-            });
-        }
-
-        updateUI(deal, dealCategory);
     }
 
     @OnClick(R.id.button_category_left)
@@ -362,19 +416,7 @@ public class OfferFragment extends Fragment implements OfferCategoryAdapter.Adap
     }
 
     @Override
-    public void onResume() {
+    public void onResume(){
         super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (realm != null) realm.close();
-    }
-
-    @Nullable
-    public View getParentView() {
-        return (CoordinatorLayout) getParentFragment().getView().findViewById(R.id.coordinator_layout);
     }
 }

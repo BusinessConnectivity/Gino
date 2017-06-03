@@ -16,7 +16,7 @@ public interface ItemTouchHelperAdapter {
      * @see RecyclerView.ViewHolder#getAdapterPosition()
      */
 
-    void onItemLeftSwipe(int position);
+    void onItemLeftSwipe(int userId, int position);
 
-    void onItemRightSwipe(int position);
+    void onItemRightSwipe(int userId, int position);
 }

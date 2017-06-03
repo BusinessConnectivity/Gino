@@ -1,10 +1,7 @@
 package com.bizconnectivity.gino.adapters;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -14,49 +11,69 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.models.UserDealModel;
+import com.bizconnectivity.gino.models.PurchasedDeal;
 
+import java.text.ParseException;
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.RealmRecyclerViewAdapter;
+import static com.bizconnectivity.gino.Constant.format1;
+import static com.bizconnectivity.gino.Constant.format3;
 
-public class HistoryDealsAdapter extends RealmRecyclerViewAdapter<UserDealModel, HistoryDealsAdapter.ViewHolder> {
+public class HistoryDealsAdapter extends RecyclerView.Adapter<HistoryDealsAdapter.ViewHolder> {
 
-    private Context context;
-    private List<UserDealModel> data;
+    private List<PurchasedDeal> data;
     private AdapterCallBack adapterCallBack;
 
-    public HistoryDealsAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<UserDealModel> data, AdapterCallBack adapterCallBack) {
+    public HistoryDealsAdapter(List<PurchasedDeal> data, AdapterCallBack adapterCallBack) {
 
-        super(data, true);
-        this.context = context;
         this.data = data;
         this.adapterCallBack = adapterCallBack;
+    }
+
+    public void swapData(List<PurchasedDeal> newData) {
+        data = newData;
+        notifyDataSetChanged();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(context).inflate(R.layout.deal_history_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deal_history_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (data.get(position).getDeals().get(0).getDealImageFile() != null) {
-            byte[] bloc = Base64.decode(data.get(position).getDeals().get(0).getDealImageFile(), Base64.DEFAULT);
+        if (data.get(position).getImageFile() != null) {
+            byte[] bloc = Base64.decode(data.get(position).getImageFile(), Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(bloc, 0, bloc.length);
             holder.mImageViewDeal.setImageBitmap(bitmap);
         }
 
-        holder.mTextViewTitle.setText(data.get(position).getDeals().get(0).getDealName());
+        if (data.get(position).getDealName() != null && !data.get(position).getDealName().isEmpty())
+            holder.mTextViewTitle.setText(data.get(position).getDealName());
 
-        if (data.get(position).isRedeemed()) {
-            holder.mTextViewStatus.setText("REDEEMED");
-        } else {
-            holder.mTextViewStatus.setText("EXPIRED");
+        try {
+
+            if (data.get(position).isRedeemed()) {
+
+                holder.mTextViewStatus.setText("REDEEMED");
+
+                if (data.get(position).getRedeemedDate() != null && !data.get(position).getRedeemedDate().isEmpty())
+                    holder.mTextViewDate.setText(format3.format(format1.parse(data.get(position).getRedeemedDate())));
+
+
+            } else {
+
+                holder.mTextViewStatus.setText("EXPIRED");
+
+                if (data.get(position).getDealRedeemEndDate() != null && !data.get(position).getDealRedeemEndDate().isEmpty())
+                    holder.mTextViewDate.setText(format3.format(format1.parse(data.get(position).getDealRedeemEndDate())));
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
@@ -67,16 +84,17 @@ public class HistoryDealsAdapter extends RealmRecyclerViewAdapter<UserDealModel,
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView mTextViewTitle;
-        public TextView mTextViewStatus;
-        public ImageView mImageViewDeal;
+        TextView mTextViewTitle;
+        TextView mTextViewStatus;
+        TextView mTextViewDate;
+        ImageView mImageViewDeal;
 
         public ViewHolder(final View itemView) {
 
             super(itemView);
-
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewStatus = (TextView) itemView.findViewById(R.id.text_status);
+            mTextViewDate = (TextView) itemView.findViewById(R.id.text_date);
             mImageViewDeal = (ImageView) itemView.findViewById(R.id.image_deal);
 
             itemView.setOnClickListener(this);

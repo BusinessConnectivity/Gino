@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,22 +15,20 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.OfferDetailActivity;
 import com.bizconnectivity.gino.adapters.FavouriteDealAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveFavouriteDealAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback2;
-import com.bizconnectivity.gino.models.DealModel;
-import com.bizconnectivity.gino.models.FavDealModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.Deal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
@@ -37,6 +36,7 @@ import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
 public class FavouriteDealFragment extends Fragment implements FavouriteDealAdapter.AdapterCallBack, RetrieveFavouriteDealAsyncTask.AsyncResponse {
 
@@ -49,9 +49,11 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 
-    private Realm realm;
-    private UserModel user;
-    private RealmResults<FavDealModel> favDeal;
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
+
+    private List<Deal> dealList = new ArrayList<>();
+    private FavouriteDealAdapter favouriteDealAdapter;
     private SharedPreferences sharedPreferences;
 
     public FavouriteDealFragment() {
@@ -76,12 +78,8 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        user = realm.where(UserModel.class).findFirst();
-        favDeal = realm.where(FavDealModel.class).findAll();
-
         // Swipe Refresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -89,7 +87,29 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
             }
         });
 
-        fetchData();
+        // Deal List Recycler View
+        mRecyclerViewDeal.setLayoutManager(new LinearLayoutManager(getActivity()));
+        favouriteDealAdapter = new FavouriteDealAdapter(dealList, this);
+        mRecyclerViewDeal.setAdapter(favouriteDealAdapter);
+
+        // ItemTouchHelper for Deals List RecyclerView
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback2(getContext(),
+                sharedPreferences.getInt(SHARED_PREF_USER_ID, 0), favouriteDealAdapter);
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeal);
+
+//        fetchData();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean visible) {
+
+        super.setUserVisibleHint(visible);
+
+        if (visible) {
+
+            fetchData();
+        }
     }
 
     private void fetchData() {
@@ -100,47 +120,30 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
 
             // Check User Sign In
             if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-                new RetrieveFavouriteDealAsyncTask(this, user.getUserID()).execute();
+
+                new RetrieveFavouriteDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
             } else {
-                updateUI();
+
                 snackBar(mCoordinatorLayout, ERR_MSG_USER_SIGN_IN);
             }
 
         } else {
-            updateUI();
-            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
+            mTextViewMessage.setVisibility(View.VISIBLE);
         }
     }
 
+    // Retrieve favourite deal Callback
     @Override
-    public void retrieveFavouriteDeal(final List<FavDealModel> favDealList) {
+    public void retrieveFavouriteDeal(final List<Deal> result) {
 
-        if (favDealList != null && favDealList.size() > 0) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(FavDealModel.class).findAll().deleteAllFromRealm();
-                    realm.copyToRealmOrUpdate(favDealList);
-                }
-            });
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    for (int i=0; i<favDealList.size(); i++) {
-
-                        DealModel deal = realm.where(DealModel.class).equalTo("dealID", favDealList.get(i).getDealID()).findFirst();
-
-                        FavDealModel favDeal = realm.where(FavDealModel.class).equalTo("userFavDealID",
-                                favDealList.get(i).getUserFavDealID()).findFirst();
-
-                        favDeal.getDeals().add(deal);
-                    }
-                }
-            });
+        if (result != null && result.size() > 0) {
+            dealList = result;
+        } else {
+            dealList = new ArrayList<>();
         }
 
         updateUI();
@@ -148,15 +151,9 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
 
     private void updateUI() {
 
-        // Deal List Recycler View
-        mRecyclerViewDeal.setLayoutManager(new LinearLayoutManager(getActivity()));
-        FavouriteDealAdapter favouriteDealAdapter = new FavouriteDealAdapter(favDeal, realm, this);
-        mRecyclerViewDeal.setAdapter(favouriteDealAdapter);
+        favouriteDealAdapter.swapData(dealList);
 
-        // ItemTouchHelper for Deals List RecyclerView
-        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback2(getContext(), favouriteDealAdapter);
-        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeal);
+        if (dealList.isEmpty()) snackBar(mCoordinatorLayout, "No Record");
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -165,20 +162,15 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
     @Override
     public void adapterOnClick(int dealId) {
 
-        Intent intent = new Intent(getContext(), OfferDetailActivity.class);
-        intent.putExtra("POSITION", dealId);
-        startActivity(intent);
-    }
+        if (isNetworkAvailable(getContext())) {
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
+            Intent intent = new Intent(getContext(), OfferDetailActivity.class);
+            intent.putExtra("POSITION", dealId);
+            startActivity(intent);
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (realm != null) realm.close();
+        } else {
+
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 }

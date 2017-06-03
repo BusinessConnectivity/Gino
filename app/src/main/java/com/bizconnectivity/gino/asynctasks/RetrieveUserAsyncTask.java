@@ -2,10 +2,10 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.User;
 import com.bizconnectivity.gino.webservices.RetrieveUserWS;
 
-public class RetrieveUserAsyncTask extends AsyncTask<String, Void, UserModel>{
+public class RetrieveUserAsyncTask extends AsyncTask<String, Void, User>{
 
     private final AsyncResponse asyncResponse;
     private String email;
@@ -16,21 +16,21 @@ public class RetrieveUserAsyncTask extends AsyncTask<String, Void, UserModel>{
     }
 
     @Override
-    protected UserModel doInBackground(String... params) {
+    protected User doInBackground(String... params) {
         return RetrieveUserWS.invokeRetrieveUser(email);
     }
 
     @Override
-    protected void onPostExecute(UserModel userModel) {
+    protected void onPostExecute(User user) {
 
-        if (userModel != null) {
-            asyncResponse.retrieveUserDetail(userModel);
+        if (user != null) {
+            asyncResponse.retrieveUserDetail(user);
         } else {
             asyncResponse.retrieveUserDetail(null);
         }
     }
 
     public interface AsyncResponse {
-        void retrieveUserDetail(UserModel userModel);
+        void retrieveUserDetail(User user);
     }
 }

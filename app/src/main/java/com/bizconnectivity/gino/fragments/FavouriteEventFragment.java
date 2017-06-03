@@ -7,27 +7,26 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.activities.PulseDetailActivity;
 import com.bizconnectivity.gino.adapters.FavouriteEventAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveFavouriteEventAsyncTask;
-import com.bizconnectivity.gino.models.EventModel;
-import com.bizconnectivity.gino.models.FavEventModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.Event;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
@@ -35,6 +34,7 @@ import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
 public class FavouriteEventFragment extends Fragment implements FavouriteEventAdapter.AdapterCallBack,
         RetrieveFavouriteEventAsyncTask.AsyncResponse {
@@ -48,11 +48,12 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 
-    private Realm realm;
-    private UserModel user;
-    private RealmResults<FavEventModel> favEvent;
-    private SharedPreferences sharedPreferences;
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
 
+    private SharedPreferences sharedPreferences;
+    private FavouriteEventAdapter favouriteEventAdapter;
+    private List<Event> eventList = new ArrayList<>();
 
     public FavouriteEventFragment() {
         // Required empty public constructor
@@ -76,22 +77,24 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
         // Shared Preferences
         sharedPreferences = getContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-        user = realm.where(UserModel.class).findFirst();
-        favEvent = realm.where(FavEventModel.class).findAll();
-
         // Swipe Refresh Listener
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 fetchData();
             }
         });
 
+        mRecyclerViewEvent.setLayoutManager(new LinearLayoutManager(getActivity()));
+        favouriteEventAdapter = new FavouriteEventAdapter(getContext(), eventList, this);
+        mRecyclerViewEvent.setAdapter(favouriteEventAdapter);
+
         fetchData();
     }
 
+    // Retrieve data from WS
     private void fetchData() {
 
         mSwipeRefreshLayout.setRefreshing(true);
@@ -100,78 +103,63 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
 
             // Check User Sign In
             if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-                new RetrieveFavouriteEventAsyncTask(this, user.getUserID()).execute();
+
+                new RetrieveFavouriteEventAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
+
             } else {
-                updateUI();
+
+                mRecyclerViewEvent.setAdapter(null);
                 snackBar(mCoordinatorLayout, ERR_MSG_USER_SIGN_IN);
             }
 
         } else {
-            updateUI();
-            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+
+            mRecyclerViewEvent.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
         }
     }
 
-    private void updateUI() {
-
-        mRecyclerViewEvent.setLayoutManager(new LinearLayoutManager(getActivity()));
-        FavouriteEventAdapter favouriteEventAdapter = new FavouriteEventAdapter(getContext(), favEvent, FavouriteEventFragment.this);
-        mRecyclerViewEvent.setAdapter(favouriteEventAdapter);
-
-        mSwipeRefreshLayout.setRefreshing(false);
-    }
-
+    // Retrieve favourite event Callback
     @Override
-    public void retrieveFavouriteEvent(final List<FavEventModel> favEventList) {
+    public void retrieveFavouriteEvent(final List<Event> result) {
 
-        if (favEventList != null && favEventList.size() > 0) {
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(FavEventModel.class).findAll().deleteAllFromRealm();
-                    realm.copyToRealmOrUpdate(favEventList);
-                }
-            });
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    for (int i=0; i<favEventList.size(); i++) {
-
-                        FavEventModel favEvent = realm.where(FavEventModel.class).equalTo("userFavEventID",
-                                favEventList.get(i).getUserFavEventID()).findFirst();
-
-                        EventModel event = realm.where(EventModel.class).equalTo("eventID", favEventList.get(i).getEventID()).findFirst();
-                        favEvent.getEvents().add(event);
-                    }
-                }
-            });
+        if (result != null && result.size() > 0) {
+            eventList = result;
+        } else {
+            eventList = new ArrayList<>();
         }
 
         updateUI();
+    }
+
+    // Update UI
+    private void updateUI() {
+
+        favouriteEventAdapter.swapData(eventList);
+
+        if (eventList.isEmpty()) snackBar(mCoordinatorLayout, "No Record");
+
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     // Event OnClick Callback
     @Override
     public void adapterOnClick(int eventId) {
 
-        Intent intent = new Intent(getContext(), PulseDetailActivity.class);
-        intent.putExtra("POSITION",  eventId);
-        startActivity(intent);
+        if (isNetworkAvailable(getContext())) {
+
+            Intent intent = new Intent(getContext(), PulseDetailActivity.class);
+            intent.putExtra("POSITION", eventId);
+            startActivity(intent);
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        realm = Realm.getDefaultInstance();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (realm != null) realm.close();
+        fetchData();
     }
 }

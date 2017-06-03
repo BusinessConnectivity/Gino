@@ -10,7 +10,7 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.gino.webservices.ConstantWS.*;
+import static com.bizconnectivity.gino.ConstantWS.*;
 
 public class CreateUserWS {
 

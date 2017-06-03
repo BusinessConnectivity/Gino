@@ -2,36 +2,35 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.webservices.RetrieveDealWS;
 
 import java.util.List;
 
-public class RetrieveDealAsyncTask extends AsyncTask<String, Void, List<DealModel>>{
+public class RetrieveDealAsyncTask extends AsyncTask<String, Void, List<Deal>>{
 
     private final AsyncResponse asyncResponse;
-
 
     public RetrieveDealAsyncTask(AsyncResponse asyncResponse) {
         this.asyncResponse = asyncResponse;
     }
 
     @Override
-    protected List<DealModel> doInBackground(String... params) {
+    protected List<Deal> doInBackground(String... params) {
         return RetrieveDealWS.invokeRetrieveDeal();
     }
 
     @Override
-    protected void onPostExecute(List<DealModel> result) {
+    protected void onPostExecute(List<Deal> result) {
 
         if (result.size() > 0){
-            asyncResponse.retrieveDeal(result);
+            asyncResponse.retrieveDeals(result);
         } else {
-            asyncResponse.retrieveDeal(result);
+            asyncResponse.retrieveDeals(result);
         }
     }
 
     public interface AsyncResponse {
-        void retrieveDeal(List<DealModel> dealModelList);
+        void retrieveDeals(List<Deal> dealList);
     }
 }

@@ -1,5 +1,8 @@
 package com.bizconnectivity.gino.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -14,10 +17,14 @@ import com.bizconnectivity.gino.fragments.HomeFragment;
 import com.bizconnectivity.gino.fragments.ProfileFragment;
 import com.bizconnectivity.gino.fragments.PurchasedFragment;
 import com.bizconnectivity.gino.fragments.SearchFragment;
+import com.crashlytics.android.Crashlytics;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
+import io.fabric.sdk.android.Fabric;
+
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,13 +34,16 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.bottom_navigation)
     BottomNavigationView mBottomNavigationView;
 
-    Realm realm;
+    private SharedPreferences sharedPreferences;
+    private int selectedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Fabric.with(this, new Crashlytics());
 
         // Layout Binding
         ButterKnife.bind(this);
@@ -42,10 +52,45 @@ public class MainActivity extends AppCompatActivity {
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // Default Fragment
-        switchFragment(new HomeFragment());
+        getSelectedFragment();
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
+        // Shared Preferences
+        sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+
+        // Check User Signed IN
+        isSignedIn();
+    }
+
+    private void getSelectedFragment() {
+
+        selectedFragment = mBottomNavigationView.getSelectedItemId();
+        switch (selectedFragment) {
+
+            case R.id.navigation_home:
+                switchFragment(new HomeFragment());
+                break;
+
+            case R.id.navigation_search:
+                switchFragment(new SearchFragment());
+                break;
+
+            case R.id.navigation_purchase:
+                switchFragment(new PurchasedFragment());
+                break;
+
+            case R.id.navigation_profile:
+                switchFragment(new ProfileFragment());
+                break;
+        }
+    }
+
+    private void isSignedIn() {
+
+        if (!sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            Intent intent = new Intent(this, SplashActivity.class);
+            startActivity(intent);
+        }
     }
 
     // Bottom Navigation
@@ -85,10 +130,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-
-        super.onStop();
-
-        if (!realm.isClosed()) realm.close();
+    protected void onResume() {
+        super.onResume();
+        getSelectedFragment();
     }
 }

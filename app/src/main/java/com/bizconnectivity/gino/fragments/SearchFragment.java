@@ -3,6 +3,7 @@ package com.bizconnectivity.gino.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
@@ -11,32 +12,30 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.adapters.SearchResultsListAdapter;
-import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.Deal;
+import com.bizconnectivity.gino.webservices.RetrieveSearchDealWS;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Case;
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
+import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 
-public class SearchFragment extends Fragment implements SearchResultsListAdapter.AdapterCallBack{
+public class SearchFragment extends Fragment implements SearchResultsListAdapter.AdapterCallBack {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -45,11 +44,14 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     FloatingSearchView mSearchView;
 
     @BindView(R.id.search_results_list)
-    RecyclerView mRecyclerView;
+    RecyclerView mRecyclerViewSearch;
+
+    @BindView(R.id.text_message)
+    TextView mTextViewMessage;
 
     private static final int SPEECH_REQUEST_CODE = 0;
     private SearchResultsListAdapter mSearchResultsAdapter;
-    Realm realm;
+    private List<Deal> dealLists = new ArrayList<>();
 
     public SearchFragment() {
         // Required empty public constructor
@@ -74,26 +76,29 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         // Action Bar
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
 
-        // Initial Realm
-        realm = Realm.getDefaultInstance();
-
         // Setup Search Bar
         setupSearchBar();
 
         // Setup RecycleView
-        List<DealModel> dealLists = new ArrayList<>();
-        searchRecyclerView(dealLists);
-    }
-
-    private void searchRecyclerView(List<DealModel> dealLists) {
-
         mSearchResultsAdapter = new SearchResultsListAdapter(getContext(), dealLists, this);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerView.setAdapter(mSearchResultsAdapter);
+        mRecyclerViewSearch.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerViewSearch.setAdapter(mSearchResultsAdapter);
+
+        if (isNetworkAvailable(getContext())) {
+
+            mRecyclerViewSearch.setVisibility(View.VISIBLE);
+            mTextViewMessage.setVisibility(View.GONE);
+
+        } else {
+
+            mRecyclerViewSearch.setVisibility(View.GONE);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupSearchBar() {
 
+        // Search Suggestion
 //        mSearchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
 //            @Override
 //            public void onSearchTextChanged(String oldQuery, String newQuery) {
@@ -112,21 +117,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //
 //                    //simulates a query call to a data source
 //                    //with a new query.
-//                    DataHelper.findSuggestions(getActivity(), newQuery, 5,
-//                            FIND_SUGGESTION_SIMULATED_DELAY, new DataHelper.OnFindSuggestionsListener() {
-//
-//                                @Override
-//                                public void onResults(List<DealSearchSuggestion> results) {
-//
-//                                    //this will swap the data and
-//                                    //render the collapse/expand animations as necessary
-//                                    mSearchView.swapSuggestions(results);
-//
-//                                    //let the users know that the background
-//                                    //process has completed
-//                                    mSearchView.hideProgress();
-//                                }
-//                    });
 //                }
 //            }
 //        });
@@ -189,6 +179,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //        });
 
         // Menu Item Click
+
         mSearchView.setOnMenuItemClickListener(new FloatingSearchView.OnMenuItemClickListener() {
             @Override
             public void onActionMenuItemSelected(MenuItem item) {
@@ -219,39 +210,31 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            @Override
 //            public void onBindSuggestion(View suggestionView, ImageView leftIcon,
 //                                         TextView textView, SearchSuggestion item, int itemPosition) {
+
 //                DealSearchSuggestion colorSuggestion = (DealSearchSuggestion) item;
-//
+
 //                String textColor = mIsDarkSearchTheme ? "#ffffff" : "#000000";
 //                String textLight = mIsDarkSearchTheme ? "#bfbfbf" : "#787878";
-//
+
 //                if (colorSuggestion.getIsHistory()) {
 //                    leftIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
 //                            R.drawable.ic_history_black_24dp, null));
-//
+
 //                    Util.setIconColor(leftIcon, Color.parseColor(textColor));
 //                    leftIcon.setAlpha(.36f);
 //                } else {
 //                    leftIcon.setAlpha(0.0f);
 //                    leftIcon.setImageDrawable(null);
 //                }
-//
+
 //                textView.setTextColor(Color.parseColor(textColor));
 //                String text = colorSuggestion.getBody()
 //                        .replaceFirst(mSearchView.getQuery(),
 //                                "<font color=\"" + textLight + "\">" + mSearchView.getQuery() + "</font>");
 //                textView.setText(Html.fromHtml(text));
 //            }
-//
 //        });
 
-        //listen for when suggestion list expands/shrinks in order to move down/up the
-        //search results list
-//        mSearchView.setOnSuggestionsListHeightChanged(new FloatingSearchView.OnSuggestionsListHeightChanged() {
-//            @Override
-//            public void onSuggestionsListHeightChanged(float newHeight) {
-////                mRecyclerView.setTranslationY(newHeight);
-//            }
-//        });
 
         mSearchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
             @Override
@@ -262,39 +245,18 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             @Override
             public void onSearchAction(String currentQuery) {
 
-                RealmResults<DealModel> results;
-                results = search(realm, DealModel.class, currentQuery, false);
+                if (isNetworkAvailable(getContext())) {
 
-                List<DealModel> dealLists = new ArrayList<>();
-                for (DealModel dealList : results) {
+                    mSearchView.showProgress();
 
-                    dealLists.add(dealList);
+                    new SearchDealAsyncTask(currentQuery).execute();
+
+                } else {
+
+
                 }
-
-                searchRecyclerView(dealLists);
             }
         });
-    }
-
-    public static <DealSearch extends RealmObject> RealmResults<DealModel> search(Realm realm, Class<DealModel> modelClass, String query, boolean partialSearch){
-
-        RealmResults<DealModel> realmResults = realm.where(modelClass).findAll();
-
-        if (TextUtils.isEmpty(query)) {
-            return realmResults;
-        }
-
-        realmResults = realmResults.where()
-                .like("dealTitle", query, Case.INSENSITIVE)
-                .or()
-                .contains("dealTitle", query, Case.INSENSITIVE)
-                .or()
-                .like("dealLocation", query, Case.INSENSITIVE)
-                .or()
-                .contains("dealLocation", query, Case.INSENSITIVE)
-                .findAll();
-
-        return realmResults;
     }
 
     // Check if this device has a camera
@@ -302,8 +264,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    // This callback is invoked when the Speech Recognizer returns.
-    // This is where you process the intent and extract the speech text from the intent.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -316,16 +276,16 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             mSearchView.setSearchText(spokenText);
 
             // Search spoken text
-            RealmResults<DealModel> dealResults;
-            dealResults = search(realm, DealModel.class, spokenText, false);
+            if (isNetworkAvailable(getContext())) {
 
-            List<DealModel> dealLists = new ArrayList<>();
-            for (DealModel dealList : dealResults) {
+                mSearchView.showProgress();
 
-                dealLists.add(dealList);
+                new SearchDealAsyncTask(spokenText).execute();
+
+            } else {
+
+
             }
-
-            searchRecyclerView(dealLists);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -334,5 +294,27 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     @Override
     public void adapterOnClick(int adapterPosition) {
 
+    }
+
+    private class SearchDealAsyncTask extends AsyncTask<String, Void, List<Deal>> {
+
+        private String query;
+
+        private SearchDealAsyncTask(String query) {
+            this.query = query;
+        }
+
+        @Override
+        protected List<Deal> doInBackground(String... params) {
+            return RetrieveSearchDealWS.invokeRetrieveSearchDeal(query);
+        }
+
+        @Override
+        protected void onPostExecute(List<Deal> result) {
+
+            mSearchResultsAdapter.swapData(result);
+
+            mSearchView.hideProgress();
+        }
     }
 }

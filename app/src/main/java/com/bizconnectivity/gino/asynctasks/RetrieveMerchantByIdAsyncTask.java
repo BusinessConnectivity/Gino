@@ -2,10 +2,10 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.MerchantModel;
+import com.bizconnectivity.gino.models.Merchant;
 import com.bizconnectivity.gino.webservices.RetrieveMerchantByIDWS;
 
-public class RetrieveMerchantByIdAsyncTask extends AsyncTask<String, Void, MerchantModel>{
+public class RetrieveMerchantByIdAsyncTask extends AsyncTask<String, Void, Merchant>{
 
     private final AsyncResponse asyncResponse;
     private int merchantId;
@@ -17,12 +17,12 @@ public class RetrieveMerchantByIdAsyncTask extends AsyncTask<String, Void, Merch
     }
 
     @Override
-    protected MerchantModel doInBackground(String... params) {
+    protected Merchant doInBackground(String... params) {
         return RetrieveMerchantByIDWS.invokeRetrieveMerchantByID(merchantId);
     }
 
     @Override
-    protected void onPostExecute(MerchantModel result) {
+    protected void onPostExecute(Merchant result) {
 
         if (result != null) {
             asyncResponse.retrieveMerchant(result);
@@ -32,6 +32,6 @@ public class RetrieveMerchantByIdAsyncTask extends AsyncTask<String, Void, Merch
     }
 
     public interface AsyncResponse {
-        void retrieveMerchant(MerchantModel merchantModel);
+        void retrieveMerchant(Merchant merchantModel);
     }
 }

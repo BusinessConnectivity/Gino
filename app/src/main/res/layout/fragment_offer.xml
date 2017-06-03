@@ -6,73 +6,92 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.bizconnectivity.gino.fragments.OfferFragment">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/nested_scroll_view"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
+            <android.support.v4.widget.NestedScrollView
+                android:id="@+id/nested_scroll_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <ImageButton
-                        android:id="@+id/button_category_left"
-                        android:layout_width="40dp"
+                    <LinearLayout
+                        android:id="@+id/layout_deal_category"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:tint="@color/colorPrimaryDark"
-                        android:focusableInTouchMode="true"
-                        android:src="@drawable/ic_keyboard_arrow_left_white_36dp"
-                        android:layout_gravity="center|start"/>
+                        android:orientation="horizontal">
+
+                        <ImageButton
+                            android:id="@+id/button_category_left"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:background="@color/transparent"
+                            android:tint="@color/colorPrimaryDark"
+                            android:focusableInTouchMode="true"
+                            android:src="@drawable/ic_keyboard_arrow_left_white_36dp"
+                            android:layout_gravity="center|start"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/categories_list"
+                            android:layout_width="280dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+
+                        <ImageButton
+                            android:id="@+id/button_category_right"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:background="@color/transparent"
+                            android:tint="@color/colorPrimaryDark"
+                            android:src="@drawable/ic_keyboard_arrow_right_white_36dp"
+                            android:layout_gravity="center|end"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_gravity="bottom"
+                        android:background="?android:attr/dividerVertical"/>
 
                     <android.support.v7.widget.RecyclerView
-                        android:id="@+id/categories_list"
-                        android:layout_width="280dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:id="@+id/deals_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="2dp"
+                        android:orientation="vertical"
                         app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
-
-                    <ImageButton
-                        android:id="@+id/button_category_right"
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:tint="@color/colorPrimaryDark"
-                        android:src="@drawable/ic_keyboard_arrow_right_white_36dp"
-                        android:layout_gravity="center|end"/>
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_gravity="bottom"
-                    android:background="?android:attr/dividerVertical"/>
+            </android.support.v4.widget.NestedScrollView>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/deals_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:orientation="vertical"
-                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            </LinearLayout>
+        <TextView
+            android:id="@+id/text_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/subheading"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="No Internet Connection"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:visibility="gone"/>
 
-        </android.support.v4.widget.NestedScrollView>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

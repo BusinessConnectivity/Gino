@@ -10,7 +10,7 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.gino.webservices.ConstantWS.*;
+import static com.bizconnectivity.gino.ConstantWS.*;
 
 public class CheckUserLoginWS {
 
@@ -60,6 +60,8 @@ public class CheckUserLoginWS {
 
                 SoapObject response = (SoapObject) envelope.bodyIn;
                 SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
+
+                Log.d("TAG", "invokeCheckUserLogin: " + responseProperty.toString());
 
                 if (Boolean.parseBoolean(responseProperty.toString())) {
 

@@ -27,16 +27,6 @@
                 android:tint="@color/colorPrimaryDark"
                 android:src="@drawable/ic_lock_open_white_24dp"/>
 
-            <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingStart="@dimen/padding_16"-->
-                <!--android:paddingEnd="0dp"-->
-                <!--android:textAlignment="viewStart"-->
-                <!--android:textSize="@dimen/subheading"-->
-                <!--android:textStyle="bold"-->
-                <!--android:text="Change Password"/>-->
-
             <com.rengwuxian.materialedittext.MaterialEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,16 +51,6 @@
                 android:tint="@color/colorPrimaryDark"
                 android:src="@drawable/ic_lock_open_white_24dp"/>
 
-            <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingStart="@dimen/padding_16"-->
-                <!--android:paddingEnd="0dp"-->
-                <!--android:textAlignment="viewStart"-->
-                <!--android:textSize="@dimen/subheading"-->
-                <!--android:textStyle="bold"-->
-                <!--android:text="Change Password"/>-->
-
             <com.rengwuxian.materialedittext.MaterialEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -94,16 +74,6 @@
                 android:layout_marginEnd="@dimen/padding_16"
                 android:tint="@color/colorPrimaryDark"
                 android:src="@drawable/ic_lock_open_white_24dp"/>
-
-            <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingStart="@dimen/padding_16"-->
-                <!--android:paddingEnd="0dp"-->
-                <!--android:textAlignment="viewStart"-->
-                <!--android:textSize="@dimen/subheading"-->
-                <!--android:textStyle="bold"-->
-                <!--android:text="Change Password"/>-->
 
             <com.rengwuxian.materialedittext.MaterialEditText
                 android:layout_width="match_parent"

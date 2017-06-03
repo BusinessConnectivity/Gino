@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -16,28 +16,25 @@ import com.bizconnectivity.gino.asynctasks.CreateDismissedDealAsyncTask;
 import com.bizconnectivity.gino.asynctasks.CreateFavouriteDealAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperAdapter;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperViewHolder;
-import com.bizconnectivity.gino.models.DealModel;
-import com.bizconnectivity.gino.models.UserModel;
+import com.bizconnectivity.gino.models.Deal;
 
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
-import io.realm.RealmRecyclerViewAdapter;
-
-public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealModel, OfferRecyclerListAdapter.ItemViewHolder> implements
+public class OfferRecyclerListAdapter extends RecyclerView.Adapter<OfferRecyclerListAdapter.ItemViewHolder> implements
         ItemTouchHelperAdapter {
 
-    private List<DealModel> data;
-    private Realm realm;
+    private List<Deal> data;
     private AdapterCallBack adapterCallBack;
 
-    public OfferRecyclerListAdapter(@Nullable OrderedRealmCollection<DealModel> data, Realm realm, AdapterCallBack adapterCallBack) {
+    public OfferRecyclerListAdapter(List<Deal> data, AdapterCallBack adapterCallBack) {
 
-        super(data, true);
         this.data = data;
-        this.realm = realm;
         this.adapterCallBack = adapterCallBack;
+    }
+
+    public void swapData(List<Deal> newData) {
+        data = newData;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -48,7 +45,7 @@ public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealModel
     }
 
     @Override
-    public void onBindViewHolder(final ItemViewHolder holder, int position) {
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
 
         if (data.get(0).getDealImageFile() != null) {
             byte[] bloc = Base64.decode(data.get(position).getDealImageFile(), Base64.DEFAULT);
@@ -57,45 +54,31 @@ public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealModel
         }
         holder.mTextViewTitle.setText(data.get(position).getDealName());
         holder.mTextViewLocation.setText(data.get(position).getDealLocation());
-        holder.mTextViewPrice.setText(data.get(position).getDealPromoPrice());
+        holder.mTextViewUsualPrice.setText(data.get(position).getDealUsualPrice());
+        holder.mTextViewUsualPrice.setPaintFlags(holder.mTextViewUsualPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        holder.mTextViewPromoPrice.setText(data.get(position).getDealPromoPrice());
     }
 
     // Swipe Left
     @Override
-    public void onItemLeftSwipe(final int position) {
+    public void onItemLeftSwipe(int userId, int position) {
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
+        if (userId != 0) new CreateDismissedDealAsyncTask(userId, data.get(position).getDealID()).execute();
 
-                DealModel deal = realm.where(DealModel.class).equalTo("dealID", data.get(position).getDealID()).findFirst();
-                deal.setDismissed(true);
-                realm.copyToRealmOrUpdate(deal);
-            }
-        });
-
-        UserModel user = realm.where(UserModel.class).findFirst();
-
-        new CreateDismissedDealAsyncTask(user.getUserID(), data.get(position).getDealID()).execute();
+        data.remove(position);
+        notifyItemRemoved(position);
     }
 
     // Swipe Right
     @Override
-    public void onItemRightSwipe(final int position) {
+    public void onItemRightSwipe(int userId, int position) {
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
+        if (userId != 0) new CreateFavouriteDealAsyncTask(userId, data.get(position).getDealID()).execute();
 
-                DealModel deal = realm.where(DealModel.class).equalTo("dealID", data.get(position).getDealID()).findFirst();
-                deal.setDismissed(false);
-                realm.copyToRealmOrUpdate(deal);
-            }
-        });
-
-        UserModel userModel = realm.where(UserModel.class).findFirst();
-
-        new CreateFavouriteDealAsyncTask(userModel.getUserID(), data.get(position).getDealID()).execute();
+        data.add(position, data.get(position));
+        notifyItemInserted(position);
+        data.remove(position + 1);
+        notifyItemRemoved(position + 1);
     }
 
     @Override
@@ -104,20 +87,21 @@ public class OfferRecyclerListAdapter extends RealmRecyclerViewAdapter<DealModel
     }
 
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder, View.OnClickListener {
+    class ItemViewHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder, View.OnClickListener {
 
-        public TextView mTextViewTitle;
-        public TextView mTextViewLocation;
-        public TextView mTextViewPrice;
-        public ImageView mImageViewDeal;
+        TextView mTextViewTitle;
+        TextView mTextViewLocation;
+        TextView mTextViewUsualPrice;
+        TextView mTextViewPromoPrice;
+        ImageView mImageViewDeal;
 
         public ItemViewHolder(View itemView) {
 
             super(itemView);
-
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewLocation = (TextView) itemView.findViewById(R.id.text_location);
-            mTextViewPrice = (TextView) itemView.findViewById(R.id.text_price);
+            mTextViewUsualPrice = (TextView) itemView.findViewById(R.id.text_usual_price);
+            mTextViewPromoPrice = (TextView) itemView.findViewById(R.id.text_promo_price);
             mImageViewDeal = (ImageView) itemView.findViewById(R.id.image_deal);
 
             itemView.setOnClickListener(this);

@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.Deal;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,16 +13,16 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_DEAL_BY_ID;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_DEAL_BY_ID;
 
 public class RetrieveDealByIdWS {
 
-    public static DealModel invokeRetrieveDealById(int dealId) {
+    public static Deal invokeRetrieveDealById(int dealId) {
 
-        DealModel dealModel = new DealModel();
+        Deal deal = new Deal();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_DEAL_BY_ID);
@@ -72,63 +72,63 @@ public class RetrieveDealByIdWS {
                     SoapObject table = (SoapObject) newDataSet.getProperty(0);
 
                     if (isValidateProperty(table, "DealId")) {
-                        dealModel.setDealID(Integer.parseInt(dataReturn(table, "DealId")));
+                        deal.setDealID(Integer.parseInt(dataReturn(table, "DealId")));
                     }
 
                     if (isValidateProperty(table, "DealName")) {
-                        dealModel.setDealName(dataReturn(table, "DealName"));
+                        deal.setDealName(dataReturn(table, "DealName"));
                     }
 
                     if (isValidateProperty(table, "DealDescription")) {
-                        dealModel.setDealDescription(dataReturn(table, "DealDescription"));
+                        deal.setDealDescription(dataReturn(table, "DealDescription"));
                     }
 
                     if (isValidateProperty(table, "DealPromoStartDate")) {
-                        dealModel.setDealPromoStartDate(dataReturn(table, "DealPromoStartDate"));
+                        deal.setDealPromoStartDate(dataReturn(table, "DealPromoStartDate"));
                     }
 
                     if (isValidateProperty(table, "DealPromoEndDate")) {
-                        dealModel.setDealPromoEndDate(dataReturn(table, "DealPromoEndDate"));
+                        deal.setDealPromoEndDate(dataReturn(table, "DealPromoEndDate"));
                     }
 
                     if (isValidateProperty(table, "DealRedeemStartDate")) {
-                        dealModel.setDealRedeemStartDate(dataReturn(table, "DealRedeemStartDate"));
+                        deal.setDealRedeemStartDate(dataReturn(table, "DealRedeemStartDate"));
                     }
 
                     if (isValidateProperty(table, "DealRedeemEndDate")) {
-                        dealModel.setDealRedeemEndDate(dataReturn(table, "DealRedeemEndDate"));
+                        deal.setDealRedeemEndDate(dataReturn(table, "DealRedeemEndDate"));
                     }
 
                     if (isValidateProperty(table, "DealUsualPrice")) {
-                        dealModel.setDealUsualPrice(dataReturn(table, "DealUsualPrice"));
+                        deal.setDealUsualPrice(dataReturn(table, "DealUsualPrice"));
                     }
 
                     if (isValidateProperty(table, "DealPromoPrice")) {
-                        dealModel.setDealPromoPrice(dataReturn(table, "DealPromoPrice"));
+                        deal.setDealPromoPrice(dataReturn(table, "DealPromoPrice"));
                     }
 
                     if (isValidateProperty(table, "DealLocation")) {
-                        dealModel.setDealLocation(dataReturn(table, "DealLocation"));
+                        deal.setDealLocation(dataReturn(table, "DealLocation"));
                     }
 
                     if (isValidateProperty(table, "ImageFile")) {
-                        dealModel.setDealImageFile(dataReturn(table, "ImageFile"));
+                        deal.setDealImageFile(dataReturn(table, "ImageFile"));
                     }
 
                     if (isValidateProperty(table, "ImageName")) {
-                        dealModel.setDealImageName(dataReturn(table, "ImageName"));
+                        deal.setDealImageName(dataReturn(table, "ImageName"));
                     }
 
                     if (isValidateProperty(table, "ImageExt")) {
-                        dealModel.setDealImageExt(dataReturn(table, "ImageExt"));
+                        deal.setDealImageExt(dataReturn(table, "ImageExt"));
                     }
 
                     if (isValidateProperty(table, "DealCategoryId")) {
-                        dealModel.setDealCategoryID(Integer.parseInt(dataReturn(table, "DealCategoryId")));
+                        deal.setDealCategoryID(Integer.parseInt(dataReturn(table, "DealCategoryId")));
                     }
 
                     if (isValidateProperty(table, "MerchantId")) {
-                        dealModel.setMerchantID(Integer.parseInt(dataReturn(table, "MerchantId")));
+                        deal.setMerchantID(Integer.parseInt(dataReturn(table, "MerchantId")));
                     }
                 }
             }
@@ -137,6 +137,6 @@ public class RetrieveDealByIdWS {
             e.printStackTrace();
         }
 
-        return dealModel;
+        return deal;
     }
 }

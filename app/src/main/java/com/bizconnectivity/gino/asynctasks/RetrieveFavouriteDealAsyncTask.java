@@ -2,12 +2,12 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.FavDealModel;
+import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.webservices.RetrieveFavouriteDealWS;
 
 import java.util.List;
 
-public class RetrieveFavouriteDealAsyncTask extends AsyncTask<String, Void, List<FavDealModel>> {
+public class RetrieveFavouriteDealAsyncTask extends AsyncTask<String, Void, List<Deal>> {
 
     private final AsyncResponse asyncResponse;
     private int memberId;
@@ -19,12 +19,12 @@ public class RetrieveFavouriteDealAsyncTask extends AsyncTask<String, Void, List
     }
 
     @Override
-    protected List<FavDealModel> doInBackground(String... params) {
+    protected List<Deal> doInBackground(String... params) {
         return RetrieveFavouriteDealWS.invokeRetrieveFavouriteDeal(memberId);
     }
 
     @Override
-    protected void onPostExecute(List<FavDealModel> result) {
+    protected void onPostExecute(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
             asyncResponse.retrieveFavouriteDeal(result);
@@ -34,6 +34,6 @@ public class RetrieveFavouriteDealAsyncTask extends AsyncTask<String, Void, List
     }
 
     public interface AsyncResponse {
-        void retrieveFavouriteDeal(List<FavDealModel> favDealList);
+        void retrieveFavouriteDeal(List<Deal> result);
     }
 }

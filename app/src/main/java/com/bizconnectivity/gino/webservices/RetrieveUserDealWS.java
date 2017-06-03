@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.UserDealModel;
+import com.bizconnectivity.gino.models.Deal;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -16,29 +16,28 @@ import java.util.List;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_USER_DEAL;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_USER_DEAL;
 
 public class RetrieveUserDealWS {
 
-    public static List<UserDealModel> invokeRetrieveUserDeal(int memberId) {
+    public static List<Deal> invokeRetrieveUserDeal(int memberId) {
 
-        List<UserDealModel> userDealModelList = new ArrayList<>();
+        List<Deal> dealList = new ArrayList<>();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_USER_DEAL);
 
-        //property which holds input parameters
         PropertyInfo memberIdPI = new PropertyInfo();
-        //set name
+        // Set Name
         memberIdPI.setName("memberId");
-        //set value
+        // Set Value
         memberIdPI.setValue(memberId);
-        //set datatype
+        // Set dataType
         memberIdPI.setType(int.class);
-        //add the property to request object
+        // Add the property to request object
         request.addProperty(memberIdPI);
 
         //create envelope
@@ -54,7 +53,7 @@ public class RetrieveUserDealWS {
 
             if (envelope.bodyIn instanceof SoapFault) {
 
-                Log.d("TAG", "invokeRetrieveUserDeal: " + envelope.bodyIn.toString());
+                Log.d("TAG", "invokeRetrieveHistoryDeal: " + envelope.bodyIn.toString());
 
             } else {
 
@@ -76,41 +75,73 @@ public class RetrieveUserDealWS {
                         //get the number of dataSet
                         SoapObject table = (SoapObject) newDataSet.getProperty(i);
 
-                        UserDealModel userDealModel = new UserDealModel();
-
-                        if (isValidateProperty(table, "MemberDealId")) {
-                            userDealModel.setUserDealID(Integer.parseInt(dataReturn(table, "MemberDealId")));
-                        }
-
-                        if (isValidateProperty(table, "MemberId")) {
-                            userDealModel.setUserID(Integer.parseInt(dataReturn(table, "MemberId")));
-                        }
+                        Deal deal = new Deal();
 
                         if (isValidateProperty(table, "DealId")) {
-                            userDealModel.setDealID(Integer.parseInt(dataReturn(table, "DealId")));
+                            deal.setDealID(Integer.parseInt(dataReturn(table, "DealId")));
                         }
 
-                        if (isValidateProperty(table, "Quantity")) {
-                            userDealModel.setQuantity(Integer.parseInt(dataReturn(table, "Quantity")));
+                        if (isValidateProperty(table, "DealName")) {
+                            deal.setDealName(dataReturn(table, "DealName"));
                         }
 
-                        if (isValidateProperty(table, "RedeemedDate")) {
-                            userDealModel.setRedeemedDate(dataReturn(table, "RedeemedDate"));
+                        if (isValidateProperty(table, "DealDescription")) {
+                            deal.setDealDescription(dataReturn(table, "DealDescription"));
                         }
 
-                        if (isValidateProperty(table, "IsRedeemed")) {
-                            userDealModel.setRedeemed(Boolean.parseBoolean(dataReturn(table, "IsRedeemed")));
+                        if (isValidateProperty(table, "DealPromoStartDate")) {
+                            deal.setDealPromoStartDate(dataReturn(table, "DealPromoStartDate"));
                         }
 
-                        if (isValidateProperty(table, "IsExpired")) {
-                            userDealModel.setExpired(Boolean.parseBoolean(dataReturn(table, "IsExpired")));
+                        if (isValidateProperty(table, "DealPromoEndDate")) {
+                            deal.setDealPromoEndDate(dataReturn(table, "DealPromoEndDate"));
                         }
 
-                        if (isValidateProperty(table, "CreatedDate")) {
-                            userDealModel.setCreatedDate(dataReturn(table, "CreatedDate"));
+                        if (isValidateProperty(table, "DealRedeemStartDate")) {
+                            deal.setDealRedeemStartDate(dataReturn(table, "DealRedeemStartDate"));
                         }
 
-                        userDealModelList.add(userDealModel);
+                        if (isValidateProperty(table, "DealRedeemEndDate")) {
+                            deal.setDealRedeemEndDate(dataReturn(table, "DealRedeemEndDate"));
+                        }
+
+                        if (isValidateProperty(table, "DealUsualPrice")) {
+                            deal.setDealUsualPrice(dataReturn(table, "DealUsualPrice"));
+                        }
+
+                        if (isValidateProperty(table, "DealPromoPrice")) {
+                            deal.setDealPromoPrice(dataReturn(table, "DealPromoPrice"));
+                        }
+
+                        if (isValidateProperty(table, "DealLocation")) {
+                            deal.setDealLocation(dataReturn(table, "DealLocation"));
+                        }
+
+                        if (isValidateProperty(table, "ImageFile")) {
+                            deal.setDealImageFile(dataReturn(table, "ImageFile"));
+                        }
+
+                        if (isValidateProperty(table, "ImageName")) {
+                            deal.setDealImageName(dataReturn(table, "ImageName"));
+                        }
+
+                        if (isValidateProperty(table, "ImageExt")) {
+                            deal.setDealImageExt(dataReturn(table, "ImageExt"));
+                        }
+
+                        if (isValidateProperty(table, "DealCategoryId")) {
+                            deal.setDealCategoryID(Integer.parseInt(dataReturn(table, "DealCategoryId")));
+                        }
+
+                        if (isValidateProperty(table, "MerchantId")) {
+                            deal.setMerchantID(Integer.parseInt(dataReturn(table, "MerchantId")));
+                        }
+
+                        if (isValidateProperty(table, "DealNoOfView")) {
+                            deal.setDealNoOfView(Integer.parseInt(dataReturn(table, "DealNoOfView")));
+                        }
+
+                        dealList.add(deal);
                     }
                 }
             }
@@ -119,6 +150,6 @@ public class RetrieveUserDealWS {
             e.printStackTrace();
         }
 
-        return userDealModelList;
+        return dealList;
     }
 }

@@ -2,10 +2,10 @@ package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
 
-import com.bizconnectivity.gino.models.DealModel;
+import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.webservices.RetrieveDealByIdWS;
 
-public class RetrieveDealByIdAsyncTask extends AsyncTask<String, Void, DealModel>{
+public class RetrieveDealByIdAsyncTask extends AsyncTask<String, Void, Deal>{
 
     private final AsyncResponse asyncResponse;
     private int dealId;
@@ -17,12 +17,12 @@ public class RetrieveDealByIdAsyncTask extends AsyncTask<String, Void, DealModel
     }
 
     @Override
-    protected DealModel doInBackground(String... params) {
+    protected Deal doInBackground(String... params) {
         return RetrieveDealByIdWS.invokeRetrieveDealById(dealId);
     }
 
     @Override
-    protected void onPostExecute(DealModel result) {
+    protected void onPostExecute(Deal result) {
 
         if (result != null) {
             asyncResponse.retrieveDealById(result);
@@ -32,6 +32,6 @@ public class RetrieveDealByIdAsyncTask extends AsyncTask<String, Void, DealModel
     }
 
     public interface AsyncResponse {
-        void retrieveDealById(DealModel dealModel);
+        void retrieveDealById(Deal deal);
     }
 }

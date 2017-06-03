@@ -2,7 +2,7 @@ package com.bizconnectivity.gino.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.gino.models.FavEventModel;
+import com.bizconnectivity.gino.models.Event;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -16,16 +16,16 @@ import java.util.List;
 
 import static com.bizconnectivity.gino.Common.dataReturn;
 import static com.bizconnectivity.gino.Common.isValidateProperty;
-import static com.bizconnectivity.gino.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.gino.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.gino.webservices.ConstantWS.URL;
-import static com.bizconnectivity.gino.webservices.ConstantWS.WS_RETRIEVE_FAVOURITE_EVENT;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_RETRIEVE_FAVOURITE_EVENT;
 
 public class RetrieveFavouriteEventWS {
 
-    public static List<FavEventModel> invokeRetrieveFavouriteEvent(int memberId) {
+    public static List<Event> invokeRetrieveFavouriteEvent(int memberId) {
 
-        List<FavEventModel> favEventList = new ArrayList<>();
+        List<Event> eventList = new ArrayList<>();
 
         //create request
         SoapObject request = new SoapObject(NAMESPACE, WS_RETRIEVE_FAVOURITE_EVENT);
@@ -76,21 +76,53 @@ public class RetrieveFavouriteEventWS {
                         //get the number of dataSet
                         SoapObject table = (SoapObject) newDataSet.getProperty(i);
 
-                        FavEventModel favEvent = new FavEventModel();
-
-                        if (isValidateProperty(table, "MemberFavEventId")) {
-                            favEvent.setUserFavEventID(Integer.parseInt(dataReturn(table, "MemberFavEventId")));
-                        }
-
-                        if (isValidateProperty(table, "MemberId")) {
-                            favEvent.setUserID(Integer.parseInt(dataReturn(table, "MemberId")));
-                        }
+                        Event event = new Event();
 
                         if (isValidateProperty(table, "EventId")) {
-                            favEvent.setEventID(Integer.parseInt(dataReturn(table, "EventId")));
+                            event.setEventID(Integer.parseInt(dataReturn(table, "EventId")));
                         }
 
-                        favEventList.add(favEvent);
+                        if (isValidateProperty(table, "EventName")) {
+                            event.setEventName(dataReturn(table, "EventName"));
+                        }
+
+                        if (isValidateProperty(table, "EventDescription")) {
+                            event.setEventDescription(dataReturn(table, "EventDescription"));
+                        }
+
+                        if (isValidateProperty(table, "EventStartDateTime")) {
+                            event.setEventStartDateTime(dataReturn(table, "EventStartDateTime"));
+                        }
+
+                        if (isValidateProperty(table, "EventEndDateTime")) {
+                            event.setEventEndDateTime(dataReturn(table, "EventEndDateTime"));
+                        }
+
+                        if (isValidateProperty(table, "EventLocation")) {
+                            event.setEventLocation(dataReturn(table, "EventLocation"));
+                        }
+
+                        if (isValidateProperty(table, "EventOrganizer")) {
+                            event.setEventOrganizer(dataReturn(table, "EventOrganizer"));
+                        }
+
+                        if (isValidateProperty(table, "EventLatitude")) {
+                            event.setEventLatitude(dataReturn(table, "EventLatitude"));
+                        }
+
+                        if (isValidateProperty(table, "EventLongitude")) {
+                            event.setEventLongitude(dataReturn(table, "EventLongitude"));
+                        }
+
+                        if (isValidateProperty(table, "EventUrl")) {
+                            event.setEventURL(dataReturn(table, "EventUrl"));
+                        }
+
+                        if (isValidateProperty(table, "ImageUrl")) {
+                            event.setImageUrl(dataReturn(table, "ImageUrl"));
+                        }
+
+                        eventList.add(event);
                     }
                 }
             }
@@ -99,6 +131,6 @@ public class RetrieveFavouriteEventWS {
             e.printStackTrace();
         }
 
-        return favEventList;
+        return eventList;
     }
 }

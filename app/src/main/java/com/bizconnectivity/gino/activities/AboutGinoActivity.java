@@ -1,19 +1,13 @@
 package com.bizconnectivity.gino.activities;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.bizconnectivity.gino.R;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -104,7 +98,6 @@ public class AboutGinoActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-
         onBackPressed();
         return true;
     }

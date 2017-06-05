@@ -382,6 +382,8 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
 
     @OnClick(R.id.text_forgot_password)
     public void forgotPasswordOnClick(View view) {
+        Intent intent = new Intent(this, ContactActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.text_sign_up)

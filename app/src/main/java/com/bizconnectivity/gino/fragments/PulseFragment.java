@@ -560,6 +560,6 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
 
     @Nullable
     public View getParentView() {
-        return (CoordinatorLayout) getParentFragment().getView().findViewById(R.id.coordinator_layout);
+        return getParentFragment().getView().findViewById(R.id.coordinator_layout);
     }
 }

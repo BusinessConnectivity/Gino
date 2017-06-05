@@ -230,6 +230,8 @@ public class PulseDetailActivity extends AppCompatActivity implements RetrieveEv
 
                     isFavouriteEvent = true;
 
+                    fetchData();
+
                 } else {
 
                     new DeleteFavouriteEventAsyncTask(userFavEventId).execute();

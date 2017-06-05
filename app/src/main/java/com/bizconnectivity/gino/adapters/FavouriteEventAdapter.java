@@ -13,7 +13,11 @@ import com.bizconnectivity.gino.R;
 import com.bizconnectivity.gino.models.Event;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
 import java.util.List;
+
+import static com.bizconnectivity.gino.Constant.format1;
+import static com.bizconnectivity.gino.Constant.format2;
 
 public class FavouriteEventAdapter extends RecyclerView.Adapter<FavouriteEventAdapter.ViewHolder> {
 
@@ -47,7 +51,13 @@ public class FavouriteEventAdapter extends RecyclerView.Adapter<FavouriteEventAd
             Picasso.with(context).load(Uri.parse(data.get(position).getImageUrl())).into(holder.mImageViewPulse);
 
         holder.mTextViewTitle.setText(data.get(position).getEventName());
-        holder.mTextViewDatetime.setText(data.get(position).getEventStartDateTime());
+
+        try {
+            holder.mTextViewDatetime.setText(format2.format(format1.parse(data.get(position).getEventStartDateTime())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         holder.mTextViewLocation.setText(data.get(position).getEventLocation());
     }
 

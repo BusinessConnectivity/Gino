@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -31,6 +30,7 @@ import butterknife.ButterKnife;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
@@ -109,9 +109,10 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
 
         } else {
 
-            mSwipeRefreshLayout.setRefreshing(false);
-            mRecyclerViewHistory.setVisibility(View.GONE);
+            mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewHistory.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -133,7 +134,12 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
 
         historyDealsAdapter.swapData(purchasedDealList);
 
-        if (purchasedDealList.isEmpty()) snackBar(getParentView(), "No Record");
+        if (purchasedDealList.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewHistory.setVisibility(View.GONE);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }
@@ -164,7 +170,7 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
 
     @Nullable
     public View getParentView() {
-        return (CoordinatorLayout) getParentFragment().getView().findViewById(R.id.coordinator_layout);
+        return getParentFragment().getView().findViewById(R.id.coordinator_layout_purchased);
     }
 
     @Override

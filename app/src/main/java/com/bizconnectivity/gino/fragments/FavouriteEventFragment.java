@@ -31,8 +31,7 @@ import butterknife.ButterKnife;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
-import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
-import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
@@ -101,21 +100,14 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
 
         if (isNetworkAvailable(getContext())) {
 
-            // Check User Sign In
-            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-                new RetrieveFavouriteEventAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
-
-            } else {
-
-                mRecyclerViewEvent.setAdapter(null);
-                snackBar(mCoordinatorLayout, ERR_MSG_USER_SIGN_IN);
-            }
+            new RetrieveFavouriteEventAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
 
         } else {
 
-            mRecyclerViewEvent.setVisibility(View.GONE);
+            mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewEvent.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -137,7 +129,12 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
 
         favouriteEventAdapter.swapData(eventList);
 
-        if (eventList.isEmpty()) snackBar(mCoordinatorLayout, "No Record");
+        if (eventList.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewEvent.setVisibility(View.GONE);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }

@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
@@ -27,6 +28,7 @@ import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.models.Merchant;
 
 import java.text.ParseException;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -93,6 +95,7 @@ public class OfferDetailActivity extends AppCompatActivity implements RetrieveDe
     private Deal deal = new Deal();
     private Merchant merchant;
     private SharedPreferences sharedPreferences;
+    private Calendar now = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +203,15 @@ public class OfferDetailActivity extends AppCompatActivity implements RetrieveDe
             mTextViewRedeemStart.setText(format3.format(format1.parse(deal.getDealRedeemStartDate())));
             mTextViewRedeemEnd.setText(format3.format(format1.parse(deal.getDealRedeemEndDate())));
             mTextViewPromotionEnd.setText(format3.format(format1.parse(deal.getDealPromoEndDate())));
+
+            if (format3.parse(format3.format(format1.parse(deal.getDealPromoEndDate()))).before(format3.parse(format3.format(now.getTime())))) {
+                mLayoutBottom.setVisibility(View.GONE);
+
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                layoutParams.setMargins(0, 0, 0, 0);
+                mLayoutContent.setLayoutParams(layoutParams);
+            }
 
         } catch (ParseException e) {
             e.printStackTrace();

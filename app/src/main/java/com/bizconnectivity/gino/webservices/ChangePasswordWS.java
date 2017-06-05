@@ -10,26 +10,29 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.gino.ConstantWS.*;
+import static com.bizconnectivity.gino.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.gino.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.gino.ConstantWS.URL;
+import static com.bizconnectivity.gino.ConstantWS.WS_UPDATE_USER_PASSWORD;
 
-public class CheckUserLoginWS {
+public class ChangePasswordWS {
 
-    public static boolean invokeCheckUserLogin(String email, String password) {
+    public static boolean invokeChangePassword(int memberId, String password) {
 
         boolean returnResult = false;
 
-        SoapObject request = new SoapObject(NAMESPACE, WS_CHECK_USER_LOGIN);
+        SoapObject request = new SoapObject(NAMESPACE, WS_UPDATE_USER_PASSWORD);
 
 
-        PropertyInfo emailPI = new PropertyInfo();
+        PropertyInfo memberIdPI = new PropertyInfo();
         // Set Name
-        emailPI.setName("email");
+        memberIdPI.setName("memberId");
         // Set Value
-        emailPI.setValue(email);
+        memberIdPI.setValue(memberId);
         // Set dataType
-        emailPI.setType(String.class);
+        memberIdPI.setType(int.class);
         // Add the property to request object
-        request.addProperty(emailPI);
+        request.addProperty(memberIdPI);
 
         PropertyInfo passwordPI = new PropertyInfo();
         // Set Name
@@ -50,7 +53,7 @@ public class CheckUserLoginWS {
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
 
         try {
-            androidHttpTransport.call(SOAP_ACTION + WS_CHECK_USER_LOGIN, envelope);
+            androidHttpTransport.call(SOAP_ACTION + WS_UPDATE_USER_PASSWORD, envelope);
 
             if (envelope.bodyIn instanceof SoapFault) {
 

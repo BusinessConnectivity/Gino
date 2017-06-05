@@ -33,8 +33,7 @@ import butterknife.ButterKnife;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
-import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
-import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
@@ -98,18 +97,7 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeal);
 
-//        fetchData();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean visible) {
-
-        super.setUserVisibleHint(visible);
-
-        if (visible) {
-
-            fetchData();
-        }
+        fetchData();
     }
 
     private void fetchData() {
@@ -118,21 +106,14 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
 
         if (isNetworkAvailable(getContext())) {
 
-            // Check User Sign In
-            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-                new RetrieveFavouriteDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
-
-            } else {
-
-                snackBar(mCoordinatorLayout, ERR_MSG_USER_SIGN_IN);
-            }
+            new RetrieveFavouriteDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
 
         } else {
 
-            mSwipeRefreshLayout.setVisibility(View.GONE);
-            mSwipeRefreshLayout.setRefreshing(false);
+            mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewDeal.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -153,7 +134,12 @@ public class FavouriteDealFragment extends Fragment implements FavouriteDealAdap
 
         favouriteDealAdapter.swapData(dealList);
 
-        if (dealList.isEmpty()) snackBar(mCoordinatorLayout, "No Record");
+        if (dealList.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewDeal.setVisibility(View.GONE);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }

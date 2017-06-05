@@ -1,12 +1,11 @@
 package com.bizconnectivity.gino.fragments;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
@@ -34,6 +32,12 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
+import static com.bizconnectivity.gino.Common.snackBar;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
+
+//import com.arlib.floatingsearchview.FloatingSearchView;
+//import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 
 public class SearchFragment extends Fragment implements SearchResultsListAdapter.AdapterCallBack {
 
@@ -49,9 +53,14 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     @BindView(R.id.text_message)
     TextView mTextViewMessage;
 
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
+
     private static final int SPEECH_REQUEST_CODE = 0;
     private SearchResultsListAdapter mSearchResultsAdapter;
     private List<Deal> dealLists = new ArrayList<>();
+    private String spokenText;
+    private View view;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -62,7 +71,8 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        view = inflater.inflate(R.layout.fragment_search, container, false);
+        return view;
     }
 
     @Override
@@ -80,19 +90,18 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         setupSearchBar();
 
         // Setup RecycleView
-        mSearchResultsAdapter = new SearchResultsListAdapter(getContext(), dealLists, this);
-        mRecyclerViewSearch.setLayoutManager(new LinearLayoutManager(getContext()));
+        mSearchResultsAdapter = new SearchResultsListAdapter(getActivity(), dealLists, this);
         mRecyclerViewSearch.setAdapter(mSearchResultsAdapter);
+        mRecyclerViewSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 
         if (isNetworkAvailable(getContext())) {
-
-            mRecyclerViewSearch.setVisibility(View.VISIBLE);
-            mTextViewMessage.setVisibility(View.GONE);
-
-        } else {
-
-            mRecyclerViewSearch.setVisibility(View.GONE);
+            mTextViewMessage.setText("Search Gino");
             mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewSearch.setVisibility(View.GONE);
+        } else {
+            mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewSearch.setVisibility(View.GONE);
         }
     }
 
@@ -121,42 +130,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            }
 //        });
 
-//        mSearchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
-//            @Override
-//            public void onSuggestionClicked(final SearchSuggestion searchSuggestion) {
-//
-//                DealSearchSuggestion colorSuggestion = (DealSearchSuggestion) searchSuggestion;
-//                DataHelper.findColors(getContext(), colorSuggestion.getBody(),
-//                        new DataHelper.OnFindColorsListener() {
-//
-//                            @Override
-//                            public void onResults(List<ColorWrapper> results) {
-//                                //show search results
-//                                mSearchResultsAdapter.swapData(getContext(), results);
-//                            }
-//
-//                        });
-//
-//                mLastQuery = searchSuggestion.getBody();
-//            }
-//
-//            @Override
-//            public void onSearchAction(String query) {
-//                mLastQuery = query;
-//
-//                DataHelper.findColors(getActivity(), query,
-//                        new DataHelper.OnFindColorsListener() {
-//
-//                            @Override
-//                            public void onResults(List<ColorWrapper> results) {
-//                                //show search results
-//                                mSearchResultsAdapter.swapData(getContext(), results);
-//                            }
-//
-//                        });
-//            }
-//        });
-
 //        mSearchView.setOnFocusChangeListener(new FloatingSearchView.OnFocusChangeListener() {
 //            @Override
 //            public void onFocus() {
@@ -169,7 +142,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            public void onFocusCleared() {
 //
 //                //set the title of the bar so that when focus is returned a new query begins
-//                mSearchView.setSearchBarTitle(mLastQuery);
+//                mSearchView.setSearchBarTitle(spokenText);
 //
 //                //you can also set setSearchText(...) to make keep the query there when not focused and when focus returns
 //                //mSearchView.setSearchText(searchSuggestion.getBody());
@@ -190,18 +163,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
                     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                     // Start the activity, the intent will be populated with the speech text
                     startActivityForResult(intent, SPEECH_REQUEST_CODE);
-
-                } else {
-
-                    if (checkCameraHardware(getContext())) {
-
-                        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                        startActivity(intent);
-
-                    } else {
-
-                        Toast.makeText(getContext(), "This device don't has a camera.", Toast.LENGTH_SHORT).show();
-                    }
                 }
             }
         });
@@ -235,8 +196,8 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            }
 //        });
 
-
         mSearchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
+
             @Override
             public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
 
@@ -245,23 +206,27 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
             @Override
             public void onSearchAction(String currentQuery) {
 
-                if (isNetworkAvailable(getContext())) {
+                if (currentQuery.isEmpty()) {
 
-                    mSearchView.showProgress();
-
-                    new SearchDealAsyncTask(currentQuery).execute();
+                    mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+                    mTextViewMessage.setVisibility(View.VISIBLE);
+                    mRecyclerViewSearch.setVisibility(View.GONE);
 
                 } else {
 
+                    if (isNetworkAvailable(getContext())) {
 
+                        mSearchView.showProgress();
+
+                        new SearchDealAsyncTask(currentQuery).execute();
+
+                    } else {
+
+                        snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+                    }
                 }
             }
         });
-    }
-
-    // Check if this device has a camera
-    private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
     @Override
@@ -270,22 +235,32 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
 
             List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
+            spokenText = results.get(0);
 
-            // Place the spoken text to search view
             mSearchView.setSearchText(spokenText);
 
-            // Search spoken text
-            if (isNetworkAvailable(getContext())) {
-
-                mSearchView.showProgress();
-
-                new SearchDealAsyncTask(spokenText).execute();
-
-            } else {
-
-
-            }
+//            Log.d("TAG", "onActivityResult: " + spokenText);
+//
+//            if (spokenText.isEmpty()) {
+//
+////                mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+////                mTextViewMessage.setVisibility(View.VISIBLE);
+////                mRecyclerViewSearch.setVisibility(View.GONE);
+//
+//            } else {
+//
+//                // Search spoken text
+//                if (isNetworkAvailable(getContext())) {
+//
+////                    mSearchView.showProgress();
+//
+//                    new SearchDealAsyncTask(spokenText).execute();
+//
+//                } else {
+//
+////                    snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+//                }
+//            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -312,9 +287,26 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         @Override
         protected void onPostExecute(List<Deal> result) {
 
-            mSearchResultsAdapter.swapData(result);
+            if (result.isEmpty()) {
+
+                mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+                mTextViewMessage.setVisibility(View.VISIBLE);
+                mRecyclerViewSearch.setVisibility(View.GONE);
+
+            } else {
+
+                mTextViewMessage.setVisibility(View.GONE);
+                mRecyclerViewSearch.setVisibility(View.VISIBLE);
+                mSearchResultsAdapter.swapData(result);
+            }
 
             mSearchView.hideProgress();
         }
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
 }
+

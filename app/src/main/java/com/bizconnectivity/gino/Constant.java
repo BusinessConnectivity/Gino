@@ -26,6 +26,7 @@ public class Constant {
     public static String MSG_CANNOT_ACCESS_DEVICE_STORAGE = "Can't access device storage";
     public static String ERR_MSG_NO_INTERNET_CONNECTION = "No Internet Connection";
     public static String ERR_MSG_USER_SIGN_IN = "Please sign in to Gino";
+    public static String ERR_MSG_NO_RECORD = "No Record";
 
     public static SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
     public static SimpleDateFormat format2 = new SimpleDateFormat("dd / MM / yyyy", Locale.getDefault());

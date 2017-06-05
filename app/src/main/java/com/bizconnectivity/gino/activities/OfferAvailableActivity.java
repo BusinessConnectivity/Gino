@@ -112,15 +112,11 @@ public class OfferAvailableActivity extends AppCompatActivity implements Retriev
         });
 
         // Slide View
+        mSlideView.setEnabled(false);
         mSlideView.setOnSlideCompleteListener(new SlideView.OnSlideCompleteListener() {
             @Override
             public void onSlideComplete(SlideView slideView) {
-
-                if (isNetworkAvailable(getApplicationContext())) {
-                    updateData();
-                } else {
-                    snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
-                }
+                updateData();
             }
         });
 
@@ -149,7 +145,7 @@ public class OfferAvailableActivity extends AppCompatActivity implements Retriev
         if (result != null) {
             userDeal = result;
         } else {
-            snackBar(mCoordinatorLayout, "ERROR");
+            snackBar(mCoordinatorLayout, "Error on retrieve data");
         }
 
         updateUI();
@@ -182,21 +178,30 @@ public class OfferAvailableActivity extends AppCompatActivity implements Retriev
         if (!userDeal.getSubtotalPrice().isEmpty())
             mTextViewSubtotal.setText(userDeal.getSubtotalPrice());
 
+        if (userDealId != 0)
+            mSlideView.setEnabled(true);
+
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     // Update user deal to redeem
     private void updateData() {
 
-        mLinearLayout.setBackgroundColor(Color.parseColor("#E0E0E0"));
-        mSlideView.setEnabled(false);
-        mSlideView.setText("Redeemed");
-        mSlideView.setTextColor(Color.parseColor("#000000"));
-        mSlideView.setButtonBackgroundColor(ColorStateList.valueOf(Color.parseColor("#9E9E9E")));
-        mSlideView.setBackgroundColor(Color.parseColor("#E0E0E0"));
+        if (isNetworkAvailable(this)) {
 
-        new UpdateUserDealAsyncTask(userDealId).execute();
-        snackBar(mCoordinatorLayout, "Redeem Successfully");
+            mLinearLayout.setBackgroundColor(Color.parseColor("#E0E0E0"));
+            mSlideView.setEnabled(false);
+            mSlideView.setText("Redeemed");
+            mSlideView.setTextColor(Color.parseColor("#000000"));
+            mSlideView.setButtonBackgroundColor(ColorStateList.valueOf(Color.parseColor("#9E9E9E")));
+            mSlideView.setBackgroundColor(Color.parseColor("#E0E0E0"));
+
+            new UpdateUserDealAsyncTask(userDealId).execute();
+            snackBar(mCoordinatorLayout, "Redeem Successfully");
+
+        } else {
+            snackBar(mCoordinatorLayout, ERR_MSG_NO_INTERNET_CONNECTION);
+        }
     }
 
     @OnClick(R.id.text_view_more)

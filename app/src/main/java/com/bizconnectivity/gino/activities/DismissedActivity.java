@@ -31,8 +31,7 @@ import butterknife.ButterKnife;
 import static com.bizconnectivity.gino.Common.isNetworkAvailable;
 import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
-import static com.bizconnectivity.gino.Constant.ERR_MSG_USER_SIGN_IN;
-import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
+import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_USER_ID;
 
@@ -106,21 +105,14 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
 
         if (isNetworkAvailable(this)) {
 
-            // Check User Sign In
-            if (sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-                new RetrieveDismissedDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
-
-            } else {
-
-                snackBar(mCoordinatorLayout, ERR_MSG_USER_SIGN_IN);
-            }
+            new RetrieveDismissedDealAsyncTask(this, sharedPreferences.getInt(SHARED_PREF_USER_ID, 0)).execute();
 
         } else {
 
-            mSwipeRefreshLayout.setRefreshing(false);
-            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -137,7 +129,12 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
 
         dismissedDealAdapter.swapData(dealList);
 
-        if (dealList.isEmpty()) snackBar(mCoordinatorLayout, "No Record");
+        if (dealList.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
+        }
 
         mSwipeRefreshLayout.setRefreshing(false);
     }

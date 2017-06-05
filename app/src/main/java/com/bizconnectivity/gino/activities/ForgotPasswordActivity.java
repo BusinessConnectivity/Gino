@@ -19,7 +19,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         Intent intent = new Intent(this, SignInActivity.class);
         isActivityStarted = true;
         startActivity(intent);
@@ -27,9 +26,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-
         super.onStop();
-
         if (isActivityStarted) finish();
     }
 }

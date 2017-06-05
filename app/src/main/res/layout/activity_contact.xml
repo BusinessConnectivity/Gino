@@ -58,8 +58,7 @@
                     android:paddingEnd="@dimen/padding_16"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables"
-                    android:onClick="phoneOnClick">
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="@dimen/icon_size"
@@ -87,8 +86,7 @@
                     android:paddingEnd="@dimen/padding_16"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables"
-                    android:onClick="emailOnClick">
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="@dimen/icon_size"
@@ -116,8 +114,7 @@
                     android:paddingEnd="@dimen/padding_16"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    tools:ignore="UseCompoundDrawables"
-                    android:onClick="locationOnClick">
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:layout_width="@dimen/icon_size"

@@ -62,7 +62,7 @@
                 android:layout_width="300dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="@dimen/margin_10"
-                android:layout_marginBottom="@dimen/margin_15"
+                android:layout_marginBottom="@dimen/margin_5"
                 android:background="@drawable/round_shape_button"
                 android:backgroundTint="@color/colorPrimaryDark"
                 android:stateListAnimator="@null"
@@ -75,9 +75,11 @@
             <TextView
                 android:id="@+id/text_forgot_password"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_10"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/margin_5"
                 android:text="Having trouble signing in?"
+                android:textAlignment="center"
                 android:textSize="@dimen/caption"
                 android:textColor="@color/colorPrimaryDark"
                 android:onClick="forgotPasswordOnClick"/>

@@ -17,11 +17,9 @@ import com.bizconnectivity.gino.fragments.HomeFragment;
 import com.bizconnectivity.gino.fragments.ProfileFragment;
 import com.bizconnectivity.gino.fragments.PurchasedFragment;
 import com.bizconnectivity.gino.fragments.SearchFragment;
-import com.crashlytics.android.Crashlytics;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.fabric.sdk.android.Fabric;
 
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_IS_SIGNED_IN;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
@@ -35,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView mBottomNavigationView;
 
     private SharedPreferences sharedPreferences;
-    private int selectedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,28 +40,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Fabric.with(this, new Crashlytics());
-
         // Layout Binding
         ButterKnife.bind(this);
-
-        // Bottom Navigation
-        mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        // Default Fragment
-        getSelectedFragment();
 
         // Shared Preferences
         sharedPreferences = getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
 
         // Check User Signed IN
         isSignedIn();
+
+        // Bottom Navigation
+        mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // Default Fragment
+        getSelectedFragment();
+    }
+
+    private void isSignedIn() {
+
+        if (!sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
+
+            Intent intent = new Intent(this, SplashActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void getSelectedFragment() {
 
-        selectedFragment = mBottomNavigationView.getSelectedItemId();
-        switch (selectedFragment) {
+        switch (mBottomNavigationView.getSelectedItemId()) {
 
             case R.id.navigation_home:
                 switchFragment(new HomeFragment());
@@ -81,15 +84,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.navigation_profile:
                 switchFragment(new ProfileFragment());
                 break;
-        }
-    }
-
-    private void isSignedIn() {
-
-        if (!sharedPreferences.getBoolean(SHARED_PREF_IS_SIGNED_IN, false)) {
-
-            Intent intent = new Intent(this, SplashActivity.class);
-            startActivity(intent);
         }
     }
 

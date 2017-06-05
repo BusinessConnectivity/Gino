@@ -6,7 +6,7 @@ import com.bizconnectivity.gino.webservices.CheckUserWS;
 
 public class CheckUserAsyncTask extends AsyncTask<String, Void, Boolean>{
 
-    private final AsyncResponse asyncResponse;
+    private AsyncResponse asyncResponse;
     private String email;
 
     public CheckUserAsyncTask(AsyncResponse asyncResponse, String email) {

@@ -1,5 +1,5 @@
 <android.support.design.widget.CoordinatorLayout
-    android:id="@+id/coordinator_layout"
+    android:id="@+id/coordinator_layout_purchased"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"

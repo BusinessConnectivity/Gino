@@ -27,7 +27,6 @@
                 android:layout_height="match_parent"
                 android:textSize="@dimen/subheading"
                 android:textColor="@color/colorPrimaryDark"
-                android:text="No Internet Connection"
                 android:textStyle="bold"
                 android:gravity="center"
                 android:visibility="gone"/>

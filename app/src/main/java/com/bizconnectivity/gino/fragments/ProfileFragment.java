@@ -290,14 +290,14 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     }
 
     @OnClick(R.id.layout_favourite)
-    public void loveOnClick(View view) {
+    public void favouriteOnClick(View view) {
 
         Intent intent = new Intent(getContext(), FavouriteActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.layout_dismissed)
-    public void prelovedOnClick(View view) {
+    public void dismissedOnClick(View view) {
 
         Intent intent = new Intent(getContext(), DismissedActivity.class);
         startActivity(intent);

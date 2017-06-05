@@ -1,7 +1,6 @@
 package com.bizconnectivity.gino.asynctasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.bizconnectivity.gino.models.Event;
 import com.bizconnectivity.gino.webservices.RetrieveEventFilterWS;

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,6 +46,7 @@ import com.bumptech.glide.Glide;
 import com.facebook.login.LoginManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.ImagePickerSheetView;
+import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -114,6 +116,12 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     @BindView(R.id.layout_settings)
     LinearLayout mLayoutSettings;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private Uri cameraImageUri = null;
     public static final int REQUEST_STORAGE = 0;
     public static final int REQUEST_IMAGE_CAPTURE = REQUEST_STORAGE + 1;
@@ -122,6 +130,7 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     private GoogleApiClient mGoogleApiClient;
     private SharedPreferences sharedPreferences;
     private User user;
+    private Circle mCircleDrawable;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -161,6 +170,12 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
             }
         });
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+
         fetchData();
     }
 
@@ -185,8 +200,6 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     // Retrieve data from WS
     private void fetchData() {
 
-        mSwipeRefreshLayout.setRefreshing(true);
-
         if (isNetworkAvailable(getContext())) {
 
             // Check User Sign In
@@ -201,6 +214,9 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
 
         } else {
 
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
             mSwipeRefreshLayout.setVisibility(View.GONE);
             mTextViewMessage.setVisibility(View.VISIBLE);
@@ -252,6 +268,9 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
                 mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
             }
 
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
 
         } else {
@@ -265,6 +284,9 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
             mImageViewProfile.setImageResource(R.drawable.ic_perm_identity_black_24dp);
             mImageViewProfile.setOnClickListener(null);
 
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -617,6 +639,10 @@ public class ProfileFragment extends Fragment implements RetrieveUserAsyncTask.A
     @Override
     public void onResume() {
         super.onResume();
+        // Start Loading
+//        mLayoutLoading.setVisibility(View.VISIBLE);
+//        mCircleDrawable.start();
+        mSwipeRefreshLayout.setRefreshing(true);
         fetchData();
     }
 }

@@ -3,6 +3,7 @@ package com.bizconnectivity.gino.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
@@ -21,6 +23,7 @@ import com.bizconnectivity.gino.activities.PulseDetailActivity;
 import com.bizconnectivity.gino.adapters.FavouriteEventAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveFavouriteEventAsyncTask;
 import com.bizconnectivity.gino.models.Event;
+import com.github.ybq.android.spinkit.style.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +53,16 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
     @BindView(R.id.text_message)
     TextView mTextViewMessage;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private SharedPreferences sharedPreferences;
     private FavouriteEventAdapter favouriteEventAdapter;
     private List<Event> eventList = new ArrayList<>();
+    private Circle mCircleDrawable;
 
     public FavouriteEventFragment() {
         // Required empty public constructor
@@ -90,13 +100,17 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
         favouriteEventAdapter = new FavouriteEventAdapter(getContext(), eventList, this);
         mRecyclerViewEvent.setAdapter(favouriteEventAdapter);
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+
         fetchData();
     }
 
     // Retrieve data from WS
     private void fetchData() {
-
-        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(getContext())) {
 
@@ -107,6 +121,9 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
             mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
             mRecyclerViewEvent.setVisibility(View.GONE);
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -136,6 +153,9 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
             mRecyclerViewEvent.setVisibility(View.GONE);
         }
 
+        // Stop Loading
+        mLayoutLoading.setVisibility(View.GONE);
+        mCircleDrawable.stop();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
@@ -157,6 +177,8 @@ public class FavouriteEventFragment extends Fragment implements FavouriteEventAd
     @Override
     public void onResume() {
         super.onResume();
-        fetchData();
+//        mLayoutLoading.setVisibility(View.VISIBLE);
+//        mCircleDrawable.start();
+//        fetchData();
     }
 }

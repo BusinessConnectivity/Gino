@@ -224,6 +224,27 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         });
     }
 
+    // Retrieve Search Deal
+    @Override
+    public void retrieveSearchDeal(List<Deal> result) {
+
+        if (result.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewSearch.setVisibility(View.GONE);
+
+        } else {
+
+            mTextViewMessage.setVisibility(View.GONE);
+            mRecyclerViewSearch.setVisibility(View.VISIBLE);
+            dealLists = result;
+            mSearchResultsAdapter.swapData(dealLists);
+        }
+
+        mSearchView.hideProgress();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -232,9 +253,15 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
 
             List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
+            final String spokenText = results.get(0);
 
-            mSearchView.setSearchText(spokenText);
+
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    //Do something on UiThread
+                    mSearchView.setSearchText(spokenText);
+                }
+            });
 
 //            Log.d("TAG", "onActivityResult: " + spokenText);
 //
@@ -269,24 +296,9 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         startActivity(intent);
     }
 
-    // Retrieve Search Deal
     @Override
-    public void retrieveSearchDeal(List<Deal> result) {
-
-        if (result.isEmpty()) {
-
-            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
-            mTextViewMessage.setVisibility(View.VISIBLE);
-            mRecyclerViewSearch.setVisibility(View.GONE);
-
-        } else {
-
-            mTextViewMessage.setVisibility(View.GONE);
-            mRecyclerViewSearch.setVisibility(View.VISIBLE);
-            mSearchResultsAdapter.swapData(result);
-        }
-
-        mSearchView.hideProgress();
+    public void onResume(){
+        super.onResume();
     }
 }
 

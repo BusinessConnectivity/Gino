@@ -27,7 +27,6 @@ import butterknife.ButterKnife;
 
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_HISTORY_TAB;
 import static com.bizconnectivity.gino.Constant.SHARED_PREF_KEY;
-import static com.bizconnectivity.gino.Constant.SHARED_PREF_OFFER_TAB;
 import static com.bizconnectivity.gino.Constant.TAB_AVAILABLE;
 import static com.bizconnectivity.gino.Constant.TAB_HISTORY;
 
@@ -80,7 +79,7 @@ public class PurchasedFragment extends Fragment {
         setupTabLayout();
 
         // Check Previous Tab Selected
-        if (sharedPreferences.getBoolean(SHARED_PREF_OFFER_TAB, false)) {
+        if (sharedPreferences.getBoolean(SHARED_PREF_HISTORY_TAB, false)) {
             if (mTabLayout != null) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(SHARED_PREF_HISTORY_TAB, false).apply();

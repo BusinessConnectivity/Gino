@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -34,6 +36,7 @@ import com.bizconnectivity.gino.adapters.PulseRecyclerListAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveEventAsyncTask;
 import com.bizconnectivity.gino.asynctasks.RetrieveEventFilterAsyncTask;
 import com.bizconnectivity.gino.models.Event;
+import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -75,6 +78,12 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     @BindView(R.id.text_message)
     TextView mTextViewMessage;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private PulseRecyclerListAdapter pulseListAdapter;
     private List<Event> eventList = new ArrayList<>();
     private LocationManager mLocationManager;
@@ -91,6 +100,7 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     private TextView mTextEndDate;
     private boolean isStartDateOnClick = false;
     private MaterialDialog dialog;
+    private Circle mCircleDrawable;
 
     public PulseFragment() {
         // Required empty public constructor
@@ -194,12 +204,16 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
         pulseListAdapter = new PulseRecyclerListAdapter(getContext(), eventList, this);
         mRecyclerViewEvent.setAdapter(pulseListAdapter);
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+
         fetchData();
     }
 
     private void fetchData() {
-
-        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(getContext())) {
 
@@ -217,6 +231,9 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
 
         } else {
 
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
             mRecyclerViewEvent.setVisibility(View.GONE);
             mTextViewMessage.setVisibility(View.VISIBLE);
@@ -237,6 +254,9 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
 
         pulseListAdapter.swapData(eventList);
 
+        // Stop Loading
+        mLayoutLoading.setVisibility(View.GONE);
+        mCircleDrawable.stop();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
@@ -540,6 +560,8 @@ public class PulseFragment extends Fragment implements PulseRecyclerListAdapter.
     public void onResume() {
         super.onResume();
         mGoogleApiClient.connect();
+        mLayoutLoading.setVisibility(View.VISIBLE);
+        mCircleDrawable.start();
     }
 
     @Override

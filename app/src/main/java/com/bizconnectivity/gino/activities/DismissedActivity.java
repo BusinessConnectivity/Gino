@@ -3,6 +3,7 @@ package com.bizconnectivity.gino.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
@@ -21,6 +23,7 @@ import com.bizconnectivity.gino.adapters.DismissedDealAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveDismissedDealAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback2;
 import com.bizconnectivity.gino.models.Deal;
+import com.github.ybq.android.spinkit.style.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +55,16 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private DismissedDealAdapter dismissedDealAdapter;
     private SharedPreferences sharedPreferences;
     private List<Deal> dealList = new ArrayList<>();
+    private Circle mCircleDrawable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,12 +106,18 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDismissed);
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+        mLayoutLoading.setVisibility(View.VISIBLE);
+        mCircleDrawable.start();
+
         fetchData();
     }
 
     private void fetchData() {
-
-        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(this)) {
 
@@ -112,6 +128,9 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
             mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
             mSwipeRefreshLayout.setVisibility(View.GONE);
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -136,6 +155,9 @@ public class DismissedActivity extends AppCompatActivity implements DismissedDea
             mSwipeRefreshLayout.setVisibility(View.GONE);
         }
 
+        // Stop Loading
+        mLayoutLoading.setVisibility(View.GONE);
+        mCircleDrawable.stop();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 

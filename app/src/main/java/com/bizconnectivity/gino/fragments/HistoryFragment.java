@@ -3,6 +3,7 @@ package com.bizconnectivity.gino.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
@@ -20,6 +22,7 @@ import com.bizconnectivity.gino.activities.OfferHistoryActivity;
 import com.bizconnectivity.gino.adapters.HistoryDealsAdapter;
 import com.bizconnectivity.gino.asynctasks.RetrieveHistoryDealAsyncTask;
 import com.bizconnectivity.gino.models.PurchasedDeal;
+import com.github.ybq.android.spinkit.style.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +50,16 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
     @BindView(R.id.text_message)
     TextView mTextViewMessage;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private SharedPreferences sharedPreferences;
     private HistoryDealsAdapter historyDealsAdapter;
     private List<PurchasedDeal> purchasedDealList = new ArrayList<>();
+    private Circle mCircleDrawable;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -86,13 +96,17 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
         historyDealsAdapter = new HistoryDealsAdapter(purchasedDealList, this);
         mRecyclerViewHistory.setAdapter(historyDealsAdapter);
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+
         fetchData();
     }
 
     // Retrieve data from WS
     private void fetchData() {
-
-        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(getContext())) {
 
@@ -112,6 +126,9 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
             mTextViewMessage.setText(ERR_MSG_NO_INTERNET_CONNECTION);
             mTextViewMessage.setVisibility(View.VISIBLE);
             mRecyclerViewHistory.setVisibility(View.GONE);
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -141,6 +158,9 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
             mRecyclerViewHistory.setVisibility(View.GONE);
         }
 
+        // Stop Loading
+        mLayoutLoading.setVisibility(View.GONE);
+        mCircleDrawable.stop();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
@@ -176,6 +196,8 @@ public class HistoryFragment extends Fragment implements HistoryDealsAdapter.Ada
     @Override
     public void onResume() {
         super.onResume();
+        mLayoutLoading.setVisibility(View.VISIBLE);
+        mCircleDrawable.start();
         fetchData();
     }
 }

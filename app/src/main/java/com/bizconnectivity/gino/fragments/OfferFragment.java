@@ -3,6 +3,7 @@ package com.bizconnectivity.gino.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -36,6 +37,7 @@ import com.bizconnectivity.gino.asynctasks.UpdateDealNoOfViewAsyncTask;
 import com.bizconnectivity.gino.helpers.ItemTouchHelperCallback;
 import com.bizconnectivity.gino.models.Deal;
 import com.bizconnectivity.gino.models.DealCategory;
+import com.github.ybq.android.spinkit.style.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,11 +77,18 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     @BindView(R.id.text_message)
     TextView mTextViewMessage;
 
+    @BindView(R.id.text_loading)
+    TextView mTextViewLoading;
+
+    @BindView(R.id.layout_loading)
+    LinearLayout mLayoutLoading;
+
     private OfferCategoryAdapter offerCategoryAdapter;
     private OfferRecyclerListAdapter offerDealListAdapter;
     private SharedPreferences sharedPreferences;
     private List<Deal> dealList = new ArrayList<>();
     private List<DealCategory> dealCategoryList = new ArrayList<>();
+    private Circle mCircleDrawable;
 
     public OfferFragment() {
         // Required empty public constructor
@@ -169,13 +178,17 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerViewDeals);
 
+        // Start Loading
+        mCircleDrawable = new Circle();
+        mCircleDrawable.setBounds(0, 0, 100, 100);
+        mCircleDrawable.setColor(Color.parseColor("#00AA8D"));
+        mTextViewLoading.setCompoundDrawables(null, null, mCircleDrawable, null);
+
         fetchData();
     }
 
     // Retrieve Data From WS
     private void fetchData() {
-
-        mSwipeRefreshLayout.setRefreshing(true);
 
         if (isNetworkAvailable(getContext())) {
 
@@ -185,6 +198,9 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
 
             mTextViewMessage.setVisibility(View.VISIBLE);
             mSwipeRefreshLayout.setVisibility(View.GONE);
+            // Stop Loading
+            mLayoutLoading.setVisibility(View.GONE);
+            mCircleDrawable.stop();
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -241,6 +257,9 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
 
         mLayoutDealCategory.setVisibility(View.VISIBLE);
 
+        // Stop Loading
+        mLayoutLoading.setVisibility(View.GONE);
+        mCircleDrawable.stop();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
@@ -406,5 +425,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     @Override
     public void onResume(){
         super.onResume();
+        mLayoutLoading.setVisibility(View.VISIBLE);
+        mCircleDrawable.start();
     }
 }

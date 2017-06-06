@@ -1,7 +1,6 @@
 package com.bizconnectivity.gino.fragments;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
@@ -20,9 +19,10 @@ import android.widget.TextView;
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.bizconnectivity.gino.R;
+import com.bizconnectivity.gino.activities.OfferDetailActivity;
 import com.bizconnectivity.gino.adapters.SearchResultsListAdapter;
+import com.bizconnectivity.gino.asynctasks.SearchDealAsyncTask;
 import com.bizconnectivity.gino.models.Deal;
-import com.bizconnectivity.gino.webservices.RetrieveSearchDealWS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +36,7 @@ import static com.bizconnectivity.gino.Common.snackBar;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_INTERNET_CONNECTION;
 import static com.bizconnectivity.gino.Constant.ERR_MSG_NO_RECORD;
 
-//import com.arlib.floatingsearchview.FloatingSearchView;
-//import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
-
-public class SearchFragment extends Fragment implements SearchResultsListAdapter.AdapterCallBack {
+public class SearchFragment extends Fragment implements SearchResultsListAdapter.AdapterCallBack, SearchDealAsyncTask.AsyncResponse {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -59,8 +56,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     private static final int SPEECH_REQUEST_CODE = 0;
     private SearchResultsListAdapter mSearchResultsAdapter;
     private List<Deal> dealLists = new ArrayList<>();
-    private String spokenText;
-    private View view;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -71,8 +66,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_search, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override
@@ -90,7 +84,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
         setupSearchBar();
 
         // Setup RecycleView
-        mSearchResultsAdapter = new SearchResultsListAdapter(getActivity(), dealLists, this);
+        mSearchResultsAdapter = new SearchResultsListAdapter(dealLists, this);
         mRecyclerViewSearch.setAdapter(mSearchResultsAdapter);
         mRecyclerViewSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -151,21 +145,6 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            }
 //        });
 
-        // Menu Item Click
-
-        mSearchView.setOnMenuItemClickListener(new FloatingSearchView.OnMenuItemClickListener() {
-            @Override
-            public void onActionMenuItemSelected(MenuItem item) {
-
-                if (item.getItemId() == R.id.action_voice) {
-
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    // Start the activity, the intent will be populated with the speech text
-                    startActivityForResult(intent, SPEECH_REQUEST_CODE);
-                }
-            }
-        });
 
 //        mSearchView.setOnBindSuggestionCallback(new SearchSuggestionsAdapter.OnBindSuggestionCallback() {
 //            @Override
@@ -196,6 +175,22 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //            }
 //        });
 
+
+
+        // Menu Item Click
+        mSearchView.setOnMenuItemClickListener(new FloatingSearchView.OnMenuItemClickListener() {
+            @Override
+            public void onActionMenuItemSelected(MenuItem item) {
+
+                if (item.getItemId() == R.id.action_voice) {
+
+                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                    startActivityForResult(intent, SPEECH_REQUEST_CODE);
+                }
+            }
+        });
+
         mSearchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
 
             @Override
@@ -218,7 +213,7 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 
                         mSearchView.showProgress();
 
-                        new SearchDealAsyncTask(currentQuery).execute();
+                        new SearchDealAsyncTask(SearchFragment.this, currentQuery).execute();
 
                     } else {
 
@@ -232,10 +227,12 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
 
             List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            spokenText = results.get(0);
+            String spokenText = results.get(0);
 
             mSearchView.setSearchText(spokenText);
 
@@ -262,51 +259,34 @@ public class SearchFragment extends Fragment implements SearchResultsListAdapter
 //                }
 //            }
         }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
+    // Deal OnClick
     @Override
     public void adapterOnClick(int adapterPosition) {
-
+        Intent intent = new Intent(getContext(), OfferDetailActivity.class);
+        intent.putExtra("POSITION", dealLists.get(adapterPosition).getDealID());
+        startActivity(intent);
     }
 
-    private class SearchDealAsyncTask extends AsyncTask<String, Void, List<Deal>> {
-
-        private String query;
-
-        private SearchDealAsyncTask(String query) {
-            this.query = query;
-        }
-
-        @Override
-        protected List<Deal> doInBackground(String... params) {
-            return RetrieveSearchDealWS.invokeRetrieveSearchDeal(query);
-        }
-
-        @Override
-        protected void onPostExecute(List<Deal> result) {
-
-            if (result.isEmpty()) {
-
-                mTextViewMessage.setText(ERR_MSG_NO_RECORD);
-                mTextViewMessage.setVisibility(View.VISIBLE);
-                mRecyclerViewSearch.setVisibility(View.GONE);
-
-            } else {
-
-                mTextViewMessage.setVisibility(View.GONE);
-                mRecyclerViewSearch.setVisibility(View.VISIBLE);
-                mSearchResultsAdapter.swapData(result);
-            }
-
-            mSearchView.hideProgress();
-        }
-    }
-
+    // Retrieve Search Deal
     @Override
-    public void onResume(){
-        super.onResume();
+    public void retrieveSearchDeal(List<Deal> result) {
+
+        if (result.isEmpty()) {
+
+            mTextViewMessage.setText(ERR_MSG_NO_RECORD);
+            mTextViewMessage.setVisibility(View.VISIBLE);
+            mRecyclerViewSearch.setVisibility(View.GONE);
+
+        } else {
+
+            mTextViewMessage.setVisibility(View.GONE);
+            mRecyclerViewSearch.setVisibility(View.VISIBLE);
+            mSearchResultsAdapter.swapData(result);
+        }
+
+        mSearchView.hideProgress();
     }
 }
 

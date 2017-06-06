@@ -51,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Bottom Navigation
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        // Default Fragment
-        getSelectedFragment();
     }
 
     private void isSignedIn() {
@@ -62,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, SplashActivity.class);
             startActivity(intent);
+
+        } else {
+
+            // Retrieve Selected Fragment
+            getSelectedFragment();
         }
     }
 

@@ -135,6 +135,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/single_line_height"
                         android:paddingStart="@dimen/padding_16"

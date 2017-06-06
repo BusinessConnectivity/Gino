@@ -287,9 +287,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveUserDealByDate(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -299,9 +297,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveDealByView(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -328,9 +324,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveUserDealByView(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -340,9 +334,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveDealByDate(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -367,9 +359,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveUserDealByCategory(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);
@@ -379,9 +369,7 @@ public class OfferFragment extends Fragment implements RetrieveUserDealAsyncTask
     public void retrieveDealByCategory(List<Deal> result) {
 
         if (result != null && result.size() > 0) {
-
-            offerDealListAdapter = new OfferRecyclerListAdapter(result, this);
-            mRecyclerViewDeals.setAdapter(offerDealListAdapter);
+            offerDealListAdapter.swapData(result);
         }
 
         mSwipeRefreshLayout.setRefreshing(false);

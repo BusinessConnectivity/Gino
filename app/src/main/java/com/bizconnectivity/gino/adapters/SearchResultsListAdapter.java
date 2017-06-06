@@ -1,7 +1,5 @@
 package com.bizconnectivity.gino.adapters;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bizconnectivity.gino.R;
-import com.bizconnectivity.gino.activities.OfferDetailActivity;
 import com.bizconnectivity.gino.models.Deal;
 
 import java.util.List;
@@ -21,13 +18,10 @@ import java.util.List;
 
 public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResultsListAdapter.ViewHolder> {
 
-    private Context context;
     private List<Deal> data;
     private AdapterCallBack adapterCallBack;
 
-    public SearchResultsListAdapter(Context context, List<Deal> dealLists, AdapterCallBack adapterCallBack) {
-
-        this.context = context;
+    public SearchResultsListAdapter(List<Deal> dealLists, AdapterCallBack adapterCallBack) {
         this.data = dealLists;
         this.adapterCallBack = adapterCallBack;
     }
@@ -75,7 +69,6 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
         public ViewHolder(final View itemView) {
 
             super(itemView);
-
             mTextViewTitle = (TextView) itemView.findViewById(R.id.text_title);
             mTextViewLocation = (TextView) itemView.findViewById(R.id.text_location);
             mTextViewPromoPrice = (TextView) itemView.findViewById(R.id.text_promo_price);
@@ -87,12 +80,7 @@ public class SearchResultsListAdapter extends RecyclerView.Adapter<SearchResults
 
         @Override
         public void onClick(View v) {
-
             adapterCallBack.adapterOnClick(getAdapterPosition());
-
-            Intent intent = new Intent(context, OfferDetailActivity.class);
-            intent.putExtra("POSITION", data.get(getAdapterPosition()).getDealID());
-            context.startActivity(intent);
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class RetrieveDealAsyncTask extends AsyncTask<String, Void, List<Deal>>{
 
-    private final AsyncResponse asyncResponse;
+    private AsyncResponse asyncResponse;
 
     public RetrieveDealAsyncTask(AsyncResponse asyncResponse) {
         this.asyncResponse = asyncResponse;

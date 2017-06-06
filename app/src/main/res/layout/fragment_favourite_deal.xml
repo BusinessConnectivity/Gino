@@ -6,34 +6,34 @@
     android:layout_height="match_parent"
     tools:context="com.bizconnectivity.gino.fragments.FavouriteDealFragment">
 
-    <LinearLayout
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/favourite_deal_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/favourite_deal_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+            <TextView
+                android:id="@+id/text_message"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="@dimen/subheading"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="No Internet Connection"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/text_message"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="@dimen/subheading"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="No Internet Connection"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:visibility="gone"/>
+        </LinearLayout>
 
-    </LinearLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.design.widget.CoordinatorLayout>
